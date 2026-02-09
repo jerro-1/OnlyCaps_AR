@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FITTED CAPS - ONLYCaps</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Anton', 'sans-serif'],
+            body: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            accent: '#00BFFF',
+            dark: '#000000',
+            light: '#ffffff',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    .navbar-padding {
+        padding-left: 40px !important; 
+        padding-right: 40px !important;
+    }
+    .logo-img {
+        height: 40px;
+        width: auto;
+    }
+    .btn-hover {
+        transition: all 0.3s ease-in-out;
+        transform: translateY(0);
+    }
+    .btn-hover:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    .nav-link {
+        position: relative;
+        transition: color 0.3s ease;
+    }
+    .nav-link:hover {
+        color: #00BFFF;
+    }
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -5px;
+        left: 0;
+        background-color: #00BFFF;
+        transition: width 0.3s ease;
+    }
+    .nav-link:hover::after {
+        width: 100%;
+    }
+    .product-card {
+        transition: all 0.3s ease;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Background image for the entire page */
+    .page-background {
+        background-image: url('images/FCBG.PNG');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+  </style>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="font-body page-background">
+
+  <!-- Fixed Header -->
+  <header class="w-full bg-white shadow-sm fixed top-0 z-50">
+    <nav class="flex justify-between items-center py-4 navbar-padding">
+      <ul class="flex gap-8 text-base tracking-wide"> 
+        <li><a href="index.html" class="nav-link transition">HOME</a></li>
+        <li><a href="#" class="nav-link transition">SHOP</a></li>
+        <li><a href="#" class="nav-link transition">FITTING RECOMMENDATION</a></li>
+      </ul>
+      
+      <div class="absolute left-1/2 transform -translate-x-1/2">
+        <a href="index.html">
+          <img src="images/LOGO.png" alt="ONLYCaps" class="logo-img">
+        </a>
+      </div>
+      
+      <div class="w-1/3"></div>
+    </nav>
+  </header>
+
+  <!-- Fitted Caps Section -->
+  <section class="pt-28 pb-12 mt-16">
+    <div class="container mx-auto px-4">
+      <h1 class="text-5xl md:text-6xl font-heading mb-12 text-center tracking-wide uppercase text-white">FITTED CAPS</h1>
+      
+      <!-- 3-Column Grid with Larger Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- New York Yankees -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/yankees-navy.png" alt="New York Yankees Navy Classic" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">New York Yankees</h3>
+            <p class="text-gray-600 text-sm mb-4">Navy Classic 59FIFTY Fitted</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱500</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Los Angeles Dodgers -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/dodgers-royal.png" alt="Los Angeles Dodgers Royal Blue" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Los Angeles Dodgers</h3>
+            <p class="text-gray-600 text-sm mb-4">Royal Blue 59FIFTY Fitted</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱500</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boston Red Sox -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/redsox-maroon.png" alt="Boston Red Sox Maroon Heritage" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Boston Red Sox</h3>
+            <p class="text-gray-600 text-sm mb-4">Maroon Heritage 59FIFTY Fitted</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱500</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chicago White Sox -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/whitesox-black.png" alt="Chicago White Sox Blackout" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Chicago White Sox</h3>
+            <p class="text-gray-600 text-sm mb-4">Blackout 59FIFTY Fitted</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱500</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atlanta Braves -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/braves-midnight.png" alt="Atlanta Braves Midnight Blue" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Atlanta Braves</h3>
+            <p class="text-gray-600 text-sm mb-4">Midnight Blue 59FIFTY Fitted</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱500</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- San Francisco Giants -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/giants-orange.png" alt="San Francisco Giants Orange Rush" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">San Francisco Giants</h3>
+            <p class="text-gray-600 text-sm mb-4">Orange Rush 59FIFTY Fitted</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱500</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Houston Astros -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/astros-space.png" alt="Houston Astros Space City Navy" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Houston Astros</h3>
+            <p class="text-gray-600 text-sm mb-4">Space City Navy 59FIFTY Fitted</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱500</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toronto Blue Jays -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/bluejays-sky.png" alt="Toronto Blue Jays Sky Blue" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Toronto Blue Jays</h3>
+            <p class="text-gray-600 text-sm mb-4">Sky Blue 59FIFTY Fitted</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱500</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detroit Tigers -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/tigers-vintage.png" alt="Detroit Tigers Vintage Navy" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Detroit Tigers</h3>
+            <p class="text-gray-600 text-sm mb-4">Vintage Navy 59FIFTY Fitted</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱500</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Load More Button -->
+      <div class="text-center mt-12">
+        <button class="btn-hover bg-gray-800 text-white px-10 py-3 rounded-full font-medium hover:bg-black transition text-sm">
+          LOAD MORE
+        </button>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
