@@ -100,7 +100,7 @@
         background-attachment: fixed;
     }
 
-    /* Size button styles */
+    /* Base size button styles */
     .size-btn {
         transition: all 0.2s ease;
         cursor: pointer;
@@ -129,6 +129,14 @@
         border-color: #00BFFF;
         background-color: #f0f9ff;
         transform: scale(1.02);
+    }
+
+    /* Modal size buttons - smaller - USING IMPORTANT TO OVERRIDE */
+    #modal-size-selector .size-btn {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 0.7rem !important;
+        border-width: 1.5px !important;
     }
 
     /* Shake animation for size selection reminder */
@@ -169,10 +177,10 @@
     }
 
     /* Modal animations */
-    @keyframes modalSlide {
+    @keyframes modalSlideCompact {
         from {
             opacity: 0;
-            transform: scale(0.9) translateY(20px);
+            transform: scale(0.95) translateY(10px);
         }
         to {
             opacity: 1;
@@ -181,7 +189,7 @@
     }
     
     .animate-modalSlide {
-        animation: modalSlide 0.3s ease-out;
+        animation: modalSlideCompact 0.25s ease-out;
     }
 
     /* ===== CART POPUP STYLES ===== */
@@ -243,20 +251,16 @@
         justify-content: center;
     }
 
+    /* AI Assistant button styling */
     .ai-assist-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #3b82f6 0%, #9333ea 100%);
         color: white;
-        padding: 12px 24px;
-        border-radius: 50px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: inline-block;
+        transition: all 0.3s ease;
     }
 
     .ai-assist-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
     }
 
     /* Thumbnail active state */
@@ -268,6 +272,43 @@
     /* Hidden class for load more */
     .hidden-product {
         display: none;
+    }
+
+    /* Fade in animation for new products */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+    }
+
+    /* Force modal to be smaller */
+    .compact-modal {
+        max-width: 800px !important;
+    }
+    
+    .compact-modal .modal-image {
+        height: 250px !important;
+    }
+    
+    .compact-modal .modal-thumb {
+        height: 60px !important;
+    }
+    
+    .compact-modal .modal-title {
+        font-size: 1.8rem !important;
+    }
+    
+    .compact-modal .modal-price {
+        font-size: 1.8rem !important;
     }
   </style>
   
@@ -320,10 +361,8 @@
     <div class="container mx-auto px-4">
       <h1 class="text-5xl md:text-6xl font-heading mb-12 text-center tracking-wide uppercase text-white">FITTED CAPS</h1>
       
-      <!-- Products Grid - with IDs for load more -->
+      <!-- Products Grid -->
       <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        <!-- ===== FIRST 6 PRODUCTS (Visible by default) ===== -->
         
         <!-- PRODUCT 1: New York Yankees -->
         <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 visible-product" onclick="openProductModal('yankees-navy')">
@@ -415,9 +454,7 @@
           </div>
         </div>
 
-        <!-- ===== HIDDEN PRODUCTS (Load More) ===== -->
-        
-        <!-- PRODUCT 7: Houston Astros (Hidden) -->
+        <!-- PRODUCT 7: Houston Astros -->
         <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 hidden-product" onclick="openProductModal('astros-space')">
           <div class="relative overflow-hidden">
             <img src="images/astros-space.png" alt="Houston Astros Space City Navy" class="w-full h-64 object-cover transition duration-300 hover:scale-105">
@@ -432,7 +469,7 @@
           </div>
         </div>
 
-        <!-- PRODUCT 8: Toronto Blue Jays (Hidden) -->
+        <!-- PRODUCT 8: Toronto Blue Jays -->
         <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 hidden-product" onclick="openProductModal('bluejays-sky')">
           <div class="relative overflow-hidden">
             <img src="images/bluejays-sky.png" alt="Toronto Blue Jays Sky Blue" class="w-full h-64 object-cover transition duration-300 hover:scale-105">
@@ -447,7 +484,7 @@
           </div>
         </div>
 
-        <!-- PRODUCT 9: Detroit Tigers (Hidden) -->
+        <!-- PRODUCT 9: Detroit Tigers -->
         <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 hidden-product" onclick="openProductModal('tigers-vintage')">
           <div class="relative overflow-hidden">
             <img src="images/tigers-vintage.png" alt="Detroit Tigers Vintage Navy" class="w-full h-64 object-cover transition duration-300 hover:scale-105">
@@ -462,7 +499,7 @@
           </div>
         </div>
 
-        <!-- PRODUCT 10: New York Mets (Hidden) -->
+        <!-- PRODUCT 10: New York Mets -->
         <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 hidden-product" onclick="openProductModal('mets-orange')">
           <div class="relative overflow-hidden">
             <img src="images/mets-orange.png" alt="New York Mets Bright Orange" class="w-full h-64 object-cover transition duration-300 hover:scale-105">
@@ -476,82 +513,6 @@
             </div>
           </div>
         </div>
-
-        <!-- PRODUCT 11: Philadelphia Phillies (Hidden) -->
-        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 hidden-product" onclick="openProductModal('phillies-red')">
-          <div class="relative overflow-hidden">
-            <img src="images/phillies-red.png" alt="Philadelphia Phillies Deep Red" class="w-full h-64 object-cover transition duration-300 hover:scale-105">
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-bold mb-2">Philadelphia Phillies</h3>
-            <p class="text-gray-600 text-sm mb-4">Deep Red 59FIFTY Fitted</p>
-            <div class="flex justify-between items-center">
-              <span class="text-2xl font-bold">₱500</span>
-              <span class="text-sm text-blue-600">Quick View →</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- PRODUCT 12: Seattle Mariners (Hidden) -->
-        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 hidden-product" onclick="openProductModal('mariners-teal')">
-          <div class="relative overflow-hidden">
-            <img src="images/mariners-teal.png" alt="Seattle Mariners Teal Wave" class="w-full h-64 object-cover transition duration-300 hover:scale-105">
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-bold mb-2">Seattle Mariners</h3>
-            <p class="text-gray-600 text-sm mb-4">Teal Wave 59FIFTY Fitted</p>
-            <div class="flex justify-between items-center">
-              <span class="text-2xl font-bold">₱500</span>
-              <span class="text-sm text-blue-600">Quick View →</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- PRODUCT 13: San Diego Padres (Hidden) -->
-        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 hidden-product" onclick="openProductModal('padres-sand')">
-          <div class="relative overflow-hidden">
-            <img src="images/padres-sand.png" alt="San Diego Padres Sand Brown" class="w-full h-64 object-cover transition duration-300 hover:scale-105">
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-bold mb-2">San Diego Padres</h3>
-            <p class="text-gray-600 text-sm mb-4">Sand Brown 59FIFTY Fitted</p>
-            <div class="flex justify-between items-center">
-              <span class="text-2xl font-bold">₱500</span>
-              <span class="text-sm text-blue-600">Quick View →</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- PRODUCT 14: Milwaukee Brewers (Hidden) -->
-        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 hidden-product" onclick="openProductModal('brewers-gold')">
-          <div class="relative overflow-hidden">
-            <img src="images/brewers-gold.png" alt="Milwaukee Brewers Gold Edition" class="w-full h-64 object-cover transition duration-300 hover:scale-105">
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-bold mb-2">Milwaukee Brewers</h3>
-            <p class="text-gray-600 text-sm mb-4">Gold Edition 59FIFTY Fitted</p>
-            <div class="flex justify-between items-center">
-              <span class="text-2xl font-bold">₱500</span>
-              <span class="text-sm text-blue-600">Quick View →</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- PRODUCT 15: Kansas City Royals (Hidden) -->
-        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200 hidden-product" onclick="openProductModal('royals-ice')">
-          <div class="relative overflow-hidden">
-            <img src="images/royals-ice.png" alt="Kansas City Royals Royal Blue Ice" class="w-full h-64 object-cover transition duration-300 hover:scale-105">
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-bold mb-2">Kansas City Royals</h3>
-            <p class="text-gray-600 text-sm mb-4">Royal Blue Ice 59FIFTY Fitted</p>
-            <div class="flex justify-between items-center">
-              <span class="text-2xl font-bold">₱500</span>
-              <span class="text-sm text-blue-600">Quick View →</span>
-            </div>
-          </div>
-        </div>
-
       </div>
 
       <!-- Load More Button Container -->
@@ -563,56 +524,58 @@
     </div>
   </section>
 
-  <!-- ===== PRODUCT QUICK VIEW MODAL ===== -->
+  <!-- ===== COMPACT PRODUCT MODAL WITH AI ASSISTANT ===== -->
   <div id="productModal" class="fixed inset-0 bg-black/70 hidden z-[60] flex items-center justify-center p-4">
-    <!-- Modal Container -->
-    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative animate-modalSlide">
+    <!-- Modal Container - COMPACT SIZE (explicitly set) -->
+    <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto relative animate-modalSlide" style="max-width: 800px;">
       
       <!-- Close Button -->
-      <button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10 bg-white rounded-full p-1 shadow-lg hover:shadow-xl transition">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <button onclick="closeProductModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 z-10 bg-white rounded-full p-1 shadow-lg hover:shadow-xl transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
       
-      <!-- Modal Content -->
-      <div class="grid md:grid-cols-2 gap-8 p-8">
-        <!-- Left Column - Images -->
-        <div class="space-y-4">
+      <!-- Modal Content - COMPACT LAYOUT -->
+      <div class="grid md:grid-cols-2 gap-4 p-5">
+        
+        <!-- Left Column - Images (Compact) -->
+        <div class="space-y-2">
           <!-- Main Image -->
           <div class="bg-gray-100 rounded-xl overflow-hidden">
-            <img id="modal-main-image" src="" alt="" class="w-full h-auto object-cover">
+            <img id="modal-main-image" src="" alt="" class="w-full h-56 object-cover">
           </div>
           
           <!-- Thumbnail Gallery -->
-          <div class="grid grid-cols-4 gap-2">
-            <img id="modal-thumb-1" src="" alt="" class="w-full h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition thumbnail" onclick="changeModalImage(this.src)">
-            <img id="modal-thumb-2" src="" alt="" class="w-full h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition thumbnail" onclick="changeModalImage(this.src)">
-            <img id="modal-thumb-3" src="" alt="" class="w-full h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition thumbnail" onclick="changeModalImage(this.src)">
-            <img id="modal-thumb-4" src="" alt="" class="w-full h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition thumbnail" onclick="changeModalImage(this.src)">
+          <div class="grid grid-cols-4 gap-1">
+            <img id="modal-thumb-1" src="" alt="" class="w-full h-14 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition thumbnail">
+            <img id="modal-thumb-2" src="" alt="" class="w-full h-14 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition thumbnail">
+            <img id="modal-thumb-3" src="" alt="" class="w-full h-14 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition thumbnail">
+            <img id="modal-thumb-4" src="" alt="" class="w-full h-14 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition thumbnail">
           </div>
         </div>
         
-        <!-- Right Column - Product Details -->
-        <div class="space-y-6">
+        <!-- Right Column - Product Details (Compact) -->
+        <div class="space-y-3">
+          
           <!-- Title and Price -->
           <div>
-            <h2 id="modal-product-title" class="text-3xl md:text-4xl font-heading mb-2"></h2>
-            <p id="modal-product-subtitle" class="text-gray-600 text-lg"></p>
-            <div class="text-3xl font-bold text-blue-600 mt-4">
+            <h2 id="modal-product-title" class="text-xl md:text-2xl font-heading mb-0.5"></h2>
+            <p id="modal-product-subtitle" class="text-gray-600 text-xs"></p>
+            <div class="text-xl font-bold text-blue-600 mt-1">
               <span id="modal-product-price"></span>
             </div>
           </div>
           
           <!-- Description -->
-          <div class="border-t border-b border-gray-200 py-4">
-            <p id="modal-product-description" class="text-gray-700 leading-relaxed"></p>
+          <div class="border-t border-b border-gray-200 py-2">
+            <p id="modal-product-description" class="text-gray-700 text-xs leading-relaxed"></p>
           </div>
           
           <!-- Size Selection -->
           <div>
-            <h3 class="text-lg font-bold mb-3">Select Size:</h3>
-            <div class="flex flex-wrap gap-2" id="modal-size-selector">
+            <h3 class="text-xs font-bold mb-1">Select Size:</h3>
+            <div class="flex flex-wrap gap-1" id="modal-size-selector">
               <button class="size-btn" onclick="selectModalSize(this, '6 7/8')">6 7/8</button>
               <button class="size-btn" onclick="selectModalSize(this, '7')">7</button>
               <button class="size-btn" onclick="selectModalSize(this, '7 1/8')">7 1/8</button>
@@ -622,19 +585,48 @@
             </div>
           </div>
           
-          <!-- Add to Cart Button -->
-          <div class="flex gap-4">
-            <button id="modal-add-to-cart" class="flex-1 bg-black text-white py-4 rounded-full font-medium hover:bg-gray-800 transition text-lg btn-hover">
+          <!-- Action Buttons - Stacked -->
+          <div class="flex flex-col gap-2">
+            <!-- ADD TO CART Button -->
+            <button id="modal-add-to-cart" class="w-full bg-black text-white py-2.5 rounded-full font-medium hover:bg-gray-800 transition text-xs btn-hover">
               ADD TO CART
+            </button>
+            
+            <!-- AI SIZE ASSISTANT Button - FIXED AND VISIBLE -->
+            <button onclick="openAIAssistant()" class="w-full ai-assist-btn text-white py-2.5 rounded-full font-medium transition text-xs flex items-center justify-center gap-1.5 shadow-md">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              AI SIZE ASSISTANT
             </button>
           </div>
           
-          <!-- Product Meta -->
-          <div class="text-sm text-gray-500 space-y-2">
-            <p>✓ Authentic 59FIFTY Fitted</p>
-            <p>✓ Official MLB Licensed</p>
-            <p>✓ Free Shipping on Orders ₱2000+</p>
-            <p>✓ 30-Day Returns</p>
+          <!-- Product Meta - Compact -->
+          <div class="text-[10px] text-gray-500 space-y-0.5 pt-1">
+            <p class="flex items-center gap-1">
+              <svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Authentic 59FIFTY Fitted
+            </p>
+            <p class="flex items-center gap-1">
+              <svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Official MLB Licensed
+            </p>
+            <p class="flex items-center gap-1">
+              <svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Free Shipping ₱2000+
+            </p>
+            <p class="flex items-center gap-1">
+              <svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              30-Day Returns
+            </p>
           </div>
         </div>
       </div>
@@ -670,7 +662,7 @@
       <!-- AI Size Assistant -->
       <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-purple-50">
         <p class="text-sm text-gray-600 mb-3">Don't know your size? Let our AI assist!</p>
-        <button class="ai-assist-btn w-full text-center" onclick="openAIAssistant()">
+        <button class="ai-assist-btn w-full text-center py-3 rounded-full font-medium text-white" onclick="openAIAssistant()">
           AI SIZE ASSISTANT
         </button>
       </div>
@@ -688,236 +680,86 @@
     </div>
   </div>
 
-  <!-- JavaScript for All Functionality -->
+  <!-- JavaScript -->
   <script>
     // ===== LOAD MORE FUNCTIONALITY =====
-    let currentProductCount = 6; // Initially showing 6 products
-    const totalProducts = 15; // Total products available
-    const productsPerLoad = 3; // Load 3 more each time
-
     function loadMoreProducts() {
-        // Get all hidden products
         const hiddenProducts = document.querySelectorAll('.hidden-product');
-        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const loadMoreContainer = document.getElementById('load-more-container');
+        const productsPerLoad = 3;
         
-        // Show next batch of products
         for (let i = 0; i < Math.min(productsPerLoad, hiddenProducts.length); i++) {
             if (hiddenProducts[i]) {
                 hiddenProducts[i].classList.remove('hidden-product');
-                currentProductCount++;
+                hiddenProducts[i].style.animation = 'fadeIn 0.5s ease';
             }
         }
         
-        // Check if all products are loaded
         const remainingHidden = document.querySelectorAll('.hidden-product').length;
-        if (remainingHidden === 0) {
-            // Hide load more button when no more products
-            document.getElementById('load-more-container').innerHTML = `
-                <p class="text-gray-400 text-sm">All products loaded</p>
+        if (remainingHidden === 0 && loadMoreContainer) {
+            loadMoreContainer.innerHTML = `
+                <p class="text-gray-400 text-sm animate-pulse">✨ All products loaded ✨</p>
             `;
         }
         
-        // Optional: Show success message
         showNotification(`${Math.min(productsPerLoad, remainingHidden + productsPerLoad)} more products loaded!`);
     }
 
     // ===== PRODUCT DATA =====
     const products = {
-      'yankees-navy': {
-        id: 'yankees-navy',
-        name: 'New York Yankees',
-        fullName: 'New York Yankees Navy Classic',
-        subtitle: 'Navy Classic 59FIFTY Fitted',
-        description: 'The iconic New York Yankees fitted cap in navy blue. Features the classic interlocking NY logo embroidered on the front. Made with premium wool blend for lasting comfort and shape.',
-        price: 500,
-        image: 'images/yankees-navy.png',
-        thumb1: 'images/yankees-navy.png',
-        thumb2: 'images/yankees-navy.png',
-        thumb3: 'images/yankees-navy.png',
-        thumb4: 'images/yankees-navy.png'
-      },
-      'dodgers-royal': {
-        id: 'dodgers-royal',
-        name: 'Los Angeles Dodgers',
-        fullName: 'Los Angeles Dodgers Royal Blue',
-        subtitle: 'Royal Blue 59FIFTY Fitted',
-        description: 'Show your Dodgers pride with this royal blue fitted cap. Features the iconic LA logo embroidered in white. Official MLB merchandise.',
-        price: 500,
-        image: 'images/dodgers-royal.png',
-        thumb1: 'images/dodgers-royal.png',
-        thumb2: 'images/dodgers-royal.png',
-        thumb3: 'images/dodgers-royal.png',
-        thumb4: 'images/dodgers-royal.png'
-      },
-      'redsox-maroon': {
-        id: 'redsox-maroon',
-        name: 'Boston Red Sox',
-        fullName: 'Boston Red Sox Maroon Heritage',
-        subtitle: 'Maroon Heritage 59FIFTY Fitted',
-        description: 'Classic Boston Red Sox fitted cap in maroon. Features the iconic hanging socks logo. Premium quality and authentic design.',
-        price: 500,
-        image: 'images/redsox-maroon.png',
-        thumb1: 'images/redsox-maroon.png',
-        thumb2: 'images/redsox-maroon.png',
-        thumb3: 'images/redsox-maroon.png',
-        thumb4: 'images/redsox-maroon.png'
-      },
-      'whitesox-black': {
-        id: 'whitesox-black',
-        name: 'Chicago White Sox',
-        fullName: 'Chicago White Sox Blackout',
-        subtitle: 'Blackout 59FIFTY Fitted',
-        description: 'Sleek black-on-black Chicago White Sox fitted cap. Features embroidered logo with subtle contrast stitching.',
-        price: 500,
-        image: 'images/whitesox-black.png',
-        thumb1: 'images/whitesox-black.png',
-        thumb2: 'images/whitesox-black.png',
-        thumb3: 'images/whitesox-black.png',
-        thumb4: 'images/whitesox-black.png'
-      },
-      'braves-midnight': {
-        id: 'braves-midnight',
-        name: 'Atlanta Braves',
-        fullName: 'Atlanta Braves Midnight Blue',
-        subtitle: 'Midnight Blue 59FIFTY Fitted',
-        description: 'Atlanta Braves fitted cap in deep midnight blue. Features the iconic tomahawk logo. Premium construction.',
-        price: 500,
-        image: 'images/braves-midnight.png',
-        thumb1: 'images/braves-midnight.png',
-        thumb2: 'images/braves-midnight.png',
-        thumb3: 'images/braves-midnight.png',
-        thumb4: 'images/braves-midnight.png'
-      },
-      'giants-orange': {
-        id: 'giants-orange',
-        name: 'San Francisco Giants',
-        fullName: 'San Francisco Giants Orange Rush',
-        subtitle: 'Orange Rush 59FIFTY Fitted',
-        description: 'Bold orange San Francisco Giants fitted cap. Features the iconic "SF" logo. Stand out in the crowd.',
-        price: 500,
-        image: 'images/giants-orange.png',
-        thumb1: 'images/giants-orange.png',
-        thumb2: 'images/giants-orange.png',
-        thumb3: 'images/giants-orange.png',
-        thumb4: 'images/giants-orange.png'
-      },
-      'astros-space': {
-        id: 'astros-space',
-        name: 'Houston Astros',
-        fullName: 'Houston Astros Space City Navy',
-        subtitle: 'Space City Navy 59FIFTY Fitted',
-        description: 'Houston Astros fitted cap in navy blue with "Space City" star logo. Unique design for true fans.',
-        price: 500,
-        image: 'images/astros-space.png',
-        thumb1: 'images/astros-space.png',
-        thumb2: 'images/astros-space.png',
-        thumb3: 'images/astros-space.png',
-        thumb4: 'images/astros-space.png'
-      },
-      'bluejays-sky': {
-        id: 'bluejays-sky',
-        name: 'Toronto Blue Jays',
-        fullName: 'Toronto Blue Jays Sky Blue',
-        subtitle: 'Sky Blue 59FIFTY Fitted',
-        description: 'Toronto Blue Jays fitted cap in sky blue. Features the iconic bird logo. Fresh and vibrant.',
-        price: 500,
-        image: 'images/bluejays-sky.png',
-        thumb1: 'images/bluejays-sky.png',
-        thumb2: 'images/bluejays-sky.png',
-        thumb3: 'images/bluejays-sky.png',
-        thumb4: 'images/bluejays-sky.png'
-      },
-      'tigers-vintage': {
-        id: 'tigers-vintage',
-        name: 'Detroit Tigers',
-        fullName: 'Detroit Tigers Vintage Navy',
-        subtitle: 'Vintage Navy 59FIFTY Fitted',
-        description: 'Detroit Tigers fitted cap in vintage navy. Features old-school tiger logo. Retro styling.',
-        price: 500,
-        image: 'images/tigers-vintage.png',
-        thumb1: 'images/tigers-vintage.png',
-        thumb2: 'images/tigers-vintage.png',
-        thumb3: 'images/tigers-vintage.png',
-        thumb4: 'images/tigers-vintage.png'
-      },
-      'mets-orange': {
-        id: 'mets-orange',
-        name: 'New York Mets',
-        fullName: 'New York Mets Bright Orange',
-        subtitle: 'Bright Orange 59FIFTY Fitted',
-        description: 'New York Mets fitted cap in bright orange. Features iconic Mets logo. Bold and stylish.',
-        price: 500,
-        image: 'images/mets-orange.png',
-        thumb1: 'images/mets-orange.png',
-        thumb2: 'images/mets-orange.png',
-        thumb3: 'images/mets-orange.png',
-        thumb4: 'images/mets-orange.png'
-      },
-      'phillies-red': {
-        id: 'phillies-red',
-        name: 'Philadelphia Phillies',
-        fullName: 'Philadelphia Phillies Deep Red',
-        subtitle: 'Deep Red 59FIFTY Fitted',
-        description: 'Philadelphia Phillies fitted cap in deep red. Features classic "P" logo. A fan favorite.',
-        price: 500,
-        image: 'images/phillies-red.png',
-        thumb1: 'images/phillies-red.png',
-        thumb2: 'images/phillies-red.png',
-        thumb3: 'images/phillies-red.png',
-        thumb4: 'images/phillies-red.png'
-      },
-      'mariners-teal': {
-        id: 'mariners-teal',
-        name: 'Seattle Mariners',
-        fullName: 'Seattle Mariners Teal Wave',
-        subtitle: 'Teal Wave 59FIFTY Fitted',
-        description: 'Seattle Mariners fitted cap in teal. Features unique wave logo. Perfect for Mariners fans.',
-        price: 500,
-        image: 'images/mariners-teal.png',
-        thumb1: 'images/mariners-teal.png',
-        thumb2: 'images/mariners-teal.png',
-        thumb3: 'images/mariners-teal.png',
-        thumb4: 'images/mariners-teal.png'
-      },
-      'padres-sand': {
-        id: 'padres-sand',
-        name: 'San Diego Padres',
-        fullName: 'San Diego Padres Sand Brown',
-        subtitle: 'Sand Brown 59FIFTY Fitted',
-        description: 'San Diego Padres fitted cap in sand brown. Features retro Padres logo. Unique colorway.',
-        price: 500,
-        image: 'images/padres-sand.png',
-        thumb1: 'images/padres-sand.png',
-        thumb2: 'images/padres-sand.png',
-        thumb3: 'images/padres-sand.png',
-        thumb4: 'images/padres-sand.png'
-      },
-      'brewers-gold': {
-        id: 'brewers-gold',
-        name: 'Milwaukee Brewers',
-        fullName: 'Milwaukee Brewers Gold Edition',
-        subtitle: 'Gold Edition 59FIFTY Fitted',
-        description: 'Milwaukee Brewers fitted cap in gold. Features "MB" logo with barley design. Premium edition.',
-        price: 500,
-        image: 'images/brewers-gold.png',
-        thumb1: 'images/brewers-gold.png',
-        thumb2: 'images/brewers-gold.png',
-        thumb3: 'images/brewers-gold.png',
-        thumb4: 'images/brewers-gold.png'
-      },
-      'royals-ice': {
-        id: 'royals-ice',
-        name: 'Kansas City Royals',
-        fullName: 'Kansas City Royals Royal Blue Ice',
-        subtitle: 'Royal Blue Ice 59FIFTY Fitted',
-        description: 'Kansas City Royals fitted cap in ice blue. Features classic crown logo. Cool and stylish.',
-        price: 500,
-        image: 'images/royals-ice.png',
-        thumb1: 'images/royals-ice.png',
-        thumb2: 'images/royals-ice.png',
-        thumb3: 'images/royals-ice.png',
-        thumb4: 'images/royals-ice.png'
-      }
+        'yankees-navy': {
+            id: 'yankees-navy',
+            name: 'New York Yankees',
+            fullName: 'New York Yankees Navy Classic',
+            subtitle: 'Navy Classic 59FIFTY Fitted',
+            description: 'The iconic New York Yankees fitted cap in navy blue. Features the classic interlocking NY logo.',
+            price: 500,
+            image: 'images/yankees-navy.png',
+            thumb1: 'images/yankees-navy.png',
+            thumb2: 'images/yankees-navy.png',
+            thumb3: 'images/yankees-navy.png',
+            thumb4: 'images/yankees-navy.png'
+        },
+        'dodgers-royal': {
+            id: 'dodgers-royal',
+            name: 'Los Angeles Dodgers',
+            fullName: 'Los Angeles Dodgers Royal Blue',
+            subtitle: 'Royal Blue 59FIFTY Fitted',
+            description: 'Show your Dodgers pride with this royal blue fitted cap. Features the iconic LA logo.',
+            price: 500,
+            image: 'images/dodgers-royal.png',
+            thumb1: 'images/dodgers-royal.png',
+            thumb2: 'images/dodgers-royal.png',
+            thumb3: 'images/dodgers-royal.png',
+            thumb4: 'images/dodgers-royal.png'
+        },
+        'redsox-maroon': {
+            id: 'redsox-maroon',
+            name: 'Boston Red Sox',
+            fullName: 'Boston Red Sox Maroon Heritage',
+            subtitle: 'Maroon Heritage 59FIFTY Fitted',
+            description: 'Classic Boston Red Sox fitted cap in maroon. Features the iconic hanging socks logo.',
+            price: 500,
+            image: 'images/redsox-maroon.png',
+            thumb1: 'images/redsox-maroon.png',
+            thumb2: 'images/redsox-maroon.png',
+            thumb3: 'images/redsox-maroon.png',
+            thumb4: 'images/redsox-maroon.png'
+        },
+        'astros-space': {
+            id: 'astros-space',
+            name: 'Houston Astros',
+            fullName: 'Houston Astros Space City Navy',
+            subtitle: 'Space City Navy 59FIFTY Fitted',
+            description: 'Houston Astros fitted cap in navy blue with "Space City" star logo. Unique design for true fans.',
+            price: 500,
+            image: 'images/astros-space.png',
+            thumb1: 'images/astros-space.png',
+            thumb2: 'images/astros-space.png',
+            thumb3: 'images/astros-space.png',
+            thumb4: 'images/astros-space.png'
+        }
+        // Add more products as needed
     };
 
     // ===== MODAL FUNCTIONALITY =====
@@ -925,65 +767,57 @@
     let selectedModalSize = null;
 
     function openProductModal(productId) {
-      const product = products[productId];
-      if (!product) return;
-      
-      currentProduct = product;
-      
-      // Populate modal with product data
-      document.getElementById('modal-main-image').src = product.image;
-      document.getElementById('modal-product-title').textContent = product.name;
-      document.getElementById('modal-product-subtitle').textContent = product.subtitle;
-      document.getElementById('modal-product-description').textContent = product.description;
-      document.getElementById('modal-product-price').textContent = `₱${product.price}`;
-      
-      // Set thumbnails (use main image as fallback)
-      document.getElementById('modal-thumb-1').src = product.thumb1 || product.image;
-      document.getElementById('modal-thumb-2').src = product.thumb2 || product.image;
-      document.getElementById('modal-thumb-3').src = product.thumb3 || product.image;
-      document.getElementById('modal-thumb-4').src = product.thumb4 || product.image;
-      
-      // Reset size selection
-      selectedModalSize = null;
-      document.querySelectorAll('#modal-size-selector .size-btn').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-      
-      // Show modal
-      document.getElementById('productModal').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
+        const product = products[productId];
+        if (!product) return;
+        
+        currentProduct = product;
+        
+        document.getElementById('modal-main-image').src = product.image;
+        document.getElementById('modal-product-title').textContent = product.name;
+        document.getElementById('modal-product-subtitle').textContent = product.subtitle;
+        document.getElementById('modal-product-description').textContent = product.description;
+        document.getElementById('modal-product-price').textContent = `₱${product.price}`;
+        
+        document.getElementById('modal-thumb-1').src = product.thumb1 || product.image;
+        document.getElementById('modal-thumb-2').src = product.thumb2 || product.image;
+        document.getElementById('modal-thumb-3').src = product.thumb3 || product.image;
+        document.getElementById('modal-thumb-4').src = product.thumb4 || product.image;
+        
+        selectedModalSize = null;
+        document.querySelectorAll('#modal-size-selector .size-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        
+        document.getElementById('productModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
 
     function closeProductModal() {
-      document.getElementById('productModal').classList.add('hidden');
-      document.body.style.overflow = 'auto';
+        document.getElementById('productModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
     }
 
     function changeModalImage(src) {
-      document.getElementById('modal-main-image').src = src;
-      
-      // Highlight active thumbnail
-      document.querySelectorAll('.thumbnail').forEach(thumb => {
-        thumb.classList.remove('thumbnail-active');
-      });
-      event.target.classList.add('thumbnail-active');
+        document.getElementById('modal-main-image').src = src;
+        
+        document.querySelectorAll('.thumbnail').forEach(thumb => {
+            thumb.classList.remove('thumbnail-active');
+        });
+        event.target.classList.add('thumbnail-active');
     }
 
     function selectModalSize(btn, size) {
-      // Remove selected class from all size buttons in modal
-      document.querySelectorAll('#modal-size-selector .size-btn').forEach(b => {
-        b.classList.remove('selected');
-      });
-      
-      // Add selected class to clicked button
-      btn.classList.add('selected');
-      selectedModalSize = size;
+        document.querySelectorAll('#modal-size-selector .size-btn').forEach(b => {
+            b.classList.remove('selected');
+        });
+        
+        btn.classList.add('selected');
+        selectedModalSize = size;
     }
 
     // ===== CART SYSTEM =====
     let cart = [];
 
-    // Load cart from localStorage on page load
     document.addEventListener('DOMContentLoaded', function() {
         loadCart();
         updateCartCount();
@@ -993,7 +827,12 @@
     function loadCart() {
         const savedCart = localStorage.getItem('onlycaps_cart');
         if (savedCart) {
-            cart = JSON.parse(savedCart);
+            try {
+                cart = JSON.parse(savedCart);
+            } catch (e) {
+                console.error('Error loading cart:', e);
+                cart = [];
+            }
         }
     }
 
@@ -1006,7 +845,7 @@
     function updateCartCount() {
         const cartCount = document.getElementById('cartCount');
         if (cartCount) {
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
             if (totalItems > 0) {
                 cartCount.textContent = totalItems;
                 cartCount.classList.remove('hidden');
@@ -1017,59 +856,67 @@
     }
 
     function calculateSubtotal() {
-        return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        return cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
     }
 
-    // Add to cart function
     window.addToCart = function(product) {
+        if (!product || !product.id || !product.size) {
+            showNotification('Error: Invalid product', 'error');
+            return;
+        }
+        
         const existingItem = cart.find(item => 
             item.id === product.id && item.size === product.size
         );
         
         if (existingItem) {
-            existingItem.quantity += product.quantity || 1;
+            existingItem.quantity = (existingItem.quantity || 1) + (product.quantity || 1);
         } else {
             cart.push({
                 id: product.id,
-                name: product.name,
-                price: product.price,
+                name: product.name || 'Product',
+                price: product.price || 0,
                 size: product.size,
-                image: product.image,
+                image: product.image || '',
                 quantity: product.quantity || 1
             });
         }
         
         saveCart();
-        showNotification(`${product.name} (Size: ${product.size}) added to cart!`);
+        showNotification(`${product.name || 'Product'} (Size: ${product.size}) added to cart!`);
         openCartPopup();
     };
 
     // Add to cart from modal
-    document.getElementById('modal-add-to-cart').addEventListener('click', function() {
-      if (!selectedModalSize) {
-        alert('Please select a size');
-        document.querySelector('#modal-size-selector').classList.add('shake');
-        setTimeout(() => {
-          document.querySelector('#modal-size-selector').classList.remove('shake');
-        }, 500);
-        return;
-      }
-      
-      if (!currentProduct) return;
-      
-      const product = {
-        id: currentProduct.id,
-        name: currentProduct.fullName || currentProduct.name,
-        price: currentProduct.price,
-        size: selectedModalSize,
-        image: currentProduct.image,
-        quantity: 1
-      };
-      
-      window.addToCart(product);
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalAddToCart = document.getElementById('modal-add-to-cart');
+        if (modalAddToCart) {
+            modalAddToCart.addEventListener('click', function() {
+                if (!selectedModalSize) {
+                    showNotification('Please select a size first', 'warning');
+                    document.querySelector('#modal-size-selector').classList.add('shake');
+                    setTimeout(() => {
+                        document.querySelector('#modal-size-selector').classList.remove('shake');
+                    }, 500);
+                    return;
+                }
+                
+                if (!currentProduct) return;
+                
+                const product = {
+                    id: currentProduct.id,
+                    name: currentProduct.fullName || currentProduct.name,
+                    price: currentProduct.price,
+                    size: selectedModalSize,
+                    image: currentProduct.image,
+                    quantity: 1
+                };
+                
+                window.addToCart(product);
+            });
+        }
     });
 
-    // Cart popup functions
     function openCartPopup() {
         const overlay = document.getElementById('cartOverlay');
         if (overlay) {
@@ -1116,12 +963,12 @@
                     <div class="flex-grow">
                         <h4 class="font-bold">${item.name}</h4>
                         <p class="text-sm text-gray-600">Size: ${item.size}"</p>
-                        <p class="text-lg font-bold text-blue-600">₱${item.price.toFixed(2)}</p>
+                        <p class="text-lg font-bold text-blue-600">₱${(item.price * (item.quantity || 1)).toFixed(2)}</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="updateQuantity('${item.id}', '${item.size}', ${item.quantity - 1})" class="w-8 h-8 border rounded-full hover:bg-gray-100">-</button>
-                        <span class="w-8 text-center">${item.quantity}</span>
-                        <button onclick="updateQuantity('${item.id}', '${item.size}', ${item.quantity + 1})" class="w-8 h-8 border rounded-full hover:bg-gray-100">+</button>
+                        <button onclick="updateQuantity('${item.id}', '${item.size}', ${(item.quantity || 1) - 1})" class="w-8 h-8 border rounded-full hover:bg-gray-100">-</button>
+                        <span class="w-8 text-center">${item.quantity || 1}</span>
+                        <button onclick="updateQuantity('${item.id}', '${item.size}', ${(item.quantity || 1) + 1})" class="w-8 h-8 border rounded-full hover:bg-gray-100">+</button>
                         <button onclick="removeFromCart('${item.id}', '${item.size}')" class="ml-2 text-red-500 hover:text-red-700">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -1139,6 +986,7 @@
     function removeFromCart(productId, size) {
         cart = cart.filter(item => !(item.id === productId && item.size === size));
         saveCart();
+        showNotification('Item removed from cart');
     }
 
     function updateQuantity(productId, size, newQuantity) {
@@ -1153,32 +1001,38 @@
         }
     }
 
-    // Notification function
-    function showNotification(message) {
+    // Notification system
+    function showNotification(message, type = 'success') {
         const existingNotification = document.querySelector('.notification');
         if (existingNotification) {
             existingNotification.remove();
         }
         
+        let bgColor = '#10b981';
+        if (type === 'error') bgColor = '#ef4444';
+        if (type === 'warning') bgColor = '#f59e0b';
+        
         const notification = document.createElement('div');
         notification.className = 'notification';
         notification.textContent = message;
+        notification.style.backgroundColor = bgColor;
         document.body.appendChild(notification);
         
         setTimeout(() => {
             notification.remove();
-        }, 3000);
+        }, 2700);
     }
 
     // AI Assistant
     window.openAIAssistant = function() {
-        alert('AI Size Assistant coming soon! This will help you find your perfect fit.');
+        showNotification('AI Size Assistant coming soon! This will help you find your perfect fit.', 'warning');
     };
 
-    // Close modal with Escape key
+    // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeProductModal();
+            closeCartPopup();
         }
     });
 
@@ -1189,6 +1043,8 @@
     window.selectModalSize = selectModalSize;
     window.openCartPopup = openCartPopup;
     window.closeCartPopup = closeCartPopup;
+    window.removeFromCart = removeFromCart;
+    window.updateQuantity = updateQuantity;
     window.loadMoreProducts = loadMoreProducts;
   </script>
 
