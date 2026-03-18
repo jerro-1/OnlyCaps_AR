@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONLYCaps · LOGIN</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Anton', 'sans-serif'],
+            body: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            accent: '#00BFFF',
+            dark: '#000000',
+            light: '#ffffff',
+          },
+        },
+      },
+    };
+  </script>
+
+
+
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="font-body min-h-screen flex flex-col items-center justify-center p-6">
+
+  <!-- Login Card - Matching the dirty white aesthetic -->
+  <div class="login-card p-12 shadow-xl relative z-10">
+    <div class="text-center mb-8">
+      <!-- Logo inside card (larger) - Links to index -->
+      <a href="index.html">
+        <img src="images/LOGO.png" alt="ONLY CAPS" class="h-24 mx-auto mb-6"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      </a>
+      <div class="text-4xl font-heading tracking-wide text-gray-800 hidden">ONLY CAPS</div>
+
+      <h1 class="font-heading text-5xl tracking-wide text-gray-900 mt-4">REGISTER NOW!</h1>
+      <p class="font-body text-gray-700 text-lg mt-2 tracking-wide">JOIN THE DROP. GET DEALS FIRST.</p>
+    </div>
+
+    <form class="space-y-6" action="register.php" method="POST">
+      <div>
+        <label for="email" class="font-body text-sm font-semibold tracking-wider text-gray-700 block mb-2">EMAIL</label>
+        <input type="email" id="email" name="email"
+          class="w-full px-5 py-4 bg-white border-2 border-gray-300 font-body text-gray-800 uppercase placeholder-gray-400 focus:border-gray-900 focus:outline-none"
+          placeholder="EMAIL" required>
+      </div>
+
+      <div>
+        <label for="password"
+          class="font-body text-sm font-semibold tracking-wider text-gray-700 block mb-2">PASSWORD</label>
+        <input type="password" id="password" name="password"
+          class="w-full px-5 py-4 bg-white border-2 border-gray-300 font-body text-gray-800 uppercase placeholder-gray-400 focus:border-gray-900 focus:outline-none"
+          placeholder="PASSWORD" required>
+      </div>
+
+      <button type="submit"
+        class="w-full bg-gray-900 text-white font-heading text-2xl py-5 tracking-widest hover:bg-black transition mt-8">Register</button>
+    </form>
+
+    <div class="text-center mt-8">
+      <a href="#"
+        class="font-body text-sm font-semibold tracking-wider text-gray-700 border-b-2 border-gray-700 pb-1 hover:text-black hover:border-black">CREATE
+        ACCOUNT</a>
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-gray-300 text-center">
+      <p class="font-body text-xs tracking-widest text-gray-500">ONLY CAPS © 2025 · GEAR DROP</p>
+    </div>
+
+    <!-- Back to Home Link -->
+    <div class="text-center mt-6">
+      <a href="index.html" class="font-body text-xs tracking-wider text-gray-500 hover:text-gray-700">← BACK TO HOME</a>
+    </div>
+  </div>
+
+</body>
+
+</html>

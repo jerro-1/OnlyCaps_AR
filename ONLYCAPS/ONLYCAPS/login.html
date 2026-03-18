@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,129 +27,145 @@
   <style>
     /* ===== RETURN TO HOMEPAGE BUTTON ===== */
     .return-home-btn {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 50;
-        background-color: white;
-        color: black;
-        padding: 10px 20px;
-        border-radius: 50px;
-        font-weight: 500;
-        font-size: 0.95rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid #e5e7eb;
-        text-decoration: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 50;
+      background-color: white;
+      color: black;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #e5e7eb;
+      text-decoration: none;
     }
-    
+
     .return-home-btn:hover {
-        background-color: #f3f4f6;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      background-color: #f3f4f6;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     }
-    
+
     .return-home-btn svg {
-        width: 20px;
-        height: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     /* ===== LOGIN PAGE STYLES ===== */
     .btn-hover {
-        transition: all 0.3s ease-in-out;
-        transform: translateY(0);
+      transition: all 0.3s ease-in-out;
+      transform: translateY(0);
     }
-    
+
     .btn-hover:hover {
-        transform: translateY(-5px) scale(1.05);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
     /* Login background */
     .login-background {
-        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                    url('images/login-bg.png');
-        background-size: cover;
-        background-position: center;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        url('images/login-bg.png');
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Form input styles */
     .form-input {
-        width: 100%;
-        padding: 12px 16px;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        transition: all 0.3s;
-        background: white;
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      transition: all 0.3s;
+      background: white;
     }
-    
+
     .form-input:focus {
-        outline: none;
-        border-color: #00BFFF;
-        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
+      outline: none;
+      border-color: #00BFFF;
+      box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
     }
 
     /* Notification styling */
     .notification {
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        z-index: 1000;
-        animation: slideIn 0.3s ease-out;
-        font-weight: 500;
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+      font-weight: 500;
     }
 
     @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
     }
 
     @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
     }
 
     /* Account boxes */
     .account-box {
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 12px;
-        transition: all 0.2s;
-        cursor: pointer;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      transition: all 0.2s;
+      cursor: pointer;
     }
-    
+
     .account-box:hover {
-        border-color: #00BFFF;
-        background-color: #f0f9ff;
-        transform: translateY(-2px);
+      border-color: #00BFFF;
+      background-color: #f0f9ff;
+      transform: translateY(-2px);
     }
-    
+
     .account-box.gold {
-        border-left: 4px solid #FFD700;
+      border-left: 4px solid #FFD700;
     }
-    
+
     .account-box.silver {
-        border-left: 4px solid #C0C0C0;
+      border-left: 4px solid #C0C0C0;
     }
-    
+
     .account-box.bronze {
-        border-left: 4px solid #CD7F32;
+      border-left: 4px solid #CD7F32;
     }
   </style>
-  
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600&display=swap"
+    rel="stylesheet">
 </head>
+
 <body class="font-body">
 
   <!-- Return to Homepage Button -->
@@ -166,53 +183,34 @@
         <div class="p-8">
           <h2 class="text-3xl font-heading text-center mb-2 tracking-wide uppercase">LOGIN</h2>
           <p class="text-gray-600 text-center mb-8">Access your ONLYCaps account</p>
-          
+
           <form id="loginForm" class="space-y-6">
             <!-- Email Input -->
             <div>
               <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-              <input 
-                type="email" 
-                id="email" 
-                name="email"
-                required
-                class="form-input"
-                placeholder="your@email.com"
-              >
+              <input type="email" id="email" name="email" required class="form-input" placeholder="your@email.com">
             </div>
-            
+
             <!-- Password Input -->
             <div>
               <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-              <input 
-                type="password" 
-                id="password" 
-                name="password"
-                required
-                class="form-input"
-                placeholder="••••••••"
-              >
+              <input type="password" id="password" name="password" required class="form-input" placeholder="••••••••">
             </div>
-            
+
             <!-- Remember Me -->
             <div class="flex items-center">
-              <input 
-                type="checkbox" 
-                id="remember"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              >
+              <input type="checkbox" id="remember"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
               <label for="remember" class="ml-2 text-sm text-gray-600">Remember me</label>
             </div>
-            
+
             <!-- Submit Button -->
-            <button 
-              type="submit"
-              class="btn-hover w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition text-base"
-            >
+            <button type="submit"
+              class="btn-hover w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition text-base">
               SIGN IN
             </button>
           </form>
-          
+
           <!-- Quick Account Selector -->
           <div class="mt-8">
             <p class="text-sm text-gray-600 mb-3 text-center">Quick login with test accounts:</p>
@@ -227,7 +225,7 @@
                   <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Click to use</span>
                 </div>
               </div>
-              
+
               <!-- Jerro - Silver -->
               <div class="account-box silver" onclick="fillCredentials('jerro.smith@email.com', 'jerro456')">
                 <div class="flex items-center justify-between">
@@ -238,7 +236,7 @@
                   <span class="text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded">Click to use</span>
                 </div>
               </div>
-              
+
               <!-- Michael - Bronze -->
               <div class="account-box bronze" onclick="fillCredentials('michael.wilson@email.com', 'michael789')">
                 <div class="flex items-center justify-between">
@@ -252,13 +250,13 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Footer Note -->
         <div class="bg-gray-50 px-8 py-4 border-t border-gray-200">
           <p class="text-xs text-gray-500 text-center">
-            By signing in, you agree to our 
-            <a href="#" class="text-blue-600 hover:text-blue-800">Terms of Service</a> 
-            and 
+            By signing in, you agree to our
+            <a href="#" class="text-blue-600 hover:text-blue-800">Terms of Service</a>
+            and
             <a href="#" class="text-blue-600 hover:text-blue-800">Privacy Policy</a>
           </p>
         </div>
@@ -284,190 +282,190 @@
   <script>
     // ===== USER DATABASE =====
     const users = [
-        {
-            email: 'john.doe@email.com',
-            password: 'john123',
-            name: 'John',
-            fullName: 'John Doe',
-            memberSince: 'January 2024',
-            rank: 'GOLD',
-            avatar: 'J',
-            orders: 15,
-            wishlist: 8,
-            reviews: 3
-        },
-        {
-            email: 'jerro.smith@email.com',
-            password: 'jerro456',
-            name: 'Jerro',
-            fullName: 'Jerro Smith',
-            memberSince: 'March 2024',
-            rank: 'SILVER',
-            avatar: 'J',
-            orders: 8,
-            wishlist: 12,
-            reviews: 5
-        },
-        {
-            email: 'michael.wilson@email.com',
-            password: 'michael789',
-            name: 'Michael',
-            fullName: 'Michael Wilson',
-            memberSince: 'June 2024',
-            rank: 'BRONZE',
-            avatar: 'M',
-            orders: 3,
-            wishlist: 5,
-            reviews: 1
-        }
+      {
+        email: 'john.doe@email.com',
+        password: 'john123',
+        name: 'John',
+        fullName: 'John Doe',
+        memberSince: 'January 2024',
+        rank: 'GOLD',
+        avatar: 'J',
+        orders: 15,
+        wishlist: 8,
+        reviews: 3
+      },
+      {
+        email: 'jerro.smith@email.com',
+        password: 'jerro456',
+        name: 'Jerro',
+        fullName: 'Jerro Smith',
+        memberSince: 'March 2024',
+        rank: 'SILVER',
+        avatar: 'J',
+        orders: 8,
+        wishlist: 12,
+        reviews: 5
+      },
+      {
+        email: 'michael.wilson@email.com',
+        password: 'michael789',
+        name: 'Michael',
+        fullName: 'Michael Wilson',
+        memberSince: 'June 2024',
+        rank: 'BRONZE',
+        avatar: 'M',
+        orders: 3,
+        wishlist: 5,
+        reviews: 1
+      }
     ];
 
     // ===== LOGIN/LOGOUT FUNCTIONALITY =====
     function checkLoginStatus() {
-        const userData = localStorage.getItem('onlycaps_user');
-        const loginButton = document.getElementById('loginButton');
-        const userLoggedIn = document.getElementById('userLoggedIn');
-        const userEmail = document.getElementById('userEmail');
-        
-        if (userData) {
-            const user = JSON.parse(userData);
-            
-            // Hide login button, show user section
-            if (loginButton) loginButton.classList.add('hidden');
-            if (userLoggedIn) {
-                userLoggedIn.classList.remove('hidden');
-                userLoggedIn.style.display = 'flex';
-            }
-            if (userEmail) userEmail.textContent = user.email;
-            
-        } else {
-            if (loginButton) loginButton.classList.remove('hidden');
-            if (userLoggedIn) {
-                userLoggedIn.classList.add('hidden');
-                userLoggedIn.style.display = 'none';
-            }
+      const userData = localStorage.getItem('onlycaps_user');
+      const loginButton = document.getElementById('loginButton');
+      const userLoggedIn = document.getElementById('userLoggedIn');
+      const userEmail = document.getElementById('userEmail');
+
+      if (userData) {
+        const user = JSON.parse(userData);
+
+        // Hide login button, show user section
+        if (loginButton) loginButton.classList.add('hidden');
+        if (userLoggedIn) {
+          userLoggedIn.classList.remove('hidden');
+          userLoggedIn.style.display = 'flex';
         }
+        if (userEmail) userEmail.textContent = user.email;
+
+      } else {
+        if (loginButton) loginButton.classList.remove('hidden');
+        if (userLoggedIn) {
+          userLoggedIn.classList.add('hidden');
+          userLoggedIn.style.display = 'none';
+        }
+      }
     }
 
     function logout() {
-        localStorage.removeItem('onlycaps_user');
-        checkLoginStatus();
-        showNotification('Logged out successfully!');
-        
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1500);
+      localStorage.removeItem('onlycaps_user');
+      checkLoginStatus();
+      showNotification('Logged out successfully!');
+
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1500);
     }
 
     // Fill credentials from account boxes
     function fillCredentials(email, password) {
-        document.getElementById('email').value = email;
-        document.getElementById('password').value = password;
+      document.getElementById('email').value = email;
+      document.getElementById('password').value = password;
     }
 
     // ===== CART FUNCTIONALITY =====
     let cart = [];
 
-    document.addEventListener('DOMContentLoaded', function() {
-        loadCart();
-        updateCartIcon();
+    document.addEventListener('DOMContentLoaded', function () {
+      loadCart();
+      updateCartIcon();
     });
 
     function loadCart() {
-        const savedCart = localStorage.getItem('onlycaps_cart');
-        if (savedCart) {
-            cart = JSON.parse(savedCart);
-        }
+      const savedCart = localStorage.getItem('onlycaps_cart');
+      if (savedCart) {
+        cart = JSON.parse(savedCart);
+      }
     }
 
     function updateCartIcon() {
-        const cartCount = document.getElementById('cartCount');
-        if (cartCount) {
-            const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-            if (totalItems > 0) {
-                cartCount.textContent = totalItems;
-                cartCount.classList.remove('hidden');
-            } else {
-                cartCount.classList.add('hidden');
-            }
+      const cartCount = document.getElementById('cartCount');
+      if (cartCount) {
+        const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        if (totalItems > 0) {
+          cartCount.textContent = totalItems;
+          cartCount.classList.remove('hidden');
+        } else {
+          cartCount.classList.add('hidden');
         }
+      }
     }
 
     function openCartPopup() {
-        document.getElementById('cartOverlay').classList.remove('hidden');
+      document.getElementById('cartOverlay').classList.remove('hidden');
     }
 
     function closeCartPopup() {
-        document.getElementById('cartOverlay').classList.add('hidden');
+      document.getElementById('cartOverlay').classList.add('hidden');
     }
 
     // ===== NOTIFICATION FUNCTION =====
     function showNotification(message, type = 'success') {
-        const existingNotification = document.querySelector('.notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-        
-        let bgColor = '#10b981';
-        if (type === 'error') bgColor = '#ef4444';
-        if (type === 'warning') bgColor = '#f59e0b';
-        
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = message;
-        notification.style.backgroundColor = bgColor;
-        document.body.appendChild(notification);
-        
+      const existingNotification = document.querySelector('.notification');
+      if (existingNotification) {
+        existingNotification.remove();
+      }
+
+      let bgColor = '#10b981';
+      if (type === 'error') bgColor = '#ef4444';
+      if (type === 'warning') bgColor = '#f59e0b';
+
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = message;
+      notification.style.backgroundColor = bgColor;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out forwards';
         setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease-out forwards';
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 2700);
+          notification.remove();
+        }, 300);
+      }, 2700);
     }
 
     // ===== LOGIN FORM HANDLER =====
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-        
-        if (!email || !password) {
-            showNotification('Please fill in all fields', 'warning');
-            return;
-        }
-        
-        // Find user in database
-        const user = users.find(u => u.email === email && u.password === password);
-        
-        if (user) {
-            // Store user data (without password)
-            const userData = {
-                email: user.email,
-                name: user.name,
-                fullName: user.fullName,
-                memberSince: user.memberSince,
-                rank: user.rank,
-                avatar: user.avatar,
-                orders: user.orders,
-                wishlist: user.wishlist,
-                reviews: user.reviews,
-                isLoggedIn: true,
-                loginTime: new Date().toISOString()
-            };
-            
-            localStorage.setItem('onlycaps_user', JSON.stringify(userData));
-            
-            showNotification(`Welcome back, ${user.name}!`, 'success');
-            
-            // Redirect to profile page
-            setTimeout(() => {
-                window.location.href = 'profile.html';
-            }, 1500);
-        } else {
-            showNotification('Invalid email or password', 'error');
-        }
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) {
+        showNotification('Please fill in all fields', 'warning');
+        return;
+      }
+
+      // Find user in database
+      const user = users.find(u => u.email === email && u.password === password);
+
+      if (user) {
+        // Store user data (without password)
+        const userData = {
+          email: user.email,
+          name: user.name,
+          fullName: user.fullName,
+          memberSince: user.memberSince,
+          rank: user.rank,
+          avatar: user.avatar,
+          orders: user.orders,
+          wishlist: user.wishlist,
+          reviews: user.reviews,
+          isLoggedIn: true,
+          loginTime: new Date().toISOString()
+        };
+
+        localStorage.setItem('onlycaps_user', JSON.stringify(userData));
+
+        showNotification(`Welcome back, ${user.name}!`, 'success');
+
+        // Redirect to profile page
+        setTimeout(() => {
+          window.location.href = 'profile.html';
+        }, 1500);
+      } else {
+        showNotification('Invalid email or password', 'error');
+      }
     });
 
     // Make functions globally available
@@ -478,4 +476,5 @@
   </script>
 
 </body>
+
 </html>
