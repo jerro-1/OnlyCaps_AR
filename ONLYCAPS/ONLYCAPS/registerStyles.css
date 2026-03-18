@@ -1,0 +1,25 @@
+/* Background image */
+body {
+    background-image: url('images/ocbg.png');
+    background-repeat: repeat;
+    background-size: auto;
+    background-position: top left;
+}
+
+/* Logo styling */
+.logo-img {
+    height: 40px;
+    width: auto;
+}
+
+/* Card styling */
+.login-card {
+    background-color: #f5f0e8;
+    max-width: 440px;
+    width: 100%;
+}
+
+/* Smooth scrolling for anchor links */
+html {
+    scroll-behavior: smooth;
+}
