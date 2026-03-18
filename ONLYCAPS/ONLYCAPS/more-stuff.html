@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MORE STUFF - ONLYCaps</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Anton', 'sans-serif'],
+            body: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            accent: '#00BFFF',
+            dark: '#000000',
+            light: '#ffffff',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    .navbar-padding {
+        padding-left: 40px !important; 
+        padding-right: 40px !important;
+    }
+    .logo-img {
+        height: 40px;
+        width: auto;
+    }
+    .btn-hover {
+        transition: all 0.3s ease-in-out;
+        transform: translateY(0);
+    }
+    .btn-hover:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    .nav-link {
+        position: relative;
+        transition: color 0.3s ease;
+    }
+    .nav-link:hover {
+        color: #00BFFF;
+    }
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -5px;
+        left: 0;
+        background-color: #00BFFF;
+        transition: width 0.3s ease;
+    }
+    .nav-link:hover::after {
+        width: 100%;
+    }
+    .product-card {
+        transition: all 0.3s ease;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Background for More Stuff */
+    body {
+        background: url('images/MSBG.PNG');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+  </style>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="font-body">
+
+  <!-- Fixed Header -->
+  <header class="w-full bg-white shadow-sm fixed top-0 z-50">
+    <nav class="flex justify-between items-center py-4 navbar-padding">
+      <ul class="flex gap-8 text-base tracking-wide"> 
+        <li><a href="index.html" class="nav-link transition">HOME</a></li>
+        <li><a href="#" class="nav-link transition">SHOP</a></li>
+        <li><a href="#" class="nav-link transition">FITTING RECOMMENDATION</a></li>
+      </ul>
+      
+      <div class="absolute left-1/2 transform -translate-x-1/2">
+        <a href="index.html">
+          <img src="images/LOGO.png" alt="ONLYCaps" class="logo-img">
+        </a>
+      </div>
+      
+      <div class="w-1/3"></div>
+    </nav>
+  </header>
+
+  <!-- More Stuff Section -->
+  <section class="pt-28 pb-12 mt-16">
+    <div class="container mx-auto px-4">
+      <h1 class="text-5xl md:text-6xl font-heading mb-12 text-center tracking-wide uppercase text-white">MORE STUFF</h1>
+      
+      <!-- 3-Column Grid with Larger Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Snapback Caps -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/snapback-classic.png" alt="Classic Snapback" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Classic Snapback</h3>
+            <p class="text-gray-600 text-sm mb-4">Adjustable strap back</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱420</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Beanies -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/beanie-knit.png" alt="Knit Beanie" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Knit Beanie</h3>
+            <p class="text-gray-600 text-sm mb-4">Warm winter beanie</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱380</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dad Hats -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/dad-hat.png" alt="Dad Hat" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Dad Hat</h3>
+            <p class="text-gray-600 text-sm mb-4">Unstructured low profile</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱400</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bucket Hats -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/bucket-hat.png" alt="Bucket Hat" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Bucket Hat</h3>
+            <p class="text-gray-600 text-sm mb-4">Summer style bucket hat</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱450</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visors -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/sports-visor.png" alt="Sports Visor" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Sports Visor</h3>
+            <p class="text-gray-600 text-sm mb-4">Athletic performance visor</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱350</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flat Bill Caps -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/flat-bill.png" alt="Flat Bill Cap" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Flat Bill Cap</h3>
+            <p class="text-gray-600 text-sm mb-4">Straight flat bill design</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱480</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5-Panel Caps -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/5-panel.png" alt="5-Panel Cap" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">5-Panel Cap</h3>
+            <p class="text-gray-600 text-sm mb-4">Minimalist 5-panel design</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱520</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camp Caps -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/camp-cap.png" alt="Camp Cap" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Camp Cap</h3>
+            <p class="text-gray-600 text-sm mb-4">Soft structured camp cap</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱440</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessories Pack -->
+        <div class="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+          <div class="relative overflow-hidden">
+            <img src="images/accessories-pack.png" alt="Accessories Pack" class="w-full h-72 object-cover transition duration-300 hover:scale-105">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-2">Accessories Pack</h3>
+            <p class="text-gray-600 text-sm mb-4">Hat clips and maintenance kit</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold">₱280</span>
+              <button class="btn-hover bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition">
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Load More Button -->
+      <div class="text-center mt-12">
+        <button class="btn-hover bg-gray-800 text-white px-10 py-3 rounded-full font-medium hover:bg-black transition text-sm">
+          LOAD MORE
+        </button>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
