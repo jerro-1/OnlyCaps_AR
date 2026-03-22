@@ -1,0 +1,66 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
+import { SessionContext } from './context/SessionContext';
+import { useEffect, useState } from "react";
+import Header from './components/Header';
+import Main from './components/Main';
+import Notification from './components/Notification';
+import Home from './pages/Home';
+import FittedCaps from './pages/FittedCaps';
+import AFrames from './pages/AFrames';
+import Trucker from './pages/Trucker';
+import MoreStuff from './pages/MoreStuff';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Account from './pages/Account';
+import "./App.css";
+import supabase from './utils/supabase';
+import React from 'react';
+
+
+
+export default function App() {
+  return (
+
+    <AuthProvider>
+      <CartProvider>
+        <AppInner />
+      </CartProvider>
+    </AuthProvider>
+
+  );
+}
+
+function AppInner() {
+  const [session, setSession] = useState(null);
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+    });
+
+    // call unsubscribe to remove the callback
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    console.log("session from app.jsx", session);
+  }, [session]);
+
+
+  return (
+    <SessionContext.Provider value={session}>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/fitted-caps" element={<Main><FittedCaps /></Main>} />
+        <Route path="/a-frames" element={<Main><AFrames /></Main>} />
+        <Route path="/trucker" element={<Main><Trucker /></Main>} />
+        <Route path="/more-stuff" element={<Main><MoreStuff /></Main>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/account" element={<Account />} />
+      </Routes>
+    </SessionContext.Provider>
+  );
+}

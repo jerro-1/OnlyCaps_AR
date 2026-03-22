@@ -1,0 +1,460 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== CUSTOM STYLES ===== */
+
+/* Aggressive CSS class for fixed header padding */
+.navbar-padding {
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+}
+
+/* Standard CSS for the Background Images */
+.hero-background {
+    background-image: url('images/FRONT PAGE.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.grid-section-1 {
+    background-image: url('images/FITTED CAPS.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.grid-section-2 {
+    background-image: url('images/A FRAMES.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.grid-section-3 {
+    background-image: url('images/TRUCKER.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.grid-section-4 {
+    background-image: url('images/MORE STUFF.png');
+    background-size: cover;
+    background-position: center;
+}
+
+/* About Section Background */
+.about-background {
+    background-image: url('images/about.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Grid lines */
+.grid-border-right {
+    border-right: 2px solid black;
+}
+
+.grid-border-bottom {
+    border-bottom: 2px solid black;
+}
+
+/* Logo styling */
+.logo-img {
+    height: 45px !important;
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+    transform: scale(1.05);
+}
+
+/* Button hover animations */
+.btn-hover {
+    transition: all 0.3s ease-in-out;
+    transform: translateY(0);
+}
+
+.btn-hover:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Navigation link */
+.nav-link {
+    position: relative;
+    transition: color 0.3s ease;
+    font-size: 0.95rem !important;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.nav-link:hover {
+    color: #00BFFF;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: #00BFFF;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Clickable grid section */
+.clickable-section {
+    cursor: pointer;
+    transition: none;
+}
+
+/* FITTED CAPS heading hover effect */
+.float-heading {
+    transition: all 0.4s ease-in-out;
+    display: inline-block;
+    transform: translateY(0);
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+}
+
+.float-heading:hover {
+    transform: translateY(-10px) scale(1.05);
+    text-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+    cursor: default;
+}
+
+/* Grid text floating effect */
+.grid-text {
+    transition: all 0.4s ease-in-out;
+    display: inline-block;
+    transform: translateY(0);
+}
+
+.clickable-section:hover .grid-text {
+    transform: translateY(-8px) scale(1.05);
+    text-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Grid button floating effect */
+.grid-btn {
+    transition: all 0.4s ease-in-out;
+    display: inline-block;
+    transform: translateY(0);
+}
+
+.clickable-section:hover .grid-btn {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Divider sections */
+.section-divider {
+    width: 100%;
+    height: 60px;
+    background-image: url('images/divider.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-top: 2px solid white;
+    border-bottom: 2px solid white;
+}
+
+.small-divider {
+    width: 100%;
+    height: 30px;
+    background-image: url('images/divider.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-top: 2px solid white;
+    border-bottom: 2px solid white;
+}
+
+/* Contact section */
+.contact-socials-section {
+    width: 100%;
+    min-height: 250px;
+    background-color: #1a1a1a;
+    background-image: url('images/element.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.contact-socials-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.contact-socials-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.contact-title {
+    color: white;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.contact-info {
+    color: #ffffff;
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.contact-info:hover {
+    color: #00BFFF;
+}
+
+.social-icons {
+    display: flex;
+    gap: 25px;
+    margin-top: 15px;
+}
+
+.social-icon {
+    color: #ffffff;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.social-icon:hover {
+    color: #00BFFF;
+    transform: translateY(-5px) scale(1.1);
+}
+
+.social-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.content-divider {
+    width: 2px;
+    height: 120px;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin: 0 50px;
+}
+
+/* About section text styling */
+.about-title {
+    font-size: 5rem;
+    line-height: 1.1;
+    letter-spacing: 2px;
+    color: black;
+}
+
+@media (min-width: 768px) {
+    .about-title {
+        font-size: 8rem;
+    }
+}
+
+.about-text {
+    color: black;
+}
+
+.hero-short {
+    height: 85vh;
+    min-height: 600px;
+}
+
+/* Dissolve effect */
+.dissolve-section {
+    opacity: 0;
+    animation: dissolveIn 0.8s ease-out forwards;
+}
+
+@keyframes dissolveIn {
+    0% {
+        opacity: 0;
+        filter: blur(3px);
+    }
+
+    50% {
+        opacity: 0.7;
+        filter: blur(1px);
+    }
+
+    100% {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+
+/* Cart Popup Styles */
+.cart-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.cart-popup {
+    background-color: white;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-count-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #00BFFF;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-assist-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.ai-assist-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Profile icon styling */
+.profile-icon {
+    transition: all 0.3s ease;
+    color: #000000;
+}
+
+.profile-icon:hover {
+    color: #00BFFF;
+    transform: scale(1.1);
+}
+
+.icon-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Hidden class for login toggle */
+.hidden {
+    display: none !important;
+}
+
+/* Login button styling */
+.login-btn {
+    transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+    background-color: #1f2937;
+}
+
+/* Notification styling */
+.notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+    font-weight: 500;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
