@@ -73,6 +73,10 @@ export default function Header() {
           <div className="flex items-center gap-6">
             <ul className="flex gap-6 text-base tracking-wide font-medium mr-4 list-none m-0 p-0">
               <li><a href="#about" className="nav-link">ABOUT</a></li>
+
+              {session && (
+              <li><HeaderNavLink to="/account" linkText="ACCOUNT" /></li>
+              )}
               <li><a href="#" className="nav-link">CAP MEASUREMENT</a></li>
             </ul>
 
