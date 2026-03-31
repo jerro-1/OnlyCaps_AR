@@ -17,6 +17,7 @@ import Account from './pages/Account';
 import "./App.css";
 import supabase from './utils/supabase';
 import React from 'react';
+import CartPage from './pages/CartPage';
 
 
 
@@ -59,6 +60,7 @@ function AppInner() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/cartpage" element={<CartPage />} />
       </Routes>
     </SessionContext.Provider>
   );

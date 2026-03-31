@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import ProductCard from '../components/ProductCard';
 
 const PRODUCTS = [
   { id: 'yankees-navy', name: 'New York Yankees', fullName: 'New York Yankees Navy Classic', subtitle: 'Navy Classic 59FIFTY Fitted', description: 'The iconic New York Yankees fitted cap in navy blue. Features the classic interlocking NY logo embroidered on the front. Made with premium wool blend for lasting comfort and shape.', price: 500, image: '/images/yankees-navy.png' },
@@ -68,23 +69,7 @@ export default function FittedCaps() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {PRODUCTS.slice(0, visible).map(product => (
-              <div
-                key={product.id}
-                className="product-card bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200"
-                onClick={() => openModal(product)}
-              >
-                <div className="relative overflow-hidden">
-                  <img src={product.image} alt={product.fullName} className="w-full h-64 object-cover transition duration-300 hover:scale-105" />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2">{product.name}</h3>
-                  <p className="text-gray-600 text-sm mb-4">{product.subtitle}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold">₱{product.price}</span>
-                    <span className="text-sm text-blue-600">Quick View →</span>
-                  </div>
-                </div>
-              </div>
+              <ProductCard key={product.id} product={product} onClick={openModal} />
             ))}
           </div>
 
