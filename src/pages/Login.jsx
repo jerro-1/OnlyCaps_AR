@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import Main from "../components/Main";
 import PageWrapper from "../components/PageWrapper";
 import Card from "../components/Card";
 import Input from "../components/Input";
 import supabase from "../utils/supabase";
+import { NavLink } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
+import BgImg from "../components/BgImg";
 
 
 const Login = () => {
@@ -92,13 +95,25 @@ const Login = () => {
 
 
   return (
-    <PageWrapper>
-      <Header />
+
+    <BgImg>
       <Main className="flex justify-center">
         <div className="flex items-center">
           {!session ? (
             <Card>
-              <h1 className="text-xl font-bold mb-4">Sign In</h1>
+              <div className="flex justify-center mb-6">
+                <NavLink to="/">
+                  <img src="/images/LOGO.png" alt="ONLYCaps" className="logo-img-large"
+                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
+                  <span className="font-heading text-2xl tracking-wider hidden">ONLYCAPS</span>
+                </NavLink>
+              </div>
+              <h1 className="flex items-center text-xl font-bold mb-4">
+                <NavLink to="/" title="Home">
+                  <FaArrowLeft className="mr-2" />
+                </NavLink>
+                Sign In
+              </h1>
               <Input
                 label="Email"
                 name="email"
@@ -116,11 +131,14 @@ const Login = () => {
                 onChange={handleInputChange}
               />
               <button
-                className="btn btn-primary rounded-full w-full"
+                className="btn btn-primary w-full" style={{ backgroundColor: '#000000', border: 'none', boxShadow: 'none', color: 'white' }}
                 onClick={handleSubmit}
               >
                 Sign In
               </button>
+              <p className="mt-4 text-center">
+                don't have an account? <Link to="/register" className="text-blue-500 hover:underline">sign up</Link>
+              </p>
             </Card>
           ) : (
             <div className="text-center">
@@ -131,7 +149,8 @@ const Login = () => {
           )}
         </div>
       </Main>
-    </PageWrapper>
+    </BgImg>
+
   );
 
 };

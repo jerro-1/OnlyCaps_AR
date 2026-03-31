@@ -50,7 +50,6 @@ function AppInner() {
 
   return (
     <SessionContext.Provider value={session}>
-      <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/fitted-caps" element={<Main><FittedCaps /></Main>} />
