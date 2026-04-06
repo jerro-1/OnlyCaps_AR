@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import React from 'react';
+import { SessionContext } from './SessionContext'; // your auth session
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
+  const session = useContext(SessionContext); // ✅ get logged-in user
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('onlycaps_cart');
@@ -13,6 +15,7 @@ export function CartProvider({ children }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [notification, setNotification] = useState(null);
 
+  // save cart to localStorage
   useEffect(() => {
     localStorage.setItem('onlycaps_cart', JSON.stringify(cart));
   }, [cart]);
@@ -26,10 +29,17 @@ export function CartProvider({ children }) {
   }, []);
 
   const addToCart = useCallback((product) => {
+    // 🔒 Block if user is not logged in
+    if (!session) {
+      showNotification('Please sign in to add items to your cart', 'error');
+      return;
+    }
+
     if (!product?.id || !product?.size) {
       showNotification('Invalid product', 'error');
       return;
     }
+
     setCart(prev => {
       const existing = prev.find(i => i.id === product.id && i.size === product.size);
       if (existing) {
@@ -41,9 +51,10 @@ export function CartProvider({ children }) {
       }
       return [...prev, { ...product, quantity: product.quantity || 1 }];
     });
+
     showNotification(`${product.name} (Size: ${product.size}) added to cart!`);
     setCartOpen(true);
-  }, [showNotification]);
+  }, [showNotification, session]); // ✅ include session
 
   const removeFromCart = useCallback((id, size) => {
     setCart(prev => prev.filter(i => !(i.id === id && i.size === size)));
@@ -59,6 +70,11 @@ export function CartProvider({ children }) {
       i.id === id && i.size === size ? { ...i, quantity: qty } : i
     ));
   }, [removeFromCart]);
+
+  // ✅ Optional: clear cart if user logs out
+  useEffect(() => {
+    if (!session) setCart([]);
+  }, [session]);
 
   return (
     <CartContext.Provider value={{

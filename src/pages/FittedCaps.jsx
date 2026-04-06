@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useCart } from '../context/CartContext';
+import { SessionContext } from '../context/SessionContext';
 import ProductCard from '../components/ProductCard';
 import Header from '../components/Header';
 
@@ -25,6 +26,7 @@ const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
 
 export default function FittedCaps() {
   const { addToCart } = useCart();
+  const session = useContext(SessionContext); // get logged-in session
   const [visible, setVisible] = useState(6);
   const [modal, setModal] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -44,11 +46,17 @@ export default function FittedCaps() {
   };
 
   const handleAddToCart = () => {
+    if (!session) {
+      alert('Please sign in to add items to your cart'); // guest alert
+      return;
+    }
+
     if (!selectedSize) {
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
+
     addToCart({
       id: modal.id,
       name: modal.fullName,
@@ -57,6 +65,7 @@ export default function FittedCaps() {
       image: modal.image,
       quantity: 1,
     });
+
     closeModal();
   };
 
@@ -124,7 +133,7 @@ export default function FittedCaps() {
                   <div>
                     <h3 className="text-lg font-bold mb-3">Select Size:</h3>
                     <div className={`flex flex-wrap gap-2 ${shake ? 'shake' : ''}`}>
-                      {SIZES.map(size => (
+                      {['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'].map(size => (
                         <button
                           key={size}
                           className={`size-btn ${selectedSize === size ? 'selected' : ''}`}

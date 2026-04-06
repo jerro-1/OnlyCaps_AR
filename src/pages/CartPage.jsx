@@ -1,11 +1,44 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import Header from '../components/Header';
 import supabase from "../utils/supabase";
 
 const CartPage = () => {
-    const { cart, removeFromCart, updateQuantity, totalItems, subtotal } = useCart();
+    const { cart, removeFromCart, updateQuantity, totalItems, subtotal, clearCart } = useCart();
     const [paymentMethod, setPaymentMethod] = useState('');
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // 👇 Get the logged-in user on mount
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user || null);
+
+            // Clear cart if not logged in
+            if (!user) clearCart();
+
+            setLoading(false);
+        };
+
+        fetchUser();
+
+        // Listen for auth changes (login/logout)
+        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user || null);
+            if (!session?.user) clearCart();
+        });
+
+        return () => listener.subscription.unsubscribe();
+    }, [clearCart]);
+
+    if (loading) {
+        return <div className="p-8 text-center">Loading...</div>;
+    }
+
+    if (!user) {
+        return <div className="p-8 text-center">You must be logged in to view your cart.</div>;
+    }
 
     if (cart.length === 0) {
         return <div className="p-8 text-center">Your cart is empty.</div>;
@@ -18,19 +51,17 @@ const CartPage = () => {
         }
 
         try {
-            // 👇 GET CURRENT USER
-            const { data: { user } } = await supabase.auth.getUser();
-
+            // Use the authenticated user
             if (!user) {
                 alert('You must be logged in');
                 return;
             }
 
-            // 👇 CREATE ORDER (FIX HERE)
+            // Create order
             const { data: order, error: orderError } = await supabase
                 .from('orders')
                 .insert({
-                    user_id: user.id, // 🔥 REQUIRED FIX
+                    user_id: user.id,
                     total: subtotal,
                     status: 'pending',
                     payment_method: paymentMethod,
@@ -41,7 +72,7 @@ const CartPage = () => {
 
             if (orderError) throw orderError;
 
-            // 👇 INSERT ORDER ITEMS (this part is already good)
+            // Insert order items
             const items = cart.map(item => ({
                 order_id: order.id,
                 product_id: item.id,
@@ -58,7 +89,7 @@ const CartPage = () => {
             if (itemsError) throw itemsError;
 
             alert('Order placed successfully!');
-
+            clearCart();
         } catch (error) {
             alert(error.message);
         }
@@ -72,10 +103,9 @@ const CartPage = () => {
                     Your Cart ({totalItems} items)
                 </h1>
 
-                {/* 2 COLUMN LAYOUT */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                    {/* LEFT SIDE - CART ITEMS */}
+                    {/* LEFT - Cart Items */}
                     <div className="lg:col-span-2 space-y-4">
                         {cart.map(item => (
                             <div
@@ -117,32 +147,27 @@ const CartPage = () => {
                         ))}
                     </div>
 
-                    {/* RIGHT SIDE - SUMMARY */}
+                    {/* RIGHT - Order Summary */}
                     <div className="bg-white p-6 rounded-xl shadow-md h-fit">
                         <h2 className="text-xl font-bold mb-4">Order Summary</h2>
 
-                        {/* ITEM BREAKDOWN */}
                         <div className="space-y-2 mb-4">
                             {cart.map(item => (
                                 <div
                                     key={`${item.id}-${item.size}`}
                                     className="flex justify-between text-sm text-gray-600"
                                 >
-                                    <span>
-                                        {item.name} x{item.quantity}
-                                    </span>
+                                    <span>{item.name} x{item.quantity}</span>
                                     <span>₱{item.price * item.quantity}</span>
                                 </div>
                             ))}
                         </div>
 
-                        {/* SUBTOTAL */}
                         <div className="border-t pt-4 flex justify-between font-semibold text-lg">
                             <span>Subtotal</span>
                             <span>₱{subtotal}</span>
                         </div>
 
-                        {/* PAYMENT OPTIONS */}
                         <div className="mt-6">
                             <h3 className="font-semibold mb-2">Payment Method</h3>
 
@@ -169,7 +194,6 @@ const CartPage = () => {
                             </div>
                         </div>
 
-                        {/* CHECKOUT BUTTON */}
                         <button
                             className="w-full mt-6 py-3 bg-black text-white rounded-full"
                             onClick={handleCheckout}

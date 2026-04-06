@@ -18,6 +18,9 @@ import "./App.css";
 import supabase from './utils/supabase';
 import React from 'react';
 import CartPage from './pages/CartPage';
+import RegisterEmail from './pages/RegisterEmail';
+import VerifyEmail from './pages/VerifyEmail';
+
 
 
 
@@ -53,14 +56,16 @@ function AppInner() {
     <SessionContext.Provider value={session}>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/fitted-caps" element={<Main><FittedCaps /></Main>} />
-        <Route path="/a-frames" element={<Main><AFrames /></Main>} />
-        <Route path="/trucker" element={<Main><Trucker /></Main>} />
-        <Route path="/more-stuff" element={<Main><MoreStuff /></Main>} />
+        <Route path="/fitted-caps" element={<FittedCaps />} />
+        <Route path="/a-frames" element={<AFrames />} />
+        <Route path="/trucker" element={<Trucker />} />
+        <Route path="/more-stuff" element={<MoreStuff />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/account" element={<Account />} />
         <Route path="/cartpage" element={<CartPage />} />
+        <Route path="/register-email" element={<RegisterEmail />} />
+        <Route path="/verify" element={<VerifyEmail />} />
       </Routes>
     </SessionContext.Provider>
   );

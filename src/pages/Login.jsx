@@ -137,7 +137,7 @@ const Login = () => {
                 Sign In
               </button>
               <p className="mt-4 text-center">
-                don't have an account? <Link to="/register" className="text-blue-500 hover:underline">sign up</Link>
+                don't have an account? <Link to="/Register-Email" className="text-blue-500 hover:underline">sign up</Link>
               </p>
             </Card>
           ) : (
