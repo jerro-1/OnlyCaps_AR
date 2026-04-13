@@ -17,7 +17,7 @@ export default function Home() {
             </h1>
             <p className="text-white text-base md:text-lg max-w-xl leading-relaxed mb-6"
               style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
-              Discover the perfect fit with our premium collection of<br />
+              DDiscover the perfect fit with our premium collection of<br />
               authentic fitted baseball caps and exclusive designs.
             </p>
             <Link
