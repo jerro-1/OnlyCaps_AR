@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import Header from '../components/Header';
 import supabase from "../utils/supabase";
+import BgImg from '../components/BgImg';
 
 const CartPage = () => {
     const { cart, removeFromCart, updateQuantity, totalItems, subtotal, clearCart } = useCart();
@@ -95,115 +96,123 @@ const CartPage = () => {
         }
     };
 
+
     return (
         <>
-            <Header />
-            <div className="container mx-auto px-6 pt-24 pb-12">
-                <h1 className="text-3xl font-bold mb-8">
-                    Your Cart ({totalItems} items)
-                </h1>
+            <BgImg>
+                <Header />
+                <div className="container mx-auto px-6 pt-24 pb-12">
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <h1 className="text-4xl font-bold mb-10 text-center">
+                        Your Cart <span className="text-gray-500 text-lg">({totalItems} items)</span>
+                    </h1>
 
-                    {/* LEFT - Cart Items */}
-                    <div className="lg:col-span-2 space-y-4">
-                        {cart.map(item => (
-                            <div
-                                key={`${item.id}-${item.size}`}
-                                className="flex items-center justify-between p-4 border rounded-xl shadow-sm bg-white"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <img
-                                        src={item.image}
-                                        alt={item.name}
-                                        className="w-24 h-24 object-cover rounded-lg"
-                                    />
-                                    <div>
-                                        <h2 className="font-semibold text-lg">{item.name}</h2>
-                                        <p className="text-gray-500 text-sm">Size: {item.size}</p>
-                                        <p className="text-gray-700 font-medium">₱{item.price}</p>
-                                    </div>
-                                </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-                                <div className="flex items-center gap-3">
-                                    <input
-                                        type="number"
-                                        min={1}
-                                        value={item.quantity}
-                                        onChange={(e) =>
-                                            updateQuantity(item.id, item.size, parseInt(e.target.value))
-                                        }
-                                        className="w-16 border rounded text-center"
-                                    />
-
-                                    <button
-                                        onClick={() => removeFromCart(item.id, item.size)}
-                                        className="text-red-500 hover:text-red-700 text-sm"
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* RIGHT - Order Summary */}
-                    <div className="bg-white p-6 rounded-xl shadow-md h-fit">
-                        <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-
-                        <div className="space-y-2 mb-4">
+                        {/* LEFT - Cart Items */}
+                        <div className="lg:col-span-2 space-y-5">
                             {cart.map(item => (
                                 <div
                                     key={`${item.id}-${item.size}`}
-                                    className="flex justify-between text-sm text-gray-600"
+                                    className="flex items-center justify-between p-5 rounded-2xl shadow-md bg-white hover:shadow-lg transition"
                                 >
-                                    <span>{item.name} x{item.quantity}</span>
-                                    <span>₱{item.price * item.quantity}</span>
+                                    <div className="flex items-center gap-5">
+                                        <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="w-28 h-28 object-cover rounded-xl border"
+                                        />
+
+                                        <div>
+                                            <h2 className="font-semibold text-xl">{item.name}</h2>
+                                            <p className="text-gray-500 text-sm mb-1">Size: {item.size}</p>
+                                            <p className="text-black font-bold text-lg">₱{item.price}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-end gap-3">
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            value={item.quantity}
+                                            onChange={(e) =>
+                                                updateQuantity(item.id, item.size, parseInt(e.target.value))
+                                            }
+                                            className="w-20 border rounded-lg text-center py-1 focus:outline-none focus:ring-2 focus:ring-black"
+                                        />
+
+                                        <button
+                                            onClick={() => removeFromCart(item.id, item.size)}
+                                            className="text-red-500 hover:text-red-700 text-sm font-medium"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="border-t pt-4 flex justify-between font-semibold text-lg">
-                            <span>Subtotal</span>
-                            <span>₱{subtotal}</span>
-                        </div>
+                        {/* RIGHT - Order Summary */}
+                        <div className="bg-white p-7 rounded-2xl shadow-lg h-fit sticky top-24">
+                            <h2 className="text-2xl font-bold mb-5">Order Summary</h2>
 
-                        <div className="mt-6">
-                            <h3 className="font-semibold mb-2">Payment Method</h3>
-
-                            <div className="space-y-2">
-                                <label className="flex items-center gap-2 border p-3 rounded-lg cursor-pointer hover:border-black">
-                                    <input
-                                        type="radio"
-                                        name="payment"
-                                        value="gcash"
-                                        onChange={(e) => setPaymentMethod(e.target.value)}
-                                    />
-                                    GCash
-                                </label>
-
-                                <label className="flex items-center gap-2 border p-3 rounded-lg cursor-pointer hover:border-black">
-                                    <input
-                                        type="radio"
-                                        name="payment"
-                                        value="card"
-                                        onChange={(e) => setPaymentMethod(e.target.value)}
-                                    />
-                                    Credit / Debit Card
-                                </label>
+                            <div className="space-y-3 mb-5 max-h-60 overflow-y-auto pr-2">
+                                {cart.map(item => (
+                                    <div
+                                        key={`${item.id}-${item.size}`}
+                                        className="flex justify-between text-sm text-gray-600"
+                                    >
+                                        <span>{item.name} x{item.quantity}</span>
+                                        <span>₱{item.price * item.quantity}</span>
+                                    </div>
+                                ))}
                             </div>
+
+                            <div className="border-t pt-4 flex justify-between font-bold text-xl">
+                                <span>Subtotal</span>
+                                <span>₱{subtotal}</span>
+                            </div>
+
+                            {/* Payment */}
+                            <div className="mt-7">
+                                <h3 className="font-semibold mb-3">Payment Method</h3>
+
+                                <div className="space-y-3">
+                                    <label className={`flex items-center gap-3 border p-3 rounded-xl cursor-pointer transition ${paymentMethod === 'gcash' ? 'border-black bg-gray-100' : 'hover:border-black'
+                                        }`}>
+                                        <input
+                                            type="radio"
+                                            name="payment"
+                                            value="gcash"
+                                            onChange={(e) => setPaymentMethod(e.target.value)}
+                                        />
+                                        GCash
+                                    </label>
+
+                                    <label className={`flex items-center gap-3 border p-3 rounded-xl cursor-pointer transition ${paymentMethod === 'card' ? 'border-black bg-gray-100' : 'hover:border-black'
+                                        }`}>
+                                        <input
+                                            type="radio"
+                                            name="payment"
+                                            value="card"
+                                            onChange={(e) => setPaymentMethod(e.target.value)}
+                                        />
+                                        Credit / Debit Card
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button
+                                className="w-full mt-8 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-800 transition"
+                                onClick={handleCheckout}
+                            >
+                                Checkout
+                            </button>
                         </div>
 
-                        <button
-                            className="w-full mt-6 py-3 bg-black text-white rounded-full"
-                            onClick={handleCheckout}
-                        >
-                            Checkout
-                        </button>
                     </div>
-
                 </div>
-            </div>
+            </BgImg>
         </>
     );
 };

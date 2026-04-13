@@ -44,7 +44,6 @@ const Login = () => {
 
       if (profileError) throw profileError;
 
-      console.log(profile.role);
       setUserRole(profile.role);
       setSession(signInData.session);
 
@@ -80,8 +79,6 @@ const Login = () => {
 
 
   useEffect(() => {
-    console.log("session:", session);
-    console.log("userRole:", userRole);
 
     if (session && userRole === "admin") {
       console.log("You are an admin"); // ✅ will show when both are ready
@@ -97,6 +94,7 @@ const Login = () => {
   return (
 
     <BgImg>
+      <Header />
       <Main className="flex justify-center">
         <div className="flex items-center">
           {!session ? (

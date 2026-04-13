@@ -28,9 +28,9 @@ export default function App() {
   return (
 
     <AuthProvider>
-      <CartProvider>
-        <AppInner />
-      </CartProvider>
+
+      <AppInner />
+
     </AuthProvider>
 
   );
@@ -54,19 +54,21 @@ function AppInner() {
 
   return (
     <SessionContext.Provider value={session}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/fitted-caps" element={<FittedCaps />} />
-        <Route path="/a-frames" element={<AFrames />} />
-        <Route path="/trucker" element={<Trucker />} />
-        <Route path="/more-stuff" element={<MoreStuff />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/cartpage" element={<CartPage />} />
-        <Route path="/register-email" element={<RegisterEmail />} />
-        <Route path="/verify" element={<VerifyEmail />} />
-      </Routes>
+      <CartProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/fitted-caps" element={<FittedCaps />} />
+          <Route path="/a-frames" element={<AFrames />} />
+          <Route path="/trucker" element={<Trucker />} />
+          <Route path="/more-stuff" element={<MoreStuff />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/cartpage" element={<CartPage />} />
+          <Route path="/register-email" element={<RegisterEmail />} />
+          <Route path="/verify" element={<VerifyEmail />} />
+        </Routes>
+      </CartProvider>
     </SessionContext.Provider>
   );
 }

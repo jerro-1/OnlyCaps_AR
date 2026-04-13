@@ -5,7 +5,7 @@ import { SessionContext } from './SessionContext'; // your auth session
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
-  const session = useContext(SessionContext); // ✅ get logged-in user
+  const session = useContext(SessionContext); // get logged-in user
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('onlycaps_cart');
@@ -29,7 +29,6 @@ export function CartProvider({ children }) {
   }, []);
 
   const addToCart = useCallback((product) => {
-    // 🔒 Block if user is not logged in
     if (!session) {
       showNotification('Please sign in to add items to your cart', 'error');
       return;
@@ -54,7 +53,7 @@ export function CartProvider({ children }) {
 
     showNotification(`${product.name} (Size: ${product.size}) added to cart!`);
     setCartOpen(true);
-  }, [showNotification, session]); // ✅ include session
+  }, [showNotification, session]);
 
   const removeFromCart = useCallback((id, size) => {
     setCart(prev => prev.filter(i => !(i.id === id && i.size === size)));
@@ -71,16 +70,18 @@ export function CartProvider({ children }) {
     ));
   }, [removeFromCart]);
 
-  // ✅ Optional: clear cart if user logs out
-  useEffect(() => {
-    if (!session) setCart([]);
-  }, [session]);
+
+  const clearCart = useCallback(() => {
+    setCart([]);
+    localStorage.removeItem('onlycaps_cart');
+  }, []);
 
   return (
     <CartContext.Provider value={{
       cart, totalItems, subtotal,
       cartOpen, setCartOpen,
       addToCart, removeFromCart, updateQuantity,
+      clearCart,
       notification, showNotification,
     }}>
       {children}

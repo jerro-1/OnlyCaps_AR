@@ -46,7 +46,6 @@ const RegisterEmail = () => {
                 });
             }, 1000);
 
-            // go to verify page
             navigate("/verify", { state: { email } });
 
         } catch (error) {

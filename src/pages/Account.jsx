@@ -81,46 +81,74 @@ const Account = () => {
   }
 
   return (
-    <Main className="py-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">Account Information</h1>
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition duration-200"
-            >
-              Edit Account
-            </button>
+    <Main className="py-10 bg-gray-50 min-h-screen">
+      <div className="max-w-3xl mx-auto px-4">
+
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900">My Account</h1>
+
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="bg-black hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-full transition"
+          >
+            Edit Profile
+          </button>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-md p-8 space-y-6">
+
+          {/* User Avatar / Initial */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center text-xl font-bold">
+              {profileData?.firstname?.[0] || "U"}
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800">
+                {profileData?.firstname} {profileData?.lastname}
+              </h2>
+              <p className="text-gray-500 text-sm">{profileData?.email}</p>
+            </div>
           </div>
 
-          <div className="space-y-6">
+          {/* Info Sections */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
             {/* First Name */}
-            <div className="border-b pb-4">
-              <label className="text-gray-600 text-sm font-semibold">First Name</label>
-              <p className="text-gray-800 text-lg mt-2">{profileData?.firstname || 'N/A'}</p>
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <p className="text-sm text-gray-500 mb-1">First Name</p>
+              <p className="text-lg font-semibold text-gray-800">
+                {profileData?.firstname || 'N/A'}
+              </p>
             </div>
 
             {/* Last Name */}
-            <div className="border-b pb-4">
-              <label className="text-gray-600 text-sm font-semibold">Last Name</label>
-              <p className="text-gray-800 text-lg mt-2">{profileData?.lastname || 'N/A'}</p>
+            <div className="bg-gray-50 p-4 rounded-xl">
+              <p className="text-sm text-gray-500 mb-1">Last Name</p>
+              <p className="text-lg font-semibold text-gray-800">
+                {profileData?.lastname || 'N/A'}
+              </p>
             </div>
 
             {/* Email */}
-            <div className="border-b pb-4">
-              <label className="text-gray-600 text-sm font-semibold">Email Address</label>
-              <p className="text-gray-800 text-lg mt-2">{profileData?.email || 'N/A'}</p>
+            <div className="bg-gray-50 p-4 rounded-xl col-span-1 sm:col-span-2">
+              <p className="text-sm text-gray-500 mb-1">Email Address</p>
+              <p className="text-lg font-semibold text-gray-800">
+                {profileData?.email || 'N/A'}
+              </p>
             </div>
 
             {/* Shipping Address */}
-            <div className="border-b pb-4">
-              <label className="text-gray-600 text-sm font-semibold">Shipping Address</label>
-              <p className="text-gray-800 text-lg mt-2">
+            <div className="bg-gray-50 p-4 rounded-xl col-span-1 sm:col-span-2">
+              <p className="text-sm text-gray-500 mb-1">Shipping Address</p>
+              <p className="text-lg font-semibold text-gray-800 break-words">
                 {profileData?.shipping_address || 'Not set'}
               </p>
             </div>
+
           </div>
+
         </div>
       </div>
 

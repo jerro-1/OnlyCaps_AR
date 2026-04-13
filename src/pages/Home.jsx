@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <div className="bg-white text-black font-body pt-16">
+      <div className="bg-black text-white font-body pt-16">
 
         {/* Hero Section */}
         <section className="relative flex items-center w-full hero-short hero-background" style={{ marginTop: 0 }}>
@@ -30,7 +30,7 @@ export default function Home() {
         </section>
 
         {/* Divider */}
-        <div className="section-divider" />
+        <div className="section-divider bg-white" />
 
         {/* 4-Grid Sections */}
         <section className="w-full dissolve-section">

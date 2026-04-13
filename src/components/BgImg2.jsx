@@ -1,10 +1,10 @@
 import React from 'react'
 
-const BgImg = ({ children }) => {
+const BgImg2 = ({ children }) => {
     return (
         <div
             style={{
-                backgroundImage: "url('/images/Darkbg.png')",
+                backgroundImage: "url('/images/FITTED CAPS.png')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
@@ -18,4 +18,4 @@ const BgImg = ({ children }) => {
     )
 }
 
-export default BgImg
+export default BgImg2

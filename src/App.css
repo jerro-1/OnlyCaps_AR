@@ -100,6 +100,23 @@
     text-transform: uppercase;
 }
 
+.size-btn {
+    padding: 2px 6px;
+
+    border: 1px solid #000;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.size-btn.selected {
+    background-color: black;
+    color: white;
+    /* text color */
+}
+
 .nav-link:hover {
     color: #00BFFF;
 }
@@ -167,12 +184,13 @@
 .section-divider {
     width: 100%;
     height: 60px;
-    background-image: url('images/divider.png');
+    background-image: url('images/divider2.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border-top: 2px solid white;
-    border-bottom: 2px solid white;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+
 }
 
 .small-divider {
