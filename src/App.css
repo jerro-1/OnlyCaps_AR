@@ -15,7 +15,7 @@
 
 /* Standard CSS for the Background Images */
 .hero-background {
-    background-image: url('images/FRONT PAGE.png');
+    background-image: url('/images/FRONT PAGE.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
