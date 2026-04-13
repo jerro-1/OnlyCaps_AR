@@ -13,7 +13,7 @@ export default function Home() {
           <div className="flex flex-col justify-center items-start px-10 md:px-20 w-full md:w-2/3 lg:w-1/2 h-full relative z-10">
             <h1 className="float-heading text-7xl md:text-8xl lg:text-9xl font-heading mb-4 tracking-wide text-white uppercase leading-tight"
               style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-              FITTED CAPS
+              FITTTED CAPS
             </h1>
             <p className="text-white text-base md:text-lg max-w-xl leading-relaxed mb-6"
               style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
