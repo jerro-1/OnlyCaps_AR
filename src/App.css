@@ -47,7 +47,7 @@
 
 /* About Section Background */
 .about-background {
-    background-image: url('images/about.png');
+    background-image: url('/images/about.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -184,7 +184,7 @@
 .section-divider {
     width: 100%;
     height: 60px;
-    background-image: url('images/divider2.png');
+    background-image: url('/images/divider2.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -196,7 +196,7 @@
 .small-divider {
     width: 100%;
     height: 30px;
-    background-image: url('images/divider.png');
+    background-image: url('/images/divider.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -209,7 +209,7 @@
     width: 100%;
     min-height: 250px;
     background-color: #1a1a1a;
-    background-image: url('images/element.png');
+    background-image: url('/images/element.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
