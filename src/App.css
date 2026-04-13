@@ -22,25 +22,25 @@
 }
 
 .grid-section-1 {
-    background-image: url('images/FITTED CAPS.png');
+    background-image: url('/images/FITTED CAPS.png');
     background-size: cover;
     background-position: center;
 }
 
 .grid-section-2 {
-    background-image: url('images/A FRAMES.png');
+    background-image: url('/images/A FRAMES.png');
     background-size: cover;
     background-position: center;
 }
 
 .grid-section-3 {
-    background-image: url('images/TRUCKER.png');
+    background-image: url('/images/TRUCKER.png');
     background-size: cover;
     background-position: center;
 }
 
 .grid-section-4 {
-    background-image: url('images/MORE STUFF.png');
+    background-image: url('/images/MORE STUFF.png');
     background-size: cover;
     background-position: center;
 }
