@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import Header from '../components/Header';
 import supabase from "../utils/supabase";
 import BgImg from '../components/BgImg';
+import Footer from '../components/Footer';
 
 const CartPage = () => {
     const { cart, removeFromCart, updateQuantity, totalItems, subtotal, clearCart } = useCart();
@@ -76,11 +77,13 @@ const CartPage = () => {
             // Insert order items
             const items = cart.map(item => ({
                 order_id: order.id,
+                user_id: user.id,
                 product_id: item.id,
                 name: item.name,
                 size: item.size,
                 price: item.price,
-                quantity: item.quantity
+                quantity: item.quantity,
+                image: item.image
             }));
 
             const { error: itemsError } = await supabase
@@ -213,6 +216,7 @@ const CartPage = () => {
                     </div>
                 </div>
             </BgImg>
+            <Footer />
         </>
     );
 };

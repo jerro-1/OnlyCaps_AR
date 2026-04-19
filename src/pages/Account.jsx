@@ -3,6 +3,9 @@ import supabase from '../utils/supabase';
 import { decryptText } from '../utils/encryption';
 import Main from '../components/Main';
 import EditAccountForm from '../components/EditAccountForm';
+import Header from '../components/Header';
+import SideBar from '../components/SideBar';
+import Footer from '../components/Footer';
 
 const Account = () => {
   const [session, setSession] = useState(null);
@@ -63,7 +66,9 @@ const Account = () => {
       <Main className="flex justify-center items-center min-h-screen">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Please Log In</h2>
-          <p className="text-gray-600">You need to be logged in to view your account information.</p>
+          <p className="text-gray-600">
+            You need to be logged in to view your account information.
+          </p>
         </div>
       </Main>
     );
@@ -81,78 +86,90 @@ const Account = () => {
   }
 
   return (
-    <Main className="py-10 bg-gray-50 min-h-screen">
-      <div className="max-w-3xl mx-auto px-4">
+    <>
+      <Header />
 
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">My Account</h1>
+      <div className="py-20 max-w-6xl mx-auto px-4 flex gap-8">
+        <SideBar />
 
-          <button
-            onClick={() => setIsEditModalOpen(true)}
-            className="bg-black hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-full transition"
-          >
-            Edit Profile
-          </button>
-        </div>
+        {/* MAIN CONTENT */}
+        <div className="w-3/4">
+          <div className="max-w-3xl mx-auto">
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-md p-8 space-y-6">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-4xl font-bold text-gray-900">
+                My Account
+              </h1>
 
-          {/* User Avatar / Initial */}
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center text-xl font-bold">
-              {profileData?.firstname?.[0] || "U"}
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="bg-black hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-full transition"
+              >
+                Edit Profile
+              </button>
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                {profileData?.firstname} {profileData?.lastname}
-              </h2>
-              <p className="text-gray-500 text-sm">{profileData?.email}</p>
+
+            {/* Profile Card */}
+            <div className="bg-white rounded-2xl shadow-md p-8 space-y-6">
+
+              {/* Avatar */}
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center text-xl font-bold">
+                  {profileData?.firstname?.[0] || "U"}
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    {profileData?.firstname} {profileData?.lastname}
+                  </h2>
+                  <p className="text-gray-500 text-sm">
+                    {profileData?.email}
+                  </p>
+                </div>
+              </div>
+
+              {/* Info */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                <div className="bg-gray-50 p-4 rounded-xl">
+                  <p className="text-sm text-gray-500 mb-1">First Name</p>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {profileData?.firstname || 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-xl">
+                  <p className="text-sm text-gray-500 mb-1">Last Name</p>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {profileData?.lastname || 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-xl col-span-1 sm:col-span-2">
+                  <p className="text-sm text-gray-500 mb-1">Email Address</p>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {profileData?.email || 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-xl col-span-1 sm:col-span-2">
+                  <p className="text-sm text-gray-500 mb-1">
+                    Shipping Address
+                  </p>
+                  <p className="text-lg font-semibold text-gray-800 break-words">
+                    {profileData?.shipping_address || 'Not set'}
+                  </p>
+                </div>
+
+              </div>
             </div>
+
           </div>
-
-          {/* Info Sections */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-            {/* First Name */}
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <p className="text-sm text-gray-500 mb-1">First Name</p>
-              <p className="text-lg font-semibold text-gray-800">
-                {profileData?.firstname || 'N/A'}
-              </p>
-            </div>
-
-            {/* Last Name */}
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <p className="text-sm text-gray-500 mb-1">Last Name</p>
-              <p className="text-lg font-semibold text-gray-800">
-                {profileData?.lastname || 'N/A'}
-              </p>
-            </div>
-
-            {/* Email */}
-            <div className="bg-gray-50 p-4 rounded-xl col-span-1 sm:col-span-2">
-              <p className="text-sm text-gray-500 mb-1">Email Address</p>
-              <p className="text-lg font-semibold text-gray-800">
-                {profileData?.email || 'N/A'}
-              </p>
-            </div>
-
-            {/* Shipping Address */}
-            <div className="bg-gray-50 p-4 rounded-xl col-span-1 sm:col-span-2">
-              <p className="text-sm text-gray-500 mb-1">Shipping Address</p>
-              <p className="text-lg font-semibold text-gray-800 break-words">
-                {profileData?.shipping_address || 'Not set'}
-              </p>
-            </div>
-
-          </div>
-
         </div>
       </div>
 
-      {/* Edit Modal */}
+
+      {/* Modal */}
       {isEditModalOpen && (
         <EditAccountForm
           profileData={profileData}
@@ -160,7 +177,8 @@ const Account = () => {
           onSave={handleUpdateProfile}
         />
       )}
-    </Main>
+      <Footer />
+    </>
   );
 };
 

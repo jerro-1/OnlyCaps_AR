@@ -87,6 +87,7 @@ const Login = () => {
     // Redirect if logged in
     if (session) {
       console.log("Redirecting to home"); // ✅ will show when session is set
+      Navigate("/");
     }
   }, [session, userRole, Navigate]);
 

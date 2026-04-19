@@ -4,7 +4,7 @@ const HeaderNavLink = ({ to, linkText }) => {
     return (
         <NavLink
             className={({ isActive }) =>
-                isActive ? "text-green-700 " : "text-black "
+                isActive ? " text-xs text-green-700 " : "text-black text-xs "
             }
             to={to}
         >

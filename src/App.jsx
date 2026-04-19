@@ -20,6 +20,8 @@ import React from 'react';
 import CartPage from './pages/CartPage';
 import RegisterEmail from './pages/RegisterEmail';
 import VerifyEmail from './pages/VerifyEmail';
+import Orders from './pages/Orders';
+import Admin from './pages/Admin';
 
 
 
@@ -28,9 +30,7 @@ export default function App() {
   return (
 
     <AuthProvider>
-
       <AppInner />
-
     </AuthProvider>
 
   );
@@ -67,6 +67,8 @@ function AppInner() {
           <Route path="/cartpage" element={<CartPage />} />
           <Route path="/register-email" element={<RegisterEmail />} />
           <Route path="/verify" element={<VerifyEmail />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </CartProvider>
     </SessionContext.Provider>

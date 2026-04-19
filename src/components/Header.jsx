@@ -4,12 +4,40 @@ import CartPopup from './CartPopup';
 import supabase from "../utils/supabase";
 import { SessionContext } from "../context/SessionContext";
 import HeaderNavLink from './HeaderNavLink';
-import React, { useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { BsCart2 } from "react-icons/bs";
+import { NavLink } from "react-router-dom";
+import { VscAccount } from "react-icons/vsc";
+
 
 export default function Header() {
   const { totalItems, setCartOpen } = useCart();
   const session = useContext(SessionContext);
   const navigate = useNavigate();
+  const [profileInitials, setProfileInitials] = useState("");
+
+  useEffect(() => {
+    if (!session) return;
+
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
+        .from("profiles") // your table
+        .select("firstname, lastname") // match your column names exactly
+        .eq("id", session.user.id) // make sure this is the same column as in your table
+        .single();
+
+      if (error) {
+        console.log("Error fetching profile:", error.message);
+      } else if (data) {
+        // get first letters of firstname and lastname
+        const initials =
+          (data.firstname?.[0] ?? "") + (data.lastname?.[0] ?? "");
+        setProfileInitials(initials.toUpperCase());
+      }
+    };
+
+    fetchProfile();
+  }, [session]);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -20,6 +48,7 @@ export default function Header() {
     }
   };
 
+
   return (
     <>
       <header className="w-full bg-white shadow-sm fixed top-0 z-50 py-3">
@@ -28,7 +57,6 @@ export default function Header() {
           <ul className="flex gap-8 text-base tracking-wide font-medium list-none m-0 p-0">
             <li><HeaderNavLink to="/" linkText="HOME" /></li>
             <li><HeaderNavLink to="/shop" linkText="SHOP" /></li>
-            <li><HeaderNavLink to="/fitting" linkText="FITTING RECOMMENDATION" /></li>
           </ul>
 
           {/* Center Logo */}
@@ -43,32 +71,54 @@ export default function Header() {
           {/* Right Nav */}
           <div className="flex items-center gap-6">
             <ul className="flex gap-6 text-base tracking-wide font-medium mr-4 list-none m-0 p-0">
-              <li><a href="#about" className="nav-link">ABOUT</a></li>
+              <li><HeaderNavLink to="/" linkText="ABOUT" /></li>
               {session && <li><HeaderNavLink to="/account" linkText="ACCOUNT" /></li>}
               <li><HeaderNavLink to="/cap-measurement" linkText="CAP MEASUREMENT" /></li>
             </ul>
 
             {/* Icons */}
-            <div className="flex items-center gap-4">
-              <Link to="/login" className="profile-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </Link>
 
-              <button
-                className="relative cursor-pointer bg-transparent border-none p-0"
-                onClick={() => setCartOpen(true)}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+            <div className="flex items-center gap-4">
+
+              {!session && (
+                <Link to="/login" className="profile-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </Link>
+              )}
+
+              {/* testProfile */}
+              {session && (
+                <div className="dropdown dropdown-end">
+                  <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar bg-[#003a2f] text-[#b38a2c] flex items-center justify-center font-bold">
+
+                    {profileInitials || "AC"}
+
+                  </div>
+                  <ul
+                    tabIndex="-1"
+                    className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                    <li>
+                      <a className="justify-between">
+                        Profile
+                        <span className="badge">New</span>
+                      </a>
+                    </li>
+                    <li><a>Settings</a></li>
+                    <li><a>Logout</a></li>
+                  </ul>
+                </div>
+              )}
+
+              <NavLink to="/cartpage" className="relative">
+                <BsCart2 className="h-6 w-6 text-gray-700" />
 
                 {/* 👈 Only show cart count if user is logged in */}
                 {session && totalItems > 0 && (
                   <span className="cart-count-badge">{totalItems}</span>
                 )}
-              </button>
+              </NavLink>
             </div>
 
             {/* Auth buttons */}
@@ -90,8 +140,8 @@ export default function Header() {
               </Link>
             )}
           </div>
-        </nav>
-      </header>
+        </nav >
+      </header >
 
       <CartPopup />
     </>
