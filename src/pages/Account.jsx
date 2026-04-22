@@ -6,6 +6,9 @@ import EditAccountForm from '../components/EditAccountForm';
 import Header from '../components/Header';
 import SideBar from '../components/SideBar';
 import Footer from '../components/Footer';
+import Footer2 from '../components/Footer2';
+import Initials from '../components/Initials';
+import BgImg from '../components/BgImg';
 
 const Account = () => {
   const [session, setSession] = useState(null);
@@ -87,9 +90,10 @@ const Account = () => {
 
   return (
     <>
+
       <Header />
 
-      <div className="py-20 max-w-6xl mx-auto px-4 flex gap-8">
+      <div className="py-30 ml-20 mr-20 flex gap-8">
         <SideBar />
 
         {/* MAIN CONTENT */}
@@ -115,8 +119,8 @@ const Account = () => {
 
               {/* Avatar */}
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center text-xl font-bold">
-                  {profileData?.firstname?.[0] || "U"}
+                <div className='avatar bg-black text-white flex items-center justify-center font-bold'>
+                  <Initials classname="w-10 h-10" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-gray-800">
@@ -125,6 +129,7 @@ const Account = () => {
                   <p className="text-gray-500 text-sm">
                     {profileData?.email}
                   </p>
+
                 </div>
               </div>
 
@@ -145,10 +150,24 @@ const Account = () => {
                   </p>
                 </div>
 
+                <div className="bg-gray-50 p-4 rounded-xl">
+                  <p className="text-sm text-gray-500 mb-1">Gender</p>
+                  <p className="text-lg font-semibold text-gray-800">
+                    Male
+                  </p>
+                </div>
+
                 <div className="bg-gray-50 p-4 rounded-xl col-span-1 sm:col-span-2">
                   <p className="text-sm text-gray-500 mb-1">Email Address</p>
                   <p className="text-lg font-semibold text-gray-800">
                     {profileData?.email || 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-xl col-span-1 sm:col-span-2">
+                  <p className="text-sm text-gray-500 mb-1">Date joined</p>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {profileData?.created_at}
                   </p>
                 </div>
 
@@ -169,6 +188,7 @@ const Account = () => {
       </div>
 
 
+
       {/* Modal */}
       {isEditModalOpen && (
         <EditAccountForm
@@ -177,7 +197,7 @@ const Account = () => {
           onSave={handleUpdateProfile}
         />
       )}
-      <Footer />
+      <Footer2 />
     </>
   );
 };

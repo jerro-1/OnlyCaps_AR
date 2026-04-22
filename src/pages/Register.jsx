@@ -40,14 +40,12 @@ const Register = () => {
         return;
       }
 
-      // 🔥 SET PASSWORD FOR VERIFIED USER
       const { error: passwordError } = await supabase.auth.updateUser({
         password: formData.password
       });
 
       if (passwordError) throw passwordError;
 
-      // 🔥 INSERT PROFILE
       const { error: profileError } = await supabase
         .from("profiles")
         .insert({

@@ -9,7 +9,7 @@ import supabase from "../utils/supabase";
 import { NavLink } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import BgImg from "../components/BgImg";
-
+import Footer from "../components/Footer";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -93,63 +93,66 @@ const Login = () => {
 
 
   return (
+    <>
+      <BgImg>
+        <Header />
+        <Main className="flex justify-center">
+          <div className="flex items-center">
+            {!session ? (
+              <Card>
+                <div className="flex justify-center mb-6">
+                  <NavLink to="/">
+                    <img src="/images/LOGO.png" alt="ONLYCaps" className="logo-img-large"
+                      onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
+                    <span className="font-heading text-2xl tracking-wider hidden">ONLYCAPS</span>
+                  </NavLink>
+                </div>
+                <h1 className="flex items-center text-xl font-bold mb-4">
+                  <NavLink to="/" title="Home">
+                    <FaArrowLeft className="mr-2" />
+                  </NavLink>
+                  Sign In
+                </h1>
+                <Input
+                  label="Email"
+                  name="email"
+                  type="text"
+                  placeholder="Enter your Email"
+                  className="w-full mb-3 text-black"
+                  onChange={handleInputChange}
+                />
+                <Input
+                  label="Password"
+                  name="password"
+                  type="password"
+                  placeholder="Enter your Password"
+                  className="w-full mb-5 text-black"
+                  onChange={handleInputChange}
+                />
+                <button
+                  className="btn btn-primary w-full" style={{ backgroundColor: '#000000', border: 'none', boxShadow: 'none', color: 'white' }}
+                  onClick={handleSubmit}
+                >
+                  Sign In
+                </button>
+                <p className="mt-4 text-center">
+                  don't have an account? <Link to="/Register-Email" className="text-blue-500 hover:underline">sign up</Link>
+                </p>
+              </Card>
+            ) : (
+              <div className="text-center">
+                <p className="text-lg font-bold mb-4">✓ Logged in successfully!</p>
+                <p className="text-gray-600">Role: {userRole || "User"}</p>
 
-    <BgImg>
-      <Header />
-      <Main className="flex justify-center">
-        <div className="flex items-center">
-          {!session ? (
-            <Card>
-              <div className="flex justify-center mb-6">
-                <NavLink to="/">
-                  <img src="/images/LOGO.png" alt="ONLYCaps" className="logo-img-large"
-                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
-                  <span className="font-heading text-2xl tracking-wider hidden">ONLYCAPS</span>
-                </NavLink>
               </div>
-              <h1 className="flex items-center text-xl font-bold mb-4">
-                <NavLink to="/" title="Home">
-                  <FaArrowLeft className="mr-2" />
-                </NavLink>
-                Sign In
-              </h1>
-              <Input
-                label="Email"
-                name="email"
-                type="text"
-                placeholder="Enter your Email"
-                className="w-full mb-3 text-black"
-                onChange={handleInputChange}
-              />
-              <Input
-                label="Password"
-                name="password"
-                type="password"
-                placeholder="Enter your Password"
-                className="w-full mb-5 text-black"
-                onChange={handleInputChange}
-              />
-              <button
-                className="btn btn-primary w-full" style={{ backgroundColor: '#000000', border: 'none', boxShadow: 'none', color: 'white' }}
-                onClick={handleSubmit}
-              >
-                Sign In
-              </button>
-              <p className="mt-4 text-center">
-                don't have an account? <Link to="/Register-Email" className="text-blue-500 hover:underline">sign up</Link>
-              </p>
-            </Card>
-          ) : (
-            <div className="text-center">
-              <p className="text-lg font-bold mb-4">✓ Logged in successfully!</p>
-              <p className="text-gray-600">Role: {userRole || "User"}</p>
+            )}
+          </div>
 
-            </div>
-          )}
-        </div>
-      </Main>
-    </BgImg>
+        </Main>
 
+      </BgImg>
+      <Footer />
+    </>
   );
 
 };

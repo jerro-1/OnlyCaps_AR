@@ -22,7 +22,7 @@ import RegisterEmail from './pages/RegisterEmail';
 import VerifyEmail from './pages/VerifyEmail';
 import Orders from './pages/Orders';
 import Admin from './pages/Admin';
-
+import FaceTracker from './pages/FaceTracker';
 
 
 
@@ -69,6 +69,7 @@ function AppInner() {
           <Route path="/verify" element={<VerifyEmail />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/face-tracker" element={<FaceTracker />} />
         </Routes>
       </CartProvider>
     </SessionContext.Provider>

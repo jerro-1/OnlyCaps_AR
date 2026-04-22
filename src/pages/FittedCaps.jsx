@@ -1,27 +1,18 @@
-import { useState, useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useCart } from '../context/CartContext';
 import { SessionContext } from '../context/SessionContext';
 import ProductCard from '../components/ProductCard';
 import Header from '../components/Header';
 import BgImg2 from '../components/BgImg2';
+import { Link, useNavigate } from 'react-router-dom';
+import FaceTracker from '../pages/FaceTracker';
+import supabase from '../utils/supabase';
 
-const PRODUCTS = [
-  { id: 'yankees-navy', name: 'New York Yankees', fullName: 'New York Yankees Navy Classic', subtitle: 'Navy Classic 59FIFTY Fitted', description: 'The iconic New York Yankees fitted cap in navy blue. Features the classic interlocking NY logo embroidered on the front. Made with premium wool blend for lasting comfort and shape.', price: 500, image: '/images/yankees-navy.png' },
-  { id: 'dodgers-royal', name: 'Los Angeles Dodgers', fullName: 'Los Angeles Dodgers Royal Blue', subtitle: 'Royal Blue 59FIFTY Fitted', description: 'Show your Dodgers pride with this royal blue fitted cap. Features the iconic LA logo embroidered in white. Official MLB merchandise.', price: 500, image: '/images/dodgers-royal.png' },
-  { id: 'redsox-maroon', name: 'Boston Red Sox', fullName: 'Boston Red Sox Maroon Heritage', subtitle: 'Maroon Heritage 59FIFTY Fitted', description: 'Classic Boston Red Sox fitted cap in maroon. Features the iconic hanging socks logo. Premium quality and authentic design.', price: 500, image: '/images/redsox-maroon.png' },
-  { id: 'whitesox-black', name: 'Chicago White Sox', fullName: 'Chicago White Sox Blackout', subtitle: 'Blackout 59FIFTY Fitted', description: 'Sleek black-on-black Chicago White Sox fitted cap. Features embroidered logo with subtle contrast stitching.', price: 500, image: '/images/whitesox-black.png' },
-  { id: 'braves-midnight', name: 'Atlanta Braves', fullName: 'Atlanta Braves Midnight Blue', subtitle: 'Midnight Blue 59FIFTY Fitted', description: 'Atlanta Braves fitted cap in deep midnight blue. Features the iconic tomahawk logo. Premium construction.', price: 500, image: '/images/braves-midnight.png' },
-  { id: 'giants-orange', name: 'San Francisco Giants', fullName: 'San Francisco Giants Orange Rush', subtitle: 'Orange Rush 59FIFTY Fitted', description: 'Bold orange San Francisco Giants fitted cap. Features the iconic "SF" logo. Stand out in the crowd.', price: 500, image: '/images/giants-orange.png' },
-  { id: 'astros-space', name: 'Houston Astros', fullName: 'Houston Astros Space City Navy', subtitle: 'Space City Navy 59FIFTY Fitted', description: 'Houston Astros fitted cap in navy blue with "Space City" star logo. Unique design for true fans.', price: 500, image: '/images/astros-space.png' },
-  { id: 'bluejays-sky', name: 'Toronto Blue Jays', fullName: 'Toronto Blue Jays Sky Blue', subtitle: 'Sky Blue 59FIFTY Fitted', description: 'Toronto Blue Jays fitted cap in sky blue. Features the iconic bird logo. Fresh and vibrant.', price: 500, image: '/images/bluejays-sky.png' },
-  { id: 'tigers-vintage', name: 'Detroit Tigers', fullName: 'Detroit Tigers Vintage Navy', subtitle: 'Vintage Navy 59FIFTY Fitted', description: 'Detroit Tigers fitted cap in vintage navy. Features old-school tiger logo. Retro styling.', price: 500, image: '/images/tigers-vintage.png' },
-  { id: 'mets-orange', name: 'New York Mets', fullName: 'New York Mets Bright Orange', subtitle: 'Bright Orange 59FIFTY Fitted', description: 'New York Mets fitted cap in bright orange. Features iconic Mets logo. Bold and stylish.', price: 500, image: '/images/mets-orange.png' },
-  { id: 'phillies-red', name: 'Philadelphia Phillies', fullName: 'Philadelphia Phillies Deep Red', subtitle: 'Deep Red 59FIFTY Fitted', description: 'Philadelphia Phillies fitted cap in deep red. Features classic "P" logo. A fan favorite.', price: 500, image: '/images/phillies-red.png' },
-  { id: 'mariners-teal', name: 'Seattle Mariners', fullName: 'Seattle Mariners Teal Wave', subtitle: 'Teal Wave 59FIFTY Fitted', description: 'Seattle Mariners fitted cap in teal. Features unique wave logo. Perfect for Mariners fans.', price: 500, image: '/images/mariners-teal.png' },
-  { id: 'padres-sand', name: 'San Diego Padres', fullName: 'San Diego Padres Sand Brown', subtitle: 'Sand Brown 59FIFTY Fitted', description: 'San Diego Padres fitted cap in sand brown. Features retro Padres logo. Unique colorway.', price: 500, image: '/images/padres-sand.png' },
-  { id: 'brewers-gold', name: 'Milwaukee Brewers', fullName: 'Milwaukee Brewers Gold Edition', subtitle: 'Gold Edition 59FIFTY Fitted', description: 'Milwaukee Brewers fitted cap in gold. Features "MB" logo with barley design. Premium edition.', price: 500, image: '/images/brewers-gold.png' },
-  { id: 'royals-ice', name: 'Kansas City Royals', fullName: 'Kansas City Royals Royal Blue Ice', subtitle: 'Royal Blue Ice 59FIFTY Fitted', description: 'Kansas City Royals fitted cap in ice blue. Features classic crown logo. Cool and stylish.', price: 500, image: '/images/royals-ice.png' },
-];
+
+
+
+
+
 
 const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
 
@@ -29,11 +20,40 @@ export default function FittedCaps() {
   const { addToCart } = useCart();
   const session = useContext(SessionContext); // get logged-in session
   const [visible, setVisible] = useState(6);
+  const [products, setProducts] = useState([]);
   const [modal, setModal] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [shake, setShake] = useState(false);
+  const navigate = useNavigate();
+  const [showFaceTracker, setShowFaceTracker] = useState(false);
 
-  const loadMore = () => setVisible(v => Math.min(v + 3, PRODUCTS.length));
+  const loadMore = () => setVisible(v => Math.min(v + 3, products.length));
+
+
+  useEffect(() => {
+    if (!session) {
+      fetchProducts();
+    } else if (session) {
+      fetchProducts();
+    }
+  }, [session]);
+
+  const fetchProducts = async () => {
+
+    const { data, error } = await supabase
+      .from('products')
+      .select('*');
+
+    if (error) {
+      console.error(error);
+    }
+    setProducts(data);
+  };
+
+
+
+
+  console.log("products from fitted caps", products);
 
   const openModal = (product) => {
     setModal(product);
@@ -60,7 +80,7 @@ export default function FittedCaps() {
 
     addToCart({
       id: modal.id,
-      name: modal.fullName,
+      name: modal.full_name,
       price: modal.price,
       size: selectedSize,
       image: modal.image,
@@ -82,13 +102,13 @@ export default function FittedCaps() {
               </h1>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {PRODUCTS.slice(0, visible).map(product => (
+                {products.slice(0, visible).map(product => (
                   <ProductCard key={product.id} product={product} onClick={openModal} />
                 ))}
               </div>
 
               <div className="text-center mt-12">
-                {visible < PRODUCTS.length ? (
+                {visible < products.length ? (
                   <button
                     onClick={loadMore}
                     className="btn-hover bg-gray-800 text-white px-10 py-3 rounded-full font-medium hover:bg-black transition text-sm border-none cursor-pointer"
@@ -116,7 +136,7 @@ export default function FittedCaps() {
                   {/* Image */}
                   <div>
                     <div className="bg-gray-100 rounded-xl overflow-hidden">
-                      <img src={modal.image} alt={modal.fullName} className="w-full object-cover" />
+                      <img src={modal.image} alt={modal.full_name} className="w-full object-cover" />
                     </div>
                   </div>
 
@@ -147,9 +167,19 @@ export default function FittedCaps() {
                       </div>
                     </div>
 
+
+                    <button
+                      onClick={() => {
+                        closeModal();
+                        setShowFaceTracker(true);
+                      }}
+                      className="w-full bg-black text-white py-2 rounded-full font-medium hover:bg-gray-800 transition text-lg btn-hover border-none cursor-pointer"
+                    >
+                      TRY IT ON
+                    </button>
                     <button
                       onClick={handleAddToCart}
-                      className="w-full bg-black text-white py-4 rounded-full font-medium hover:bg-gray-800 transition text-lg btn-hover border-none cursor-pointer"
+                      className="w-full bg-black text-white py-2 rounded-full font-medium hover:bg-gray-800 transition text-lg btn-hover border-none cursor-pointer"
                     >
                       ADD TO CART
                     </button>
@@ -165,7 +195,33 @@ export default function FittedCaps() {
               </div>
             </div>
           )}
+          {showFaceTracker && (
+            <div
+              className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4"
+              onClick={() => setShowFaceTracker(false)}
+            >
+              <div
+                className="bg-black rounded-2xl max-w-4xl w-full h-[90vh] relative overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close button */}
+                <button
+                  onClick={() => setShowFaceTracker(false)}
+                  className="absolute top-4 right-4 text-white z-10 bg-black/50 rounded-full p-2"
+                >
+                  ✕
+                </button>
+
+
+                <div className="w-full h-full">
+                  <FaceTracker />
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
+
       </BgImg2>
     </>
   );

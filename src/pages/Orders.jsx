@@ -4,6 +4,7 @@ import SideBar from '../components/SideBar';
 import supabase from '../utils/supabase';
 import OrderCard from '../components/OrderCard';
 import Footer from '../components/Footer';
+import Footer2 from '../components/Footer2';
 
 const Orders = () => {
     const [session, setSession] = useState(null);
@@ -57,7 +58,7 @@ const Orders = () => {
         <>
             <Header />
 
-            <div className="py-20 max-w-6xl mx-auto px-4 flex gap-8">
+            <div className="py-30 ml-20 mr-20 flex gap-8">
                 <SideBar />
 
                 <div className="flex-1">
@@ -113,7 +114,7 @@ const Orders = () => {
                     )}
                 </div>
             </div>
-            <Footer />
+            <Footer2 />
         </>
     );
 };

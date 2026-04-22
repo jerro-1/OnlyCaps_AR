@@ -63,5 +63,5 @@ export default function MoreStuff() {
         </div>
       </section>
     </div>
-  );
+  ) ;
 }

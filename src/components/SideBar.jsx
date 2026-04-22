@@ -1,8 +1,21 @@
 import React from 'react'
 import { HiOutlineUser, HiOutlineClipboardList } from "react-icons/hi";
 import { NavLink } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { CiLogout } from "react-icons/ci";
 
 const SideBar = () => {
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            alert(error.message);
+        } else {
+            navigate("/");
+        }
+    };
+
     return (
 
         <div className="w-1/4">
@@ -18,6 +31,9 @@ const SideBar = () => {
 
                     <li className="flex items-center gap-2 text-gray-700 hover:text-black cursor-pointer">
                         <HiOutlineClipboardList /><NavLink to="/orders"> Orders </NavLink>
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700 hover:text-black cursor-pointer">
+                        <CiLogout /><button onClick={handleLogout} className="test">Logout</button>
                     </li>
                 </ul>
             </div>

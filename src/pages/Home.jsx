@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ShopButn from '../components/ShopButn';
+import { FaceDetector } from '@mediapipe/tasks-vision';
 
 export default function Home() {
   return (
@@ -13,16 +15,16 @@ export default function Home() {
           <div className="flex flex-col justify-center items-start px-10 md:px-20 w-full md:w-2/3 lg:w-1/2 h-full relative z-10">
             <h1 className="float-heading text-7xl md:text-8xl lg:text-9xl font-heading mb-4 tracking-wide text-white uppercase leading-tight"
               style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-              FITTTED CAPS
+              FITTED CAPS
             </h1>
-            <p className="text-white text-base md:text-lg max-w-xl leading-relaxed mb-6"
+            <p className="text-white text-base md:text-lg max-w-xl leading-relaxed mb-6 font-thin"
               style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
               Discover the perfect fit with our premium collection of<br />
               authentic fitted baseball caps and exclusive designs.
             </p>
             <Link
               to="/fitted-caps"
-              className="btn-hover bg-white text-black px-8 py-3 md:px-10 md:py-4 rounded-full font-medium hover:bg-gray-200 transition text-sm md:text-base tracking-wide inline-block shadow-lg no-underline"
+              className="btn-hover bg-white text-black px-8 py-3 md:px-10 md:py-4 rounded-full font-thin hover:bg-gray-200 transition text-sm md:text-base tracking-wide inline-block shadow-lg no-underline"
             >
               SHOP COLLECTION
             </Link>
@@ -40,7 +42,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-black/40" />
               <div className="relative z-10 flex flex-col items-center justify-center text-center">
                 <h2 className="grid-text text-5xl md:text-6xl font-heading mb-6 tracking-wide text-white uppercase">FITTED CAPS</h2>
-                <div className="grid-btn btn-hover bg-white text-black px-8 py-3 rounded-full font-medium text-sm tracking-wide inline-block">SHOP NOW</div>
+                <ShopButn>SHOP NOW</ShopButn >
               </div>
             </Link>
 
@@ -49,7 +51,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-black/40" />
               <div className="relative z-10 flex flex-col items-center justify-center text-center">
                 <h2 className="grid-text text-5xl md:text-6xl font-heading mb-6 tracking-wide text-white uppercase">A-FRAMES</h2>
-                <div className="grid-btn btn-hover bg-white text-black px-8 py-3 rounded-full font-medium text-sm tracking-wide inline-block">SHOP NOW</div>
+                <ShopButn>SHOP NOW</ShopButn >
               </div>
             </Link>
 
@@ -58,7 +60,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-black/40" />
               <div className="relative z-10 flex flex-col items-center justify-center text-center">
                 <h2 className="grid-text text-5xl md:text-6xl font-heading mb-6 tracking-wide text-white uppercase">TRUCKER</h2>
-                <div className="grid-btn btn-hover bg-white text-black px-8 py-3 rounded-full font-medium text-sm tracking-wide inline-block">SHOP NOW</div>
+                <ShopButn>SHOP NOW</ShopButn >
               </div>
             </Link>
 
@@ -67,7 +69,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-black/40" />
               <div className="relative z-10 flex flex-col items-center justify-center text-center">
                 <h2 className="grid-text text-5xl md:text-6xl font-heading mb-6 tracking-wide text-white uppercase">MORE STUFF</h2>
-                <div className="grid-btn btn-hover bg-white text-black px-8 py-3 rounded-full font-medium text-sm tracking-wide inline-block">SHOP NOW</div>
+                <ShopButn>SHOP NOW</ShopButn >
               </div>
             </Link>
           </div>

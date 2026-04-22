@@ -6,13 +6,12 @@ const BgImg = ({ children }) => {
             style={{
                 backgroundImage: "url('/images/Darkbg.png')",
                 backgroundSize: "cover",
-                backgroundPosition: "center",
+
                 backgroundRepeat: "no-repeat",
                 minHeight: "100vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                overflow: "hidden"
+
+
+
             }}
         >{children}</div>
     )

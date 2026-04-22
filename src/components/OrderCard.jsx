@@ -1,6 +1,6 @@
 import React from 'react'
 
-const OrderCart = ({ children }) => {
+const OrderCard = ({ children }) => {
     return (
         <div className="card w-auto shadow-xl border border-gray-200" style={{ backgroundColor: '#fdfff5' }}>
             <div className="card-body">{children}</div>
@@ -8,4 +8,4 @@ const OrderCart = ({ children }) => {
     )
 };
 
-export default OrderCart
+export default OrderCard;
