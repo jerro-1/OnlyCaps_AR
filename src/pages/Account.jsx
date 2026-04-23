@@ -98,7 +98,7 @@ const Account = () => {
 
         {/* MAIN CONTENT */}
         <div className="w-3/4">
-          <div className="max-w-3xl mx-auto">
+          <div className="min-w-3xl max-w-250 mx-auto">
 
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
@@ -115,11 +115,11 @@ const Account = () => {
             </div>
 
             {/* Profile Card */}
-            <div className="bg-white rounded-2xl shadow-md p-8 space-y-6">
+            <div className="bg-white rounded-2xl p-8 space-y-6">
 
               {/* Avatar */}
               <div className="flex items-center gap-4 mb-4">
-                <div className='avatar bg-black text-white flex items-center justify-center font-bold'>
+                <div className='avatar bg-black btn-circle size-10 text-white flex items-center justify-center font-bold'>
                   <Initials classname="w-10 h-10" />
                 </div>
                 <div>

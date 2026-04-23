@@ -4,25 +4,28 @@ import Header from '../components/Header';
 import supabase from "../utils/supabase";
 import BgImg from '../components/BgImg';
 import Footer from '../components/Footer';
+import Shopbutn from '../components/Shopbutn';
+import Main from '../components/Main';
+import Card from '../components/Card';
+import { useNavigate, Link } from "react-router-dom";
 
 const CartPage = () => {
     const { cart, removeFromCart, updateQuantity, totalItems, subtotal, clearCart } = useCart();
     const [paymentMethod, setPaymentMethod] = useState('');
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
-    // 👇 Get the logged-in user on mount
+    // Get the logged-in user on mount
     useEffect(() => {
         const fetchUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user || null);
 
-            // Clear cart if not logged in
             if (!user) clearCart();
 
             setLoading(false);
         };
-
         fetchUser();
 
         // Listen for auth changes (login/logout)
@@ -43,22 +46,33 @@ const CartPage = () => {
     }
 
     if (cart.length === 0) {
-        return <div className="p-8 text-center">Your cart is empty.</div>;
-    }
+        return <div className="place-content-center min-h-screen flex items-center justify-center">
+            <div className="py-auto text-center min-h-[60vh] flex items-center justify-center" >
+                <Card>
+                    <p className="text-xl text-gray-600">Your cart is empty.</p>
+                    <button
+                        onClick={() => navigate('/')}
+                        className=" px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition"
+                    >
+                        Continue Shopping
+                    </button>
+                </Card>
+            </div>
+        </div >
 
+    }
+    console.log("Cart items:", user.id);
     const handleCheckout = async () => {
         if (!paymentMethod) {
             alert('Please select a payment method');
             return;
         }
-
         try {
             // Use the authenticated user
             if (!user) {
                 alert('You must be logged in');
                 return;
             }
-
             // Create order
             const { data: order, error: orderError } = await supabase
                 .from('orders')

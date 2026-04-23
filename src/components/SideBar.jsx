@@ -18,26 +18,26 @@ const SideBar = () => {
 
     return (
 
-        <div className="w-1/4">
-            <div className="bg-white rounded-2xl shadow-md p-6">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                    Menu
-                </h2>
 
-                <ul className="space-y-4">
-                    <li className="flex items-center gap-2 text-gray-700 hover:text-black cursor-pointer">
-                        <HiOutlineUser /><NavLink to="/account"> Account </NavLink>
-                    </li>
+        <div className="w-50 h-80 bg-white rounded-2xl shadow-md p-6">
+            <h2 className="text-lg font-normal text-gray-800 mb-4">
+                Menu
+            </h2>
 
-                    <li className="flex items-center gap-2 text-gray-700 hover:text-black cursor-pointer">
-                        <HiOutlineClipboardList /><NavLink to="/orders"> Orders </NavLink>
-                    </li>
-                    <li className="flex items-center gap-2 text-gray-700 hover:text-black cursor-pointer">
-                        <CiLogout /><button onClick={handleLogout} className="test">Logout</button>
-                    </li>
-                </ul>
-            </div>
+            <ul className="space-y-4">
+                <li className="flex items-center gap-2 text-gray-700 hover:text-black cursor-pointer">
+                    <HiOutlineUser /><NavLink to="/account"> Account </NavLink>
+                </li>
+
+                <li className="flex items-center gap-2 text-gray-700 hover:text-black cursor-pointer">
+                    <HiOutlineClipboardList /><NavLink to="/orders"> Orders </NavLink>
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 hover:text-black cursor-pointer">
+                    <CiLogout /><button onClick={handleLogout} className="test">Logout</button>
+                </li>
+            </ul>
         </div>
+
 
     )
 }

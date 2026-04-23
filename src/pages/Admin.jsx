@@ -28,24 +28,24 @@ const Admin = () => {
         try {
             setLoading(true);
 
-            const { data, error } = await supabase
+            let query = supabase
                 .from('orders')
                 .select(`
-    id,
-    total,
-    status,
-    user_id,
-    order_items (*),
-    profiles (
-      email
-    )
-  `)
-                .eq('user_id', session.user.id);
+        id,
+        total,
+        status,
+        user_id,
+        order_items (*),
+        profiles (
+          email
+        )
+      `);
+
+            const { data, error } = await query;
 
             if (error) throw error;
 
             console.log('Orders:', data);
-
             setOrders(data);
 
         } catch (error) {
@@ -79,69 +79,80 @@ const Admin = () => {
                                 <p>No orders found.</p>
                             ) : (
                                 orders.map(order => (
-                                    <OrderCard key={order.id} className="mb-6 p-6 bg-white rounded-xl shadow-sm border">
+                                    <div key={order.id} className="mb-6 bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
 
                                         {/* HEADER */}
-                                        <div className="flex justify-between items-start mb-4">
-
+                                        <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-50">
                                             <div>
-                                                <p className="font-semibold text-gray-900">
+                                                <p className="text-lg font-semibold text-gray-900">
                                                     Order #{order.id}
                                                 </p>
-
                                                 <p className="text-sm text-gray-500">
-                                                    {order.profiles?.email}
+                                                    User ID: {order.user_id}
                                                 </p>
                                             </div>
 
-                                            <span className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+                                            <span className="px-4 py-1 text-sm rounded-full bg-gray-200 text-gray-700 capitalize">
                                                 {order.status}
                                             </span>
                                         </div>
 
-                                        {/* ITEMS */}
-                                        <div className="space-y-4 border-t pt-4">
+                                        {/* ITEMS (NEW LAYOUT) */}
+                                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {order.order_items?.map(item => (
-                                                <div key={item.id} className="flex items-center gap-4">
+                                                <div key={item.id} className="border rounded-md overflow-hidden bg-white shadow-sm">
 
-                                                    {/* IMAGE */}
+                                                    {/* IMAGE ON TOP */}
                                                     <img
                                                         src={item.image}
                                                         alt={item.name}
-                                                        className="w-16 h-16 object-cover rounded-lg border"
+                                                        className="w-full h-40 object-cover"
                                                     />
 
-                                                    {/* DETAILS */}
-                                                    <div className="flex-1">
-                                                        <p className="font-medium text-gray-900">
+                                                    {/* INFO BELOW */}
+                                                    <div className="p-4 space-y-2">
+
+                                                        <p className="text-base font-semibold text-gray-900">
                                                             {item.name}
                                                         </p>
 
                                                         <p className="text-sm text-gray-500">
-                                                            Qty: {item.quantity}
+                                                            Size: <span className="font-medium text-gray-700">{item.size}</span>
                                                         </p>
-                                                    </div>
 
-                                                    {/* PRICE */}
-                                                    <p className="font-semibold text-gray-900">
-                                                        ₱{item.price}
-                                                    </p>
+                                                        <p className="text-sm text-gray-500">
+                                                            Quantity: <span className="font-medium text-gray-700">{item.quantity}</span>
+                                                        </p>
+
+                                                        <div className="pt-2 border-t flex justify-between items-center">
+                                                            <p className="text-sm text-gray-500">Price</p>
+                                                            <p className="text-lg font-semibold text-gray-900">
+                                                                ₱{item.price}
+                                                            </p>
+                                                        </div>
+
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
 
-                                        {/* TOTAL */}
-                                        <div className="mt-5 pt-4 border-t flex justify-between items-center">
-                                            <p className="text-sm text-gray-500">
-                                                Customer total
+                                        {/* FOOTER */}
+                                        <div className="flex justify-between items-center px-6 py-4 bg-gray-50 border-t">
+
+                                            <p className="text-sm text-gray-600">
+                                                Total Items: {order.order_items?.length || 0}
                                             </p>
 
-                                            <p className="text-lg font-bold text-gray-900">
-                                                ₱{order.total}
-                                            </p>
+                                            <div className="text-right">
+                                                <p className="text-sm text-gray-500">Total</p>
+                                                <p className="text-2xl font-bold text-gray-900">
+                                                    ₱{order.total}
+                                                </p>
+                                            </div>
+
                                         </div>
 
-                                    </OrderCard>
+                                    </div>
                                 ))
                             )}
                         </div>

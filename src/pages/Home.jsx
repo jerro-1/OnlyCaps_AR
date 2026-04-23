@@ -93,7 +93,7 @@ export default function Home() {
                 <p className="text-black text-lg md:text-xl leading-relaxed mb-10">
                   We believe that a cap isn't just an accessory—it's a statement. Whether you're repping your favorite team, expressing your personal style, or looking for that perfect everyday fit, ONLYCaps delivers quality, authenticity, and style.
                 </p>
-                <a href="#" className="inline-block bg-black text-white px-10 py-4 rounded-full font-medium hover:bg-gray-800 transition text-base tracking-wide no-underline">
+                <a href="#about" className="inline-block bg-black text-white px-10 py-4 rounded-full font-medium hover:bg-gray-800 transition text-base tracking-wide no-underline">
                   LEARN MORE
                 </a>
               </div>

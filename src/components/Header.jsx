@@ -25,7 +25,6 @@ export default function Header() {
     }
   };
 
-
   return (
     <>
       <header className="h-20 w-full bg-white shadow-sm fixed top-0 z-50 py-5">
@@ -33,7 +32,7 @@ export default function Header() {
           {/* Left Nav */}
           <ul className="flex gap-8 text-base tracking-wide font-medium list-none m-0 p-0">
             <li><HeaderNavLink to="/" linkText="HOME" /></li>
-            <li><HeaderNavLink to="/shop" linkText="SHOP" /></li>
+            <li><HeaderNavLink to="/fitted-caps" linkText="SHOP" /></li>
           </ul>
 
           {/* Center Logo */}
@@ -49,7 +48,7 @@ export default function Header() {
           <div className="flex items-center gap-6">
             <ul className="flex gap-6 text-base tracking-wide font-medium mr-4 list-none m-0 p-0">
               <li><HeaderNavLink to="/" linkText="ABOUT" /></li>
-              <li><HeaderNavLink to="/cap-measurement" linkText="CAP MEASUREMENT" /></li>
+              <li><HeaderNavLink to="/sizing" linkText="SIZE GUIDE" /></li>
             </ul>
 
             {/* Icons */}
@@ -72,11 +71,8 @@ export default function Header() {
                   <ul
                     tabIndex="-1"
                     className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                    <li><NavLink to="/account">
-                      Profile
-                    </NavLink>
-                    </li>
-                    <li><a>Settings</a></li>
+                    <li><HeaderNavLink to="/account" linkText="Profile" /></li>
+                    <li><HeaderNavLink to="/settings" linkText="Settings" /></li>
                     <li><button
                       onClick={handleLogout} className="test">Logout</button></li>
                   </ul>

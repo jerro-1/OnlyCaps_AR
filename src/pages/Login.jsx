@@ -34,18 +34,22 @@ const Login = () => {
 
       if (signInError) throw signInError;
 
-      // fetch role after login
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", signInData.user.id)
-        .single();
+      // 🔥 Get MFA factors
+      const { data: factorsData, error: factorsError } =
+        await supabase.auth.mfa.listFactors();
 
+      if (factorsError) throw factorsError;
 
-      if (profileError) throw profileError;
+      // 🚨 REQUIRE MFA FOR ALL USERS
+      if (factorsData.totp && factorsData.totp.length > 0) {
+        Navigate("/mfa-verify", {
+          state: { factorId: factorsData.totp[0].id },
+        });
+        return;
+      }
 
-      setUserRole(profile.role);
-      setSession(signInData.session);
+      // ❗ If user has NO MFA yet → force setup
+      Navigate("/mfa-setup");
 
     } catch (error) {
       alert(error.message);
@@ -86,10 +90,9 @@ const Login = () => {
 
     // Redirect if logged in
     if (session) {
-      console.log("Redirecting to home"); // ✅ will show when session is set
-      Navigate("/");
+      console.log("user"); // ✅ will show when session is set
     }
-  }, [session, userRole, Navigate]);
+  }, [session, userRole]);
 
 
   return (

@@ -1,16 +1,16 @@
 import { NavLink } from "react-router-dom";
 
-const HeaderNavLink = ({ to, linkText }) => {
+const dropdownLink = ({ to, linkText }) => {
     return (
         <NavLink
             className={({ isActive }) =>
-                isActive ? "text-[#add8e6] px-2 py-1 btn-circle" : "text-black text-base font-normal"
+                isActive ? " text-s text-white bg-black font-normal" : "text-black text-s font-normal"
             }
             to={to}
         >
             {linkText}
         </NavLink>
-    );
-};
+    )
+}
 
-export default HeaderNavLink;
+export default dropdownLink

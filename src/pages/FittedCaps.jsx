@@ -59,6 +59,7 @@ export default function FittedCaps() {
     setModal(product);
     setSelectedSize(null);
     document.body.style.overflow = 'hidden';
+    console.log("Selected size:", modal.name);
   };
 
   const closeModal = () => {
@@ -79,7 +80,7 @@ export default function FittedCaps() {
     }
 
     addToCart({
-      id: modal.id,
+      id: modal.product_id,
       name: modal.full_name,
       price: modal.price,
       size: selectedSize,

@@ -23,7 +23,9 @@ import VerifyEmail from './pages/VerifyEmail';
 import Orders from './pages/Orders';
 import Admin from './pages/Admin';
 import FaceTracker from './pages/FaceTracker';
-
+import MFASetup from './pages/MFASetup';
+import MFAVerify from './pages/MFAVerify';
+import CapMeasurement from './pages/CapMeasurement';
 
 
 export default function App() {
@@ -70,6 +72,9 @@ function AppInner() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/face-tracker" element={<FaceTracker />} />
+          <Route path="/mfa-setup" element={<MFASetup />} />
+          <Route path="/mfa-verify" element={<MFAVerify />} />
+          <Route path="/sizing" element={<CapMeasurement />} />
         </Routes>
       </CartProvider>
     </SessionContext.Provider>
