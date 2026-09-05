@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
+import { useNavigate, NavLink, Link } from "react-router-dom";
 import Header from "../components/Header";
 import supabase from "../utils/supabase";
 import Input from "../components/Input";
@@ -77,89 +77,86 @@ const RegisterEmail = () => {
         <PageWrapper>
             <BgImg>
                 <Header />
-                <Main className="flex justify-center">
-                    <div className="flex items-center">
-                        <Card>
+                <Main className="flex justify-center items-center min-h-screen px-4">
+                    <Card>
+                        <div className="flex justify-center mb-6">
+                            <NavLink to="/">
+                                <img
+                                    src="/images/LOGO.png"
+                                    alt="ONLYCaps"
+                                    className="h-9"
+                                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+                                />
+                                <span className="font-heading text-xl tracking-wider hidden text-[#14110D]">ONLYCAPS</span>
+                            </NavLink>
+                        </div>
 
-                            {/* Logo */}
-                            <div className="flex justify-center mb-6">
-                                <NavLink to="/">
-                                    <img
-                                        src="/images/LOGO.png"
-                                        alt="ONLYCaps"
-                                        className="logo-img-large"
-                                    />
-                                </NavLink>
-                            </div>
+                        <Link
+                            to="/login"
+                            className="inline-flex items-center gap-2 text-xs font-body text-[#6B6558] hover:text-[#14110D] transition-colors mb-4"
+                        >
+                            <FaArrowLeft size={11} /> Back to sign in
+                        </Link>
 
-                            {/* Title */}
-                            <h1 className="flex items-center text-xl font-bold mb-4">
-                                <NavLink to="/login">
-                                    <FaArrowLeft className="mr-2" />
-                                </NavLink>
-                                Create your account
-                            </h1>
+                        <h1 className="font-heading text-2xl uppercase tracking-wide text-[#14110D] mb-1 text-center">
+                            Create your account
+                        </h1>
+                        <p className="font-body text-sm text-[#6B6558] text-center mb-8">
+                            Join OnlyCaps and start shopping
+                        </p>
 
-                            <Input
-                                label="Firstname"
-                                name="firstname"
-                                type="text"
-                                placeholder="Enter your first name"
-                                className="w-full text-black"
-                                onChange={handleInputChange}
-                            />
+                        <Input
+                            label="First name"
+                            name="firstname"
+                            type="text"
+                            placeholder="Enter your first name"
+                            onChange={handleInputChange}
+                        />
 
-                            <Input
-                                label="Lastname"
-                                name="lastname"
-                                type="text"
-                                placeholder="Enter your last name"
-                                className="w-full text-black"
-                                onChange={handleInputChange}
-                            />
+                        <Input
+                            label="Last name"
+                            name="lastname"
+                            type="text"
+                            placeholder="Enter your last name"
+                            onChange={handleInputChange}
+                        />
 
-                            <Input
-                                label="Email"
-                                name="email"
-                                type="email"
-                                placeholder="Enter your email"
-                                className="w-full text-black"
-                                onChange={handleInputChange}
-                            />
+                        <Input
+                            label="Email"
+                            name="email"
+                            type="email"
+                            placeholder="you@email.com"
+                            onChange={handleInputChange}
+                        />
 
-                            <Input
-                                label="Password"
-                                name="password"
-                                type="password"
-                                placeholder="Enter your password"
-                                className="w-full text-black"
-                                onChange={handleInputChange}
-                            />
+                        <Input
+                            label="Password"
+                            name="password"
+                            type="password"
+                            placeholder="••••••••"
+                            onChange={handleInputChange}
+                        />
 
-                            <Input
-                                label="Confirm Password"
-                                name="confirmPassword"
-                                type="password"
-                                placeholder="Confirm your password"
-                                className="w-full text-black"
-                                onChange={handleInputChange}
-                            />
+                        <Input
+                            label="Confirm password"
+                            name="confirmPassword"
+                            type="password"
+                            placeholder="••••••••"
+                            onChange={handleInputChange}
+                        />
 
-                            {/* Button */}
-                            <button
-                                className="btn btn-primary rounded-full mt-4 w-full"
-                                onClick={handleSendOtp}
-                                disabled={loading || cooldown > 0}
-                            >
-                                {loading
-                                    ? "Sending..."
-                                    : cooldown > 0
-                                        ? `Resend in ${cooldown}s`
-                                        : "Send OTP Code"}
-                            </button>
-
-                        </Card>
-                    </div>
+                        <button
+                            className="w-full bg-[#14110D] text-[#FAF8F4] font-body text-sm font-medium py-3 rounded-full mt-2 hover:bg-[#2A241C] transition-colors disabled:opacity-50"
+                            onClick={handleSendOtp}
+                            disabled={loading || cooldown > 0}
+                        >
+                            {loading
+                                ? "Sending..."
+                                : cooldown > 0
+                                    ? `Resend in ${cooldown}s`
+                                    : "Send OTP Code"}
+                        </button>
+                    </Card>
                 </Main>
             </BgImg>
         </PageWrapper>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, NavLink } from "react-router-dom";
 import Header from "../components/Header";
 import supabase from "../utils/supabase";
 import Card from "../components/Card";
@@ -69,28 +69,44 @@ const VerifyEmail = () => {
         <PageWrapper>
             <BgImg>
                 <Header />
-                <Main className="flex justify-center">
+                <Main className="flex justify-center items-center min-h-screen px-4">
                     <Card>
+                        <div className="flex justify-center mb-6">
+                            <NavLink to="/">
+                                <img
+                                    src="/images/LOGO.png"
+                                    alt="ONLYCaps"
+                                    className="h-9"
+                                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+                                />
+                                <span className="font-heading text-xl tracking-wider hidden text-[#14110D]">ONLYCAPS</span>
+                            </NavLink>
+                        </div>
 
-                        <h1 className="text-xl font-bold mb-4">
-                            Enter Verification Code
+                        <h1 className="font-heading text-2xl uppercase tracking-wide text-[#14110D] mb-1 text-center">
+                            Enter verification code
                         </h1>
+                        <p className="font-body text-sm text-[#6B6558] text-center mb-8">
+                            We sent a code to {email || "your email"}
+                        </p>
 
-                        <input
-                            type="text"
-                            placeholder="Enter OTP"
-                            className="input input-bordered w-full text-black"
-                            onChange={(e) => setToken(e.target.value)}
-                        />
+                        <div className="mb-5">
+                            <label className="block font-body text-xs text-[#6B6558] mb-2">Verification code</label>
+                            <input
+                                type="text"
+                                placeholder="Enter OTP"
+                                className="w-full bg-transparent border-0 border-b border-[#D8D2C4] py-2 font-body text-[#14110D] text-sm placeholder:text-[#B8B2A3] focus:outline-none focus:border-[#5EC4D6] transition-colors"
+                                onChange={(e) => setToken(e.target.value)}
+                            />
+                        </div>
 
                         <button
-                            className="btn btn-primary rounded-full mt-4 w-full"
+                            className="w-full bg-[#14110D] text-[#FAF8F4] font-body text-sm font-medium py-3 rounded-full mt-2 hover:bg-[#2A241C] transition-colors disabled:opacity-50"
                             onClick={handleVerify}
                             disabled={verifying}
                         >
-                            {verifying ? "Verifying..." : "Verify Code"}
+                            {verifying ? "Verifying..." : "Verify code"}
                         </button>
-
                     </Card>
                 </Main>
             </BgImg>

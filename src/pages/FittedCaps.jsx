@@ -119,7 +119,9 @@ export default function FittedCaps() {
               </div>
 
               <div className="text-center mt-12">
-                {visible < products.length ? (
+                {products.length === 0 ? (
+                  <p className="text-white text-sm opacity-70">No products available right now.</p>
+                ) : visible < products.length ? (
                   <button
                     onClick={loadMore}
                     className="btn-hover bg-gray-800 text-white px-10 py-3 rounded-full font-medium hover:bg-black transition text-sm border-none cursor-pointer"
