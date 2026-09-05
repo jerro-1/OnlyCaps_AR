@@ -1,23 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Header from '../components/Header';
 import SideBar from '../components/SideBar';
 import supabase from '../utils/supabase';
 import OrderCard from '../components/OrderCard';
 import Footer from '../components/Footer';
 import Footer2 from '../components/Footer2';
+import { SessionContext } from '../context/SessionContext';
 
 const Orders = () => {
-    const [session, setSession] = useState(null);
+    const session = useContext(SessionContext); // FIX: shared session, no separate listener
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const { data } = supabase.auth.onAuthStateChange((event, session) => {
-            setSession(session);
-        });
-
-        return () => data.subscription.unsubscribe();
-    }, []);
 
     useEffect(() => {
         if (session) {
@@ -43,9 +36,7 @@ const Orders = () => {
 
             if (error) throw error;
 
-            console.log('Orders:', data);
-
-            setOrders(data);
+            setOrders(data || []);
 
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -71,24 +62,18 @@ const Orders = () => {
                     ) : (
                         orders.map(order => (
                             <div key={order.id} className="mb-6 bg-white rounded-md overflow-hidden">
-
-                                {/* ORDER HEADER */}
                                 <div className="flex justify-between items-center px-5 py-4 bg-gray-100">
                                     <p className="font-light text-gray-900">
                                         Order number: {order.id}
                                     </p>
-
                                     <p className="text-sm text-gray-600">
                                         Status: {order.status}
                                     </p>
                                 </div>
 
-                                {/* ITEMS */}
                                 <div className="divide-y border-white">
                                     {order.order_items.map(item => (
                                         <div key={item.id} className="flex border-gray-300 items-center gap-5 px-5 py-4">
-
-                                            {/* IMAGE */}
                                             <div className="w-80 h-45 flex-shrink-0">
                                                 <img
                                                     src={item.image}
@@ -96,7 +81,6 @@ const Orders = () => {
                                                     className="size-full object-cover rounded-md"
                                                 />
                                             </div>
-                                            {/* NAME + DETAILS */}
                                             <div className="flex-1">
                                                 <p className="font-base text-gray-900">
                                                     {item.name}
@@ -107,20 +91,14 @@ const Orders = () => {
                                                 <p className="text-sm text-gray-500">
                                                     Quantity: {item.quantity}
                                                 </p>
-
                                             </div>
-
-                                            {/* PRICE */}
                                             <p className="font-bold text-gray-900">
                                                 ₱{item.price}
                                             </p>
                                         </div>
-
                                     ))}
                                 </div>
 
-
-                                {/* TOTAL */}
                                 <div className="flex justify-between items-center px-5 py-4 text-base bg-gray-800">
                                     <p className="font-normal text-white">
                                         Total:
@@ -129,7 +107,6 @@ const Orders = () => {
                                         ₱{order.total}
                                     </div>
                                 </div>
-
                             </div>
                         ))
                     )}

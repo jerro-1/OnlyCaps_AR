@@ -1,52 +1,57 @@
 import { useEffect, useState, useContext } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { SessionContext } from '../context/SessionContext';
 import ProductCard from '../components/ProductCard';
 import Header from '../components/Header';
 import BgImg2 from '../components/BgImg2';
-import { Link, useNavigate } from 'react-router-dom';
-import FaceTracker from '../pages/FaceTracker';
 import supabase from '../utils/supabase';
 import SignInPromptModal from '../components/SignInPromptModal';
 
 const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
 
-export default function FittedCaps() {
+export default function SearchResults() {
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get('q') || '';
   const { addToCart } = useCart();
   const session = useContext(SessionContext);
-  const [visible, setVisible] = useState(6);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [shake, setShake] = useState(false);
-  const navigate = useNavigate();
-  const [showFaceTracker, setShowFaceTracker] = useState(false);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
 
-  const loadMore = () => setVisible(v => Math.min(v + 3, products.length));
-
   useEffect(() => {
-    fetchProducts();
-  }, [session]);
+    fetchResults();
+  }, [query]);
 
-  const fetchProducts = async () => {
+  const fetchResults = async () => {
+    setLoading(true);
+    if (!query.trim()) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('products')
-      .select('*');
+      .select('*')
+      .or(`name.ilike.%${query}%,full_name.ilike.%${query}%,subtitle.ilike.%${query}%`);
 
     if (error) {
       console.error(error);
       setProducts([]);
-      return;
+    } else {
+      setProducts(data || []);
     }
-    setProducts(data || []);
+    setLoading(false);
   };
 
   const openModal = (product) => {
     setModal(product);
     setSelectedSize(null);
     document.body.style.overflow = 'hidden';
-    console.log("Opened product:", product.name);
   };
 
   const closeModal = () => {
@@ -78,29 +83,6 @@ export default function FittedCaps() {
     closeModal();
   };
 
-  // THIS WAS MISSING -- the function the BUY NOW button calls
-  const handleBuyNow = () => {
-    if (!session) {
-      setShowSignInPrompt(true);
-      return;
-    }
-    if (!selectedSize) {
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
-      return;
-    }
-    const buyNowItem = {
-      id: modal.product_id,
-      name: modal.full_name,
-      price: modal.price,
-      size: selectedSize,
-      image: modal.image,
-      quantity: 1,
-    };
-    closeModal();
-    navigate('/checkout', { state: { buyNowItem } });
-  };
-
   return (
     <>
       <BgImg2>
@@ -108,32 +90,27 @@ export default function FittedCaps() {
         <div className="page-bg-fitted font-body">
           <section className="pt-28 pb-12 mt-16">
             <div className="container mx-auto px-4">
-              <h1 className="text-5xl md:text-6xl font-heading mb-12 text-center tracking-wide uppercase text-white">
-                FITTED CAPS
+              <h1 className="text-4xl md:text-5xl font-heading mb-4 text-center tracking-wide uppercase text-white">
+                Search Results
               </h1>
+              <p className="text-center text-white/70 mb-12">
+                {query ? `Showing results for "${query}"` : 'Enter a search term to find products'}
+              </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.slice(0, visible).map(product => (
-                  <ProductCard key={product.id} product={product} onClick={openModal} />
-                ))}
-              </div>
-
-              <div className="text-center mt-12">
-                {visible < products.length ? (
-                  <button
-                    onClick={loadMore}
-                    className="btn-hover bg-gray-800 text-white px-10 py-3 rounded-full font-medium hover:bg-black transition text-sm border-none cursor-pointer"
-                  >
-                    LOAD MORE
-                  </button>
-                ) : (
-                  <p className="text-white text-sm opacity-70">All products loaded</p>
-                )}
-              </div>
+              {loading ? (
+                <p className="text-center text-white/70">Loading...</p>
+              ) : products.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {products.map(product => (
+                    <ProductCard key={product.id} product={product} onClick={openModal} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-white/70">No products found.</p>
+              )}
             </div>
           </section>
 
-          {/* Product Modal */}
           {modal && (
             <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4" onClick={closeModal}>
               <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative animate-modalSlide" onClick={e => e.stopPropagation()}>
@@ -177,52 +154,12 @@ export default function FittedCaps() {
                     </div>
 
                     <button
-                      onClick={() => {
-                        closeModal();
-                        setShowFaceTracker(true);
-                      }}
-                      className="w-full bg-black text-white py-2 rounded-full font-medium hover:bg-gray-800 transition text-lg btn-hover border-none cursor-pointer"
-                    >
-                      TRY IT ON
-                    </button>
-
-                    <button
-                      onClick={handleBuyNow}
-                      className="w-full bg-[#A9824C] text-[#14110D] py-2 rounded-full font-medium hover:bg-[#96723F] transition text-lg border-none cursor-pointer"
-                    >
-                      BUY NOW
-                    </button>
-
-                    <button
                       onClick={handleAddToCart}
                       className="w-full bg-black text-white py-2 rounded-full font-medium hover:bg-gray-800 transition text-lg btn-hover border-none cursor-pointer"
                     >
                       ADD TO CART
                     </button>
-
-                    <div className="text-sm text-gray-500 space-y-2">
-                      <p>✓ Authentic 59FIFTY Fitted</p>
-                      <p>✓ Official MLB Licensed</p>
-                      <p>✓ Free Shipping on Orders ₱2000+</p>
-                      <p>✓ 30-Day Returns</p>
-                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {showFaceTracker && (
-            <div
-              className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4"
-              onClick={() => setShowFaceTracker(false)}
-            >
-              <div
-                className="bg-black rounded-2xl max-w-4xl w-full h-[90vh] relative overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="w-full h-full">
-                  <FaceTracker onClose={() => setShowFaceTracker(false)} />
                 </div>
               </div>
             </div>

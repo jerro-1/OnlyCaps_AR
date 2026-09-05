@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ShopButn from '../components/ShopButn';
-import { FaceDetector } from '@mediapipe/tasks-vision';
+import CategoryPreview from '../components/CategoryPreview';
 
 export default function Home() {
   return (
@@ -77,6 +77,11 @@ export default function Home() {
 
         {/* Divider */}
         <div className="section-divider" />
+
+        <CategoryPreview category="fitted" title="Fitted Caps" viewAllLink="/fitted-caps" />
+        <CategoryPreview category="aframe" title="A-Frames" viewAllLink="/a-frames" />
+        <CategoryPreview category="trucker" title="Trucker" viewAllLink="/trucker" />
+        <CategoryPreview category="more" title="More Stuff" viewAllLink="/more-stuff" />
 
         {/* About Section */}
         <section id="about" className="about-background min-h-screen flex items-center py-20 dissolve-section">

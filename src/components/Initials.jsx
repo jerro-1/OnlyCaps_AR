@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect, useContext } from 'react';
 import { SessionContext } from "../context/SessionContext";
-
+import supabase from '../utils/supabase'; // FIX: was missing, would throw ReferenceError
 
 const Initials = () => {
     const [profileInitials, setProfileInitials] = useState("");
@@ -12,15 +12,14 @@ const Initials = () => {
 
         const fetchProfile = async () => {
             const { data, error } = await supabase
-                .from("profiles") // your table
-                .select("firstname, lastname") // match your column names exactly
-                .eq("id", session.user.id) // make sure this is the same column as in your table
+                .from("profiles")
+                .select("firstname, lastname")
+                .eq("id", session.user.id)
                 .single();
 
             if (error) {
                 console.log("Error fetching profile:", error.message);
             } else if (data) {
-                // get first letters of firstname and lastname
                 const initials =
                     (data.firstname?.[0] ?? "") + (data.lastname?.[0] ?? "");
                 setProfileInitials(initials.toUpperCase());
@@ -29,8 +28,6 @@ const Initials = () => {
 
         fetchProfile();
     }, [session]);
-
-
 
     return (
         <>

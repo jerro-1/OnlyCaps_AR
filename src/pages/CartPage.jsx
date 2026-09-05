@@ -1,79 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import Header from '../components/Header';
 import supabase from "../utils/supabase";
 import BgImg from '../components/BgImg';
 import Footer from '../components/Footer';
-import Shopbutn from '../components/Shopbutn';
-import Main from '../components/Main';
-import Card from '../components/Card';
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { SessionContext } from '../context/SessionContext';
 
 const CartPage = () => {
     const { cart, removeFromCart, updateQuantity, totalItems, subtotal, clearCart } = useCart();
     const [paymentMethod, setPaymentMethod] = useState('');
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const session = useContext(SessionContext);
+    const user = session?.user || null;
     const navigate = useNavigate();
 
-    // Get the logged-in user on mount
-    useEffect(() => {
-        const fetchUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user || null);
-
-            if (!user) clearCart();
-
-            setLoading(false);
-        };
-        fetchUser();
-
-        // Listen for auth changes (login/logout)
-        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user || null);
-            if (!session?.user) clearCart();
-        });
-
-        return () => listener.subscription.unsubscribe();
-    }, [clearCart]);
-
-    if (loading) {
-        return <div className="p-8 text-center">Loading...</div>;
-    }
-
     if (!user) {
-        return <div className="p-8 text-center">You must be logged in to view your cart.</div>;
+        return (
+            <BgImg>
+                <Header />
+                <div className="min-h-screen flex items-center justify-center px-4">
+                    <div className="bg-[#FAF8F4] rounded-2xl px-10 py-9 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.4)]">
+                        <p className="font-heading text-lg uppercase tracking-wide text-[#14110D] mb-2">Sign in required</p>
+                        <p className="font-body text-sm text-[#6B6558] mb-6">Log in to view and manage your cart.</p>
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="bg-[#14110D] text-[#FAF8F4] font-body text-sm px-6 py-2.5 rounded-full hover:bg-[#2A241C] transition-colors"
+                        >
+                            Go to login
+                        </button>
+                    </div>
+                </div>
+            </BgImg>
+        );
     }
 
     if (cart.length === 0) {
-        return <div className="place-content-center min-h-screen flex items-center justify-center">
-            <div className="py-auto text-center min-h-[60vh] flex items-center justify-center" >
-                <Card>
-                    <p className="text-xl text-gray-600">Your cart is empty.</p>
-                    <button
-                        onClick={() => navigate('/')}
-                        className=" px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition"
-                    >
-                        Continue Shopping
-                    </button>
-                </Card>
-            </div>
-        </div >
-
+        return (
+            <BgImg>
+                <Header />
+                <div className="min-h-screen flex items-center justify-center px-4">
+                    <div className="bg-[#FAF8F4] rounded-2xl px-10 py-9 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.4)]">
+                        <p className="font-heading text-lg uppercase tracking-wide text-[#14110D] mb-2">Your cart is empty</p>
+                        <p className="font-body text-sm text-[#6B6558] mb-6">Browse the collection to find your next fit.</p>
+                        <button
+                            onClick={() => navigate('/')}
+                            className="bg-[#14110D] text-[#FAF8F4] font-body text-sm px-6 py-2.5 rounded-full hover:bg-[#2A241C] transition-colors"
+                        >
+                            Continue shopping
+                        </button>
+                    </div>
+                </div>
+            </BgImg>
+        );
     }
-    console.log("Cart items:", user.id);
+
     const handleCheckout = async () => {
         if (!paymentMethod) {
             alert('Please select a payment method');
             return;
         }
         try {
-            // Use the authenticated user
-            if (!user) {
-                alert('You must be logged in');
-                return;
-            }
-            // Create order
             const { data: order, error: orderError } = await supabase
                 .from('orders')
                 .insert({
@@ -88,7 +74,6 @@ const CartPage = () => {
 
             if (orderError) throw orderError;
 
-            // Insert order items
             const items = cart.map(item => ({
                 order_id: order.id,
                 user_id: user.id,
@@ -113,117 +98,130 @@ const CartPage = () => {
         }
     };
 
+    const PAYMENT_OPTIONS = [
+        { id: 'gcash', label: 'GCash' },
+        { id: 'card', label: 'Credit / Debit Card' },
+    ];
 
     return (
         <>
             <BgImg>
                 <Header />
-                <div className="container mx-auto px-6 pt-24 pb-12">
+                <div className="container mx-auto px-6 pt-28 pb-16 max-w-5xl">
 
-                    <h1 className="text-4xl font-bold mb-10 text-center">
-                        Your Cart <span className="text-gray-500 text-lg">({totalItems} items)</span>
-                    </h1>
+                    <div className="mb-10">
+                        <p className="text-[#A9824C] text-xs tracking-[0.2em] font-body mb-2">Checkout</p>
+                        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-wide text-white">
+                            Your cart
+                            <span className="text-[#8A8477] text-lg normal-case tracking-normal font-body ml-3">
+                                {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                            </span>
+                        </h1>
+                    </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div className="grid lg:grid-cols-3 gap-8">
 
-                        {/* LEFT - Cart Items */}
-                        <div className="lg:col-span-2 space-y-5">
+                        {/* Items */}
+                        <div className="lg:col-span-2 space-y-3">
                             {cart.map(item => (
                                 <div
                                     key={`${item.id}-${item.size}`}
-                                    className="flex items-center justify-between p-5 rounded-2xl shadow-md bg-white hover:shadow-lg transition"
+                                    className="flex items-center gap-5 p-5 rounded-2xl bg-[#FAF8F4]"
                                 >
-                                    <div className="flex items-center gap-5">
-                                        <img
-                                            src={item.image}
-                                            alt={item.name}
-                                            className="w-28 h-28 object-cover rounded-xl border"
-                                        />
+                                    <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
+                                    />
 
-                                        <div>
-                                            <h2 className="font-semibold text-xl">{item.name}</h2>
-                                            <p className="text-gray-500 text-sm mb-1">Size: {item.size}</p>
-                                            <p className="text-black font-bold text-lg">₱{item.price}</p>
-                                        </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h2 className="font-body font-semibold text-[#14110D] text-base truncate">{item.name}</h2>
+                                        <p className="text-[#6B6558] font-body text-xs mt-0.5">Size: {item.size}</p>
+                                        <p className="text-[#14110D] font-body font-semibold text-sm mt-1">₱{item.price}</p>
                                     </div>
 
-                                    <div className="flex flex-col items-end gap-3">
-                                        <input
-                                            type="number"
-                                            min={1}
-                                            value={item.quantity}
-                                            onChange={(e) =>
-                                                updateQuantity(item.id, item.size, parseInt(e.target.value))
-                                            }
-                                            className="w-20 border rounded-lg text-center py-1 focus:outline-none focus:ring-2 focus:ring-black"
-                                        />
-
+                                    <div className="flex items-center gap-1 border border-[#E4DFD3] rounded-full">
                                         <button
-                                            onClick={() => removeFromCart(item.id, item.size)}
-                                            className="text-red-500 hover:text-red-700 text-sm font-medium"
+                                            onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                                            className="w-8 h-8 flex items-center justify-center text-[#14110D] font-body text-lg hover:bg-[#F0ECE1] rounded-full transition-colors"
+                                            aria-label="Decrease quantity"
                                         >
-                                            Remove
+                                            −
+                                        </button>
+                                        <span className="w-6 text-center font-body text-sm text-[#14110D]">{item.quantity}</span>
+                                        <button
+                                            onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                                            className="w-8 h-8 flex items-center justify-center text-[#14110D] font-body text-lg hover:bg-[#F0ECE1] rounded-full transition-colors"
+                                            aria-label="Increase quantity"
+                                        >
+                                            +
                                         </button>
                                     </div>
+
+                                    <button
+                                        onClick={() => removeFromCart(item.id, item.size)}
+                                        className="text-[#B8544A] hover:text-[#943D35] font-body text-xs font-medium flex-shrink-0"
+                                    >
+                                        Remove
+                                    </button>
                                 </div>
                             ))}
                         </div>
 
-                        {/* RIGHT - Order Summary */}
-                        <div className="bg-white p-7 rounded-2xl shadow-lg h-fit sticky top-24">
-                            <h2 className="text-2xl font-bold mb-5">Order Summary</h2>
+                        {/* Summary */}
+                        <div className="bg-[#FAF8F4] rounded-2xl p-7 h-fit sticky top-24">
+                            <h2 className="font-heading text-lg uppercase tracking-wide text-[#14110D] mb-5">
+                                Order summary
+                            </h2>
 
-                            <div className="space-y-3 mb-5 max-h-60 overflow-y-auto pr-2">
+                            <div className="space-y-2.5 mb-5 max-h-52 overflow-y-auto pr-1">
                                 {cart.map(item => (
                                     <div
                                         key={`${item.id}-${item.size}`}
-                                        className="flex justify-between text-sm text-gray-600"
+                                        className="flex justify-between font-body text-xs text-[#6B6558]"
                                     >
-                                        <span>{item.name} x{item.quantity}</span>
-                                        <span>₱{item.price * item.quantity}</span>
+                                        <span className="truncate pr-2">{item.name} ×{item.quantity}</span>
+                                        <span className="flex-shrink-0 text-[#14110D]">₱{item.price * item.quantity}</span>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="border-t pt-4 flex justify-between font-bold text-xl">
-                                <span>Subtotal</span>
-                                <span>₱{subtotal}</span>
+                            <div className="border-t border-[#E4DFD3] pt-4 flex justify-between items-baseline">
+                                <span className="font-body text-sm text-[#6B6558]">Subtotal</span>
+                                <span className="font-heading text-xl text-[#14110D]">₱{subtotal}</span>
                             </div>
 
-                            {/* Payment */}
                             <div className="mt-7">
-                                <h3 className="font-semibold mb-3">Payment Method</h3>
-
-                                <div className="space-y-3">
-                                    <label className={`flex items-center gap-3 border p-3 rounded-xl cursor-pointer transition ${paymentMethod === 'gcash' ? 'border-black bg-gray-100' : 'hover:border-black'
-                                        }`}>
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            value="gcash"
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                        />
-                                        GCash
-                                    </label>
-
-                                    <label className={`flex items-center gap-3 border p-3 rounded-xl cursor-pointer transition ${paymentMethod === 'card' ? 'border-black bg-gray-100' : 'hover:border-black'
-                                        }`}>
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            value="card"
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                        />
-                                        Credit / Debit Card
-                                    </label>
+                                <h3 className="font-body text-xs text-[#6B6558] mb-3">Payment method</h3>
+                                <div className="space-y-2">
+                                    {PAYMENT_OPTIONS.map(opt => (
+                                        <label
+                                            key={opt.id}
+                                            className={`flex items-center justify-between px-4 py-3 rounded-xl border cursor-pointer transition-colors font-body text-sm ${
+                                                paymentMethod === opt.id
+                                                    ? 'border-[#A9824C] bg-[#F5EEE2] text-[#14110D]'
+                                                    : 'border-[#E4DFD3] text-[#4A453B] hover:border-[#D8D2C4]'
+                                            }`}
+                                        >
+                                            {opt.label}
+                                            <input
+                                                type="radio"
+                                                name="payment"
+                                                value={opt.id}
+                                                checked={paymentMethod === opt.id}
+                                                onChange={(e) => setPaymentMethod(e.target.value)}
+                                                className="accent-[#A9824C]"
+                                            />
+                                        </label>
+                                    ))}
                                 </div>
                             </div>
 
                             <button
-                                className="w-full mt-8 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-800 transition"
+                                className="w-full mt-7 py-3.5 bg-[#14110D] text-[#FAF8F4] rounded-full font-body font-medium text-sm hover:bg-[#2A241C] transition-colors"
                                 onClick={handleCheckout}
                             >
-                                Checkout
+                                Checkout — ₱{subtotal}
                             </button>
                         </div>
 

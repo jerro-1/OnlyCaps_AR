@@ -26,5 +26,18 @@
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",
     "vite": "^5.0.0"
-  }
+  },
+  "description": "",
+  "main": "vite.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jerro-1/OnlyCaps_AR.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jerro-1/OnlyCaps_AR/issues"
+  },
+  "homepage": "https://github.com/jerro-1/OnlyCaps_AR#readme"
 }

@@ -9,7 +9,6 @@ import { NavLink } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import BgImg from "../components/BgImg";
 
-
 const Register = () => {
   const [formData, setFormData] = useState({
     firstname: "",
@@ -53,6 +52,7 @@ const Register = () => {
           firstname: formData.firstname,
           lastname: formData.lastname,
           email: user.email,
+          role: "customer",
         });
 
       if (profileError) throw profileError;

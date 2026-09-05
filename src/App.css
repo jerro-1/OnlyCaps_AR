@@ -1,11 +1,18 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* ===== CUSTOM STYLES ===== */
+
+/* Force our own colors on autofilled inputs -- browsers otherwise
+   override background/text color with a default gray/yellow highlight
+   that fights our design and can make text hard to read */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #14110D;
+  -webkit-box-shadow: 0 0 0px 1000px #FAF8F4 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
 
 /* Aggressive CSS class for fixed header padding */
 .navbar-padding {

@@ -9,10 +9,11 @@ import BgImg from "../components/BgImg";
 
 const VerifyEmail = () => {
     const [token, setToken] = useState("");
+    const [verifying, setVerifying] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
-    const email = location.state?.email;
+    const { firstname, lastname, email, password } = location.state || {};
 
     const handleVerify = async () => {
         if (!token) {
@@ -20,22 +21,47 @@ const VerifyEmail = () => {
             return;
         }
 
+        if (!email || !password) {
+            alert("Missing registration details -- please start over.");
+            navigate("/register-email");
+            return;
+        }
+
+        setVerifying(true);
         try {
-            const { error } = await supabase.auth.verifyOtp({
+            const { data: { user }, error: verifyError } = await supabase.auth.verifyOtp({
                 email: email,
                 token: token,
                 type: "email"
             });
 
-            if (error) throw error;
+            if (verifyError) throw verifyError;
 
-            alert("Email verified!");
+            const { error: passwordError } = await supabase.auth.updateUser({
+                password: password
+            });
 
-            // 👉 go to register page
-            navigate("/register");
+            if (passwordError) throw passwordError;
+
+            const { error: profileError } = await supabase
+                .from("profiles")
+                .insert({
+                    id: user.id,
+                    firstname,
+                    lastname,
+                    email: user.email,
+                    role: "customer",
+                });
+
+            if (profileError) throw profileError;
+
+            alert("Account created! Welcome to OnlyCaps.");
+            navigate("/");
 
         } catch (error) {
             alert(error.message);
+        } finally {
+            setVerifying(false);
         }
     };
 
@@ -60,8 +86,9 @@ const VerifyEmail = () => {
                         <button
                             className="btn btn-primary rounded-full mt-4 w-full"
                             onClick={handleVerify}
+                            disabled={verifying}
                         >
-                            Verify Code
+                            {verifying ? "Verifying..." : "Verify Code"}
                         </button>
 
                     </Card>

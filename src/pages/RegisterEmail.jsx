@@ -10,14 +10,32 @@ import BgImg from "../components/BgImg";
 import { FaArrowLeft } from "react-icons/fa";
 
 const RegisterEmail = () => {
-    const [email, setEmail] = useState("");
+    const [formData, setFormData] = useState({
+        firstname: "",
+        lastname: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    });
     const [loading, setLoading] = useState(false);
     const [cooldown, setCooldown] = useState(0);
     const navigate = useNavigate();
 
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
     const handleSendOtp = async () => {
-        if (!email) {
-            alert("Please enter your email");
+        const { firstname, lastname, email, password, confirmPassword } = formData;
+
+        if (!firstname || !lastname || !email || !password) {
+            alert("Please fill in all fields");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match");
             return;
         }
 
@@ -45,7 +63,8 @@ const RegisterEmail = () => {
                     return prev - 1;
                 });
             }, 1000);
-            navigate("/verify", { state: { email } });
+
+            navigate("/verify", { state: { firstname, lastname, email, password } });
 
         } catch (error) {
             alert(error.message);
@@ -78,16 +97,52 @@ const RegisterEmail = () => {
                                 <NavLink to="/login">
                                     <FaArrowLeft className="mr-2" />
                                 </NavLink>
-                                Verify Email
+                                Create your account
                             </h1>
 
-                            {/* Email Input */}
+                            <Input
+                                label="Firstname"
+                                name="firstname"
+                                type="text"
+                                placeholder="Enter your first name"
+                                className="w-full text-black"
+                                onChange={handleInputChange}
+                            />
+
+                            <Input
+                                label="Lastname"
+                                name="lastname"
+                                type="text"
+                                placeholder="Enter your last name"
+                                className="w-full text-black"
+                                onChange={handleInputChange}
+                            />
+
                             <Input
                                 label="Email"
+                                name="email"
                                 type="email"
                                 placeholder="Enter your email"
                                 className="w-full text-black"
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={handleInputChange}
+                            />
+
+                            <Input
+                                label="Password"
+                                name="password"
+                                type="password"
+                                placeholder="Enter your password"
+                                className="w-full text-black"
+                                onChange={handleInputChange}
+                            />
+
+                            <Input
+                                label="Confirm Password"
+                                name="confirmPassword"
+                                type="password"
+                                placeholder="Confirm your password"
+                                className="w-full text-black"
+                                onChange={handleInputChange}
                             />
 
                             {/* Button */}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import supabase from '../utils/supabase';
 import { encryptText } from '../utils/encryption';
-import Input from './Input';
 
 const EditAccountForm = ({ profileData, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -26,10 +25,7 @@ const EditAccountForm = ({ profileData, onClose, onSave }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -55,7 +51,6 @@ const EditAccountForm = ({ profileData, onClose, onSave }) => {
 
       const updated = { ...data, shipping_address: formData.shipping_address };
       onSave(updated);
-      alert('Account updated successfully!');
     } catch (err) {
       console.error('Error updating profile:', err);
       setError(err.message || 'Failed to update account');
@@ -65,76 +60,76 @@ const EditAccountForm = ({ profileData, onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Edit Account</h2>
+    <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-[80] px-4">
+      <div className="bg-[#FAF8F4] rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] p-8 max-w-md w-full">
+        <h2 className="font-heading text-xl uppercase tracking-wide text-[#14110D] mb-6">Edit account</h2>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-[#F5E9E7] border border-[#E0B6AF] text-[#943D35] font-body text-sm px-4 py-3 rounded-lg mb-5">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="First Name"
-            type="text"
-            name="firstname"
-            value={formData.firstname}
-            onChange={handleInputChange}
-            placeholder="Enter your first name"
-            className="w-full text-black"
-          />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block font-body text-xs text-[#6B6558] mb-2">First name</label>
+            <input
+              type="text"
+              name="firstname"
+              value={formData.firstname}
+              onChange={handleInputChange}
+              placeholder="Enter your first name"
+              className="w-full bg-transparent border-0 border-b border-[#D8D2C4] py-2 font-body text-[#14110D] text-sm placeholder:text-[#B8B2A3] focus:outline-none focus:border-[#A9824C] transition-colors"
+            />
+          </div>
 
-          <Input
-            label="Last Name"
-            type="text"
-            name="lastname"
-            value={formData.lastname}
-            onChange={handleInputChange}
-            placeholder="Enter your last name"
-            className="w-full text-black"
-          />
+          <div>
+            <label className="block font-body text-xs text-[#6B6558] mb-2">Last name</label>
+            <input
+              type="text"
+              name="lastname"
+              value={formData.lastname}
+              onChange={handleInputChange}
+              placeholder="Enter your last name"
+              className="w-full bg-transparent border-0 border-b border-[#D8D2C4] py-2 font-body text-[#14110D] text-sm placeholder:text-[#B8B2A3] focus:outline-none focus:border-[#A9824C] transition-colors"
+            />
+          </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-600 text-sm font-semibold mb-2">
-              Email Address (not editable)
-            </label>
+          <div>
+            <label className="block font-body text-xs text-[#6B6558] mb-2">Email address (not editable)</label>
             <input
               type="email"
               value={formData.email}
               disabled
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-gray-100 text-gray-600 cursor-not-allowed"
+              className="w-full bg-[#F0ECE1] border border-[#E4DFD3] rounded-lg px-3 py-2 font-body text-[#8A8477] text-sm cursor-not-allowed"
             />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-600 text-sm font-semibold mb-2">
-              Shipping Address
-            </label>
+          <div>
+            <label className="block font-body text-xs text-[#6B6558] mb-2">Shipping address</label>
             <textarea
               name="shipping_address"
               value={formData.shipping_address}
               onChange={handleInputChange}
-              placeholder="Enter your shipping address"
-              className="w-full px-4 py-2 border border-gray-300 rounded text-black focus:outline-none focus:border-blue-500"
-              rows="4"
+              placeholder="Street, barangay, city, province, ZIP"
+              rows="3"
+              className="w-full bg-white border border-[#E4DFD3] rounded-lg px-3 py-2 font-body text-[#14110D] text-sm placeholder:text-[#B8B2A3] focus:outline-none focus:border-[#A9824C] transition-colors resize-none"
             />
           </div>
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-3 pt-2">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-2 px-4 rounded transition duration-200"
+              className="flex-1 bg-[#14110D] text-[#FAF8F4] font-body text-sm font-medium py-2.5 rounded-full hover:bg-[#2A241C] transition-colors disabled:opacity-50"
             >
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? 'Saving...' : 'Save changes'}
             </button>
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded transition duration-200"
+              className="flex-1 bg-transparent border border-[#D8D2C4] text-[#14110D] font-body text-sm font-medium py-2.5 rounded-full hover:bg-[#F0ECE1] transition-colors"
             >
               Cancel
             </button>
