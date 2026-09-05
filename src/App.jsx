@@ -34,7 +34,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminPayments from './pages/admin/AdminPayments';
 
 // Global widgets
-import ChatbotWidget from './components/ChatbotWidget';
+import ChatBotWidget from './components/ChatbotWidget';
 
 export default function App() {
   return <AppInner />;
