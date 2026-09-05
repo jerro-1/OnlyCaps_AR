@@ -93,7 +93,7 @@ function AppInner() {
         </Routes>
 
         {/* Chatbot floats on every page, guest-accessible (panel note #35) */}
-        <ChatbotWidget />
+        <ChatBotWidget />
       </CartProvider>
     </SessionContext.Provider>
   );
