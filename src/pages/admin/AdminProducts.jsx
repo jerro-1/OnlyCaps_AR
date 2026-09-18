@@ -70,8 +70,8 @@ export default function AdminProducts() {
     <AdminLayout>
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-3xl font-black uppercase tracking-wide text-[#0D0D0D]">Product Management</h1>
-          <p className="text-sm text-[#4A4536]">Curate the items shoppers can buy.</p>
+          <h1 className="text-3xl font-black uppercase tracking-wide text-[#247ad7]">Product Management</h1>
+          <p className="text-sm text-[#1a9ed2]">Curate the items shoppers can buy.</p>
         </div>
       </div>
 
@@ -85,7 +85,7 @@ export default function AdminProducts() {
         <input required type="number" placeholder="Stock" value={form.stock_quantity} onChange={e => setForm({ ...form, stock_quantity: e.target.value })} className="border rounded-lg px-3 py-2 text-sm" />
         <input placeholder="Image URL" value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} className="border rounded-lg px-3 py-2 text-sm" />
         <div className="sm:col-span-3 flex gap-2">
-          <button type="submit" className="bg-black text-white px-5 py-2 rounded-lg text-sm">
+          <button type="submit" className="bg-blue-400 text-white px-5 py-2 rounded-lg text-sm">
             {editingId ? 'Save changes' : 'Save product'}
           </button>
           {editingId && <button type="button" onClick={resetForm} className="px-5 py-2 rounded-lg text-sm border">Cancel</button>}

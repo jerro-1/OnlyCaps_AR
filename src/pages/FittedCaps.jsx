@@ -244,29 +244,22 @@ export default function FittedCaps() {
           )}
 
           {showFaceTracker && (
-            <div
-              className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4"
-              onClick={() => setShowFaceTracker(false)}
-            >
-              <div
-                className="bg-black rounded-2xl max-w-4xl w-full h-[90vh] relative overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  onClick={() => setShowFaceTracker(false)}
-                  className="absolute top-4 right-4 text-white z-10 bg-black/50 rounded-full p-2"
-                >
-                  ✕
-                </button>
+  <div
+    className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4"
+    onClick={() => setShowFaceTracker(false)}
+  >
+    <div
+      className="bg-black rounded-2xl max-w-4xl w-full h-[90vh] relative overflow-hidden"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="w-full h-full">
+        <FaceTracker onClose={() => setShowFaceTracker(false)} />
+      </div>
+    </div>
+  </div>
+)}
 
-                <div className="w-full h-full">
-                  <FaceTracker />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {showSignInPrompt && (
+          {showSignInPrompt && (  
             <SignInPromptModal onClose={() => setShowSignInPrompt(false)} />
           )}
         </div>

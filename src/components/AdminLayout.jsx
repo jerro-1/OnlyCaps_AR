@@ -8,6 +8,9 @@ import {
   HiOutlineDocumentReport, HiOutlineLogout, HiOutlineArrowLeft,
 } from 'react-icons/hi';
 
+const CYAN = '#9CE1F0';
+const BLACK = '#000000';
+
 export default function AdminLayout({ children }) {
   const session = useContext(SessionContext);
   const [checkingRole, setCheckingRole] = useState(true);
@@ -34,8 +37,8 @@ export default function AdminLayout({ children }) {
 
   if (checkingRole) {
     return (
-      <div className="min-h-screen bg-[#F2F0EA] flex items-center justify-center">
-        <p className="font-body text-sm text-[#6B6558]">Checking access...</p>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="font-sans text-sm text-gray-500">Checking access...</p>
       </div>
     );
   }
@@ -55,15 +58,18 @@ export default function AdminLayout({ children }) {
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#F2F0EA]">
+    <div className="flex min-h-screen bg-white">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#14110D] text-[#FAF8F4] flex-shrink-0 flex flex-col">
+      <aside className="w-64 flex-shrink-0 flex flex-col" style={{ backgroundColor: BLACK }}>
         <div className="px-6 py-8 flex flex-col items-center text-center border-b border-white/10">
-          <div className="w-14 h-14 rounded-full bg-[#5EC4D6] text-[#0D0D0D] flex items-center justify-center font-heading text-lg font-bold mb-3">
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg mb-3"
+            style={{ backgroundColor: CYAN, color: BLACK }}
+          >
             {initials}
           </div>
-          <p className="font-body text-xs text-[#B8B2A3]">Welcome,</p>
-          <p className="font-body text-sm font-semibold text-[#FAF8F4]">{displayName}</p>
+          <p className="text-xs text-white/60">Welcome,</p>
+          <p className="text-sm font-semibold text-white">{displayName}</p>
         </div>
 
         <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
@@ -73,11 +79,11 @@ export default function AdminLayout({ children }) {
               <Link
                 key={to}
                 to={to}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-body transition-colors ${
-                  active
-                    ? 'bg-[#5EC4D6] text-[#0D0D0D] font-semibold'
-                    : 'text-[#D8D2C4] hover:bg-white/5 hover:text-[#5EC4D6]'
-                }`}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-full text-sm font-medium transition-colors"
+                style={active
+                  ? { backgroundColor: CYAN, color: BLACK }
+                  : { color: 'rgba(255,255,255,0.7)' }
+                }
               >
                 <Icon size={17} />
                 {label}
@@ -87,16 +93,13 @@ export default function AdminLayout({ children }) {
         </nav>
 
         <div className="px-3 py-4 border-t border-white/10 space-y-1">
-          <Link
-            to="/"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-body text-[#B8B2A3] hover:bg-white/5 hover:text-[#FAF8F4] transition-colors"
-          >
+          <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-full text-sm text-white/60 hover:text-[#9CE1F0] transition-colors">
             <HiOutlineArrowLeft size={17} />
             Back to site
           </Link>
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-body text-[#C97A6D] hover:bg-white/5 transition-colors text-left"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-full text-sm text-white/60 hover:text-[#9CE1F0] transition-colors text-left"
           >
             <HiOutlineLogout size={17} />
             Sign out
@@ -106,14 +109,15 @@ export default function AdminLayout({ children }) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-[#E4DFD3] flex items-center justify-between px-8 flex-shrink-0">
-          <p className="font-body text-sm font-medium text-[#6B6558]">Admin Dashboard</p>
+        <header className="h-16 bg-white border-b-2 border-black flex items-center justify-between px-8 flex-shrink-0">
+          <p className="font-bold text-sm uppercase tracking-wide text-black">Admin Dashboard</p>
           <div className="flex items-center gap-4">
             <input
               placeholder="Search..."
-              className="border border-[#E4DFD3] rounded-full px-4 py-1.5 text-sm font-body w-56 focus:outline-none focus:border-[#5EC4D6]"
+              className="border-2 border-black rounded-full px-4 py-1.5 text-sm w-56 focus:outline-none"
+              style={{ borderColor: BLACK }}
             />
-            <div className="w-8 h-8 rounded-full bg-[#5EC4D6] text-[#0D0D0D] flex items-center justify-center font-body text-xs font-semibold">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: CYAN, color: BLACK }}>
               {initials}
             </div>
           </div>

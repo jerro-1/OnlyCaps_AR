@@ -32,6 +32,7 @@ import AdminInventory from './pages/admin/AdminInventory';
 import AdminCustomers from './pages/admin/AdminCustomers';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminPayments from './pages/admin/AdminPayments';
+import AdminReports from './pages/admin/AdminReports';
 
 // Global widgets
 import ChatBotWidget from './components/ChatBotWidget';
@@ -90,6 +91,7 @@ function AppInner() {
           <Route path="/admin/customers" element={<AdminCustomers />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/payments" element={<AdminPayments />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
         </Routes>
 
         {/* Chatbot floats on every page, guest-accessible (panel note #35) */}

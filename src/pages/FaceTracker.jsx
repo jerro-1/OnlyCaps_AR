@@ -96,8 +96,8 @@ export default function FaceTracker({ onClose }) {
 
             <button
                 onClick={() => {
-                    stopEverything();
                     onClose?.();
+                    stopEverything();
                 }}
                 style={{ position: "absolute", top: 16, right: 16, color: "white", zIndex: 10, background: "rgba(0,0,0,0.5)", borderRadius: "9999px", padding: "8px", border: "none", cursor: "pointer" }}
             >

@@ -1,14 +1,20 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import StatusBadge from '../../components/admin/StatusBadge';
 import supabase from '../../utils/supabase';
 
-const STATUSES = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+const CYAN = '#9CE1F0';
+const BLACK = '#000000';
+const STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+const PAGE_SIZE = 10;
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [goToPage, setGoToPage] = useState('');
   const [savingId, setSavingId] = useState(null);
 
   useEffect(() => { fetchOrders(); }, []);
@@ -17,7 +23,7 @@ export default function AdminOrders() {
     setLoading(true);
     const { data, error } = await supabase
       .from('orders')
-      .select(`id, total, status, user_id, full_name, courier_name, tracking_number, order_items(*), profiles(email)`)
+      .select(`id, total, status, user_id, full_name, phone, courier_name, tracking_number, created_at, order_items(*), profiles(email)`)
       .order('id', { ascending: false });
     if (error) console.error(error);
     setOrders(data || []);
@@ -39,75 +45,166 @@ export default function AdminOrders() {
       const q = search.toLowerCase();
       return String(o.id).toLowerCase().includes(q) ||
         (o.full_name || '').toLowerCase().includes(q) ||
+        (o.phone || '').toLowerCase().includes(q) ||
         (o.profiles?.email || '').toLowerCase().includes(q);
     });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const totalValue = filtered.reduce((s, o) => s + (o.total || 0), 0);
+
+  const handleGoToPage = () => {
+    const n = parseInt(goToPage, 10);
+    if (n >= 1 && n <= totalPages) setPage(n);
+    setGoToPage('');
+  };
 
   return (
     <AdminLayout>
-      <h1 className="text-3xl font-black uppercase tracking-wide text-[#0D0D0D] mb-1">Order Management</h1>
-      <p className="text-sm text-[#4A4536] mb-6">Track and move orders through their lifecycle.</p>
+      <h1 className="text-2xl font-bold uppercase text-black">Order Management</h1>
+      <p className="text-sm text-gray-500 mb-6">Track and move orders through their lifecycle.</p>
 
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-5 border border-gray-200">
-          <p className="text-xs text-gray-500 uppercase">Orders in view</p>
-          <p className="text-2xl font-bold">{filtered.length}</p>
+        <div className="bg-white rounded-xl p-5 border-t-4 border-black shadow-sm">
+          <p className="text-xs text-gray-500 uppercase font-semibold">Orders in view</p>
+          <p className="text-2xl font-bold text-black">{filtered.length}</p>
         </div>
-        <div className="bg-white rounded-xl p-5 border border-gray-200">
-          <p className="text-xs text-gray-500 uppercase">Total value</p>
-          <p className="text-2xl font-bold">₱{totalValue.toLocaleString()}</p>
+        <div className="bg-white rounded-xl p-5 border-t-4 border-black shadow-sm">
+          <p className="text-xs text-gray-500 uppercase font-semibold">Total value</p>
+          <p className="text-2xl font-bold text-black">₱{totalValue.toLocaleString()}</p>
         </div>
-        <div className="bg-white rounded-xl p-5 border border-amber-300">
-          <p className="text-xs text-gray-500 uppercase">Pending</p>
-          <p className="text-2xl font-bold text-amber-600">{counts.pending || 0}</p>
+        <div className="bg-white rounded-xl p-5 border-t-4 shadow-sm" style={{ borderColor: CYAN }}>
+          <p className="text-xs text-gray-500 uppercase font-semibold">Pending</p>
+          <p className="text-2xl font-bold text-black">{counts.pending || 0}</p>
         </div>
       </div>
 
-      <input placeholder="Search by name, email, or order ID..." value={search} onChange={e => setSearch(e.target.value)} className="border rounded-lg px-3 py-2 text-sm mb-4 w-full max-w-sm" />
+      <input
+        placeholder="Search by name, phone, or order ID..."
+        value={search}
+        onChange={e => { setSearch(e.target.value); setPage(1); }}
+        className="border-2 border-black rounded-full px-4 py-2 text-sm mb-4 w-full max-w-sm"
+      />
 
       <div className="flex flex-wrap gap-2 mb-4">
-        <button onClick={() => setTab('all')} className={`px-3 py-1.5 rounded-full text-xs font-medium ${tab === 'all' ? 'bg-black text-white' : 'bg-white border'}`}>All {orders.length}</button>
+        <button
+          onClick={() => { setTab('all'); setPage(1); }}
+          className="px-3 py-1.5 rounded-full text-xs font-bold"
+          style={tab === 'all' ? { backgroundColor: BLACK, color: '#fff' } : { backgroundColor: '#fff', border: '2px solid black', color: BLACK }}
+        >
+          All {orders.length}
+        </button>
         {STATUSES.map(s => (
-          <button key={s} onClick={() => setTab(s)} className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize ${tab === s ? 'bg-black text-white' : 'bg-white border'}`}>
+          <button
+            key={s}
+            onClick={() => { setTab(s); setPage(1); }}
+            className="px-3 py-1.5 rounded-full text-xs font-bold capitalize"
+            style={tab === s ? { backgroundColor: BLACK, color: '#fff' } : { backgroundColor: '#fff', border: '2px solid black', color: BLACK }}
+          >
             {s} {counts[s] || 0}
           </button>
         ))}
       </div>
 
       {loading ? <p>Loading...</p> : filtered.length === 0 ? <p>No orders found.</p> : (
-        <div className="space-y-4">
-          {filtered.map(order => (
-            <div key={order.id} className="bg-white rounded-xl border border-gray-200 p-5">
-              <div className="flex flex-wrap justify-between gap-4 mb-4">
+        <>
+          <div className="bg-white rounded-xl border-2 border-black overflow-x-auto mb-4">
+            <table className="w-full text-sm">
+              <thead style={{ backgroundColor: BLACK }}>
+                <tr>
+                  {['Order ID', 'Customer', 'Contact', 'Total', 'Placed', 'Status'].map(h => (
+                    <th key={h} className="p-3 text-left font-bold text-xs uppercase" style={{ color: CYAN }}>{h}</th>
+                  ))}
+                  <th className="p-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {paged.map(order => (
+                  <tr key={order.id} className="border-t border-gray-100 hover:bg-[#F0FBFD]">
+                    <td className="p-3 text-gray-500">#{order.id}</td>
+                    <td className="p-3 font-medium">{order.full_name || order.profiles?.email}</td>
+                    <td className="p-3 text-gray-500">{order.phone || 'N/A'}</td>
+                    <td className="p-3 font-semibold">₱{order.total}</td>
+                    <td className="p-3 text-gray-500">{order.created_at ? new Date(order.created_at).toLocaleDateString() : '—'}</td>
+                    <td className="p-3"><StatusBadge status={order.status} /></td>
+                    <td className="p-3">
+                      <select
+                        value={order.status}
+                        onChange={e => updateOrder(order.id, { status: e.target.value })}
+                        disabled={savingId === order.id}
+                        className="border-2 border-black rounded-lg px-2 py-1 text-xs capitalize"
+                      >
+                        {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="space-y-3 mb-6">
+            {paged.map(order => (
+              <div key={`courier-${order.id}`} className="bg-white rounded-xl border border-gray-200 p-4 grid sm:grid-cols-2 gap-3">
                 <div>
-                  <p className="font-semibold">Order #{order.id}</p>
-                  <p className="text-sm text-gray-500">{order.full_name || order.profiles?.email}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-500">Total</p>
-                  <p className="text-xl font-bold">₱{order.total}</p>
-                </div>
-              </div>
-              <div className="grid sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Status</label>
-                  <select value={order.status} onChange={e => updateOrder(order.id, { status: e.target.value })} disabled={savingId === order.id} className="w-full border rounded-lg px-2 py-1.5 text-sm capitalize">
-                    {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Courier</label>
-                  <input defaultValue={order.courier_name || ''} onBlur={e => updateOrder(order.id, { courier_name: e.target.value })} placeholder="e.g. LBC, J&T" className="w-full border rounded-lg px-2 py-1.5 text-sm" />
+                  <label className="text-xs text-gray-500 block mb-1">Courier (Order #{order.id})</label>
+                  <input
+                    defaultValue={order.courier_name || ''}
+                    onBlur={e => updateOrder(order.id, { courier_name: e.target.value })}
+                    placeholder="e.g. LBC, J&T"
+                    className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 block mb-1">Tracking Number</label>
-                  <input defaultValue={order.tracking_number || ''} onBlur={e => updateOrder(order.id, { tracking_number: e.target.value })} placeholder="Tracking #" className="w-full border rounded-lg px-2 py-1.5 text-sm" />
+                  <input
+                    defaultValue={order.tracking_number || ''}
+                    onBlur={e => updateOrder(order.id, { tracking_number: e.target.value })}
+                    placeholder="Tracking #"
+                    className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm"
+                  />
                 </div>
               </div>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-1.5 rounded-full text-sm border-2 border-black disabled:opacity-40"
+            >
+              Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className="w-8 h-8 rounded-full text-sm font-bold"
+                style={n === page ? { backgroundColor: BLACK, color: '#fff' } : { border: '2px solid black', color: BLACK }}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-1.5 rounded-full text-sm border-2 border-black disabled:opacity-40"
+            >
+              Next
+            </button>
+            <div className="flex items-center gap-1 ml-3">
+              <span className="text-xs text-gray-500">Go to page:</span>
+              <input
+                value={goToPage}
+                onChange={e => setGoToPage(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleGoToPage()}
+                className="w-14 border-2 border-black rounded-full px-2 py-1 text-xs text-center"
+              />
+              <button onClick={handleGoToPage} className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: CYAN, color: BLACK }}>Go</button>
             </div>
-          ))}
-        </div>
+          </div>
+        </>
       )}
     </AdminLayout>
   );
