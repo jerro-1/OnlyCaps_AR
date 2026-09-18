@@ -4,7 +4,7 @@ import { SessionContext } from '../context/SessionContext';
 import ProductCard from '../components/ProductCard';
 import Header from '../components/Header';
 import BgImg2 from '../components/BgImg2';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import FaceTracker from '../pages/FaceTracker';
 import supabase from '../utils/supabase';
 import SignInPromptModal from '../components/SignInPromptModal';
@@ -23,11 +23,25 @@ export default function FittedCaps() {
   const [showFaceTracker, setShowFaceTracker] = useState(false);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
 
-  const loadMore = () => setVisible(v => Math.min(v + 3, products.length));
+  const [searchParams] = useSearchParams();
+  const sizeFilter = searchParams.get('size');
+
+  const filteredProducts = sizeFilter
+    ? products.filter(p => p.size === sizeFilter)
+    : products;
+
+  const loadMore = () => setVisible(v => Math.min(v + 3, filteredProducts.length));
 
   useEffect(() => {
     fetchProducts();
   }, [session]);
+
+  // Reset "visible" count whenever the size filter changes, so you don't
+  // land on a filtered view stuck at whatever pagination position you were
+  // on before filtering
+  useEffect(() => {
+    setVisible(6);
+  }, [sizeFilter]);
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
@@ -46,7 +60,6 @@ export default function FittedCaps() {
     setModal(product);
     setSelectedSize(null);
     document.body.style.overflow = 'hidden';
-    console.log("Opened product:", product.name);
   };
 
   const closeModal = () => {
@@ -78,7 +91,6 @@ export default function FittedCaps() {
     closeModal();
   };
 
-  // THIS WAS MISSING -- the function the BUY NOW button calls
   const handleBuyNow = () => {
     if (!session) {
       setShowSignInPrompt(true);
@@ -89,16 +101,18 @@ export default function FittedCaps() {
       setTimeout(() => setShake(false), 500);
       return;
     }
-    const buyNowItem = {
-      id: modal.product_id,
-      name: modal.full_name,
-      price: modal.price,
-      size: selectedSize,
-      image: modal.image,
-      quantity: 1,
-    };
-    closeModal();
-    navigate('/checkout', { state: { buyNowItem } });
+    navigate('/checkout', {
+      state: {
+        buyNowItem: {
+          id: modal.product_id,
+          name: modal.full_name,
+          price: modal.price,
+          size: selectedSize,
+          image: modal.image,
+          quantity: 1,
+        },
+      },
+    });
   };
 
   return (
@@ -108,29 +122,44 @@ export default function FittedCaps() {
         <div className="page-bg-fitted font-body">
           <section className="pt-28 pb-12 mt-16">
             <div className="container mx-auto px-4">
-              <h1 className="text-5xl md:text-6xl font-heading mb-12 text-center tracking-wide uppercase text-white">
+              <h1 className="text-5xl md:text-6xl font-heading mb-6 text-center tracking-wide uppercase text-white">
                 FITTED CAPS
               </h1>
 
+              {sizeFilter && (
+                <div className="flex justify-center mb-8">
+                  <div className="flex items-center gap-2 bg-white/10 text-white text-sm px-4 py-2 rounded-full">
+                    <span>Filtering by size: <strong>{sizeFilter}</strong></span>
+                    <Link to="/fitted-caps" className="text-[#00BFFF] hover:underline ml-2">
+                      Clear
+                    </Link>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.slice(0, visible).map(product => (
+                {filteredProducts.slice(0, visible).map(product => (
                   <ProductCard key={product.id} product={product} onClick={openModal} />
                 ))}
               </div>
 
+              {filteredProducts.length === 0 && (
+                <p className="text-white text-center opacity-70 mt-8">
+                  No caps found in this size right now.
+                </p>
+              )}
+
               <div className="text-center mt-12">
-                {products.length === 0 ? (
-                  <p className="text-white text-sm opacity-70">No products available right now.</p>
-                ) : visible < products.length ? (
+                {visible < filteredProducts.length ? (
                   <button
                     onClick={loadMore}
                     className="btn-hover bg-gray-800 text-white px-10 py-3 rounded-full font-medium hover:bg-black transition text-sm border-none cursor-pointer"
                   >
                     LOAD MORE
                   </button>
-                ) : (
+                ) : filteredProducts.length > 0 ? (
                   <p className="text-white text-sm opacity-70">All products loaded</p>
-                )}
+                ) : null}
               </div>
             </div>
           </section>
@@ -190,7 +219,7 @@ export default function FittedCaps() {
 
                     <button
                       onClick={handleBuyNow}
-                      className="w-full bg-[#A9824C] text-[#14110D] py-2 rounded-full font-medium hover:bg-[#96723F] transition text-lg border-none cursor-pointer"
+                      className="w-full bg-[#00BFFF] text-black py-2 rounded-full font-medium hover:bg-[#00a8e0] transition text-lg border-none cursor-pointer"
                     >
                       BUY NOW
                     </button>
@@ -223,8 +252,15 @@ export default function FittedCaps() {
                 className="bg-black rounded-2xl max-w-4xl w-full h-[90vh] relative overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
+                <button
+                  onClick={() => setShowFaceTracker(false)}
+                  className="absolute top-4 right-4 text-white z-10 bg-black/50 rounded-full p-2"
+                >
+                  ✕
+                </button>
+
                 <div className="w-full h-full">
-                  <FaceTracker onClose={() => setShowFaceTracker(false)} />
+                  <FaceTracker />
                 </div>
               </div>
             </div>

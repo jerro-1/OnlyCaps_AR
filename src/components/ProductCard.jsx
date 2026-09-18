@@ -11,15 +11,15 @@ const ProductCard = ({ product, onClick }) => {
                 <img
                     src={product.image}
                     alt={product.fullName}
-                    className="w-full h-64 object-cover transition duration-300 hover:scale-105"
+                    className="w-full h-64 object-contain p-6 transition duration-300 hover:scale-105"
                 />
             </div>
             <div className="p-6">
-                <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+                <h3 className="text-xl font-bold mb-2 text-gray-900">{product.name}</h3>
                 <p className="text-gray-600 text-sm mb-4">{product.subtitle}</p>
                 <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold">₱{product.price}</span>
-                    <span className="text-sm text-blue-600">Quick View →</span>
+                    <span className="text-2xl font-bold text-gray-900">₱{product.price}</span>
+                    <span className="text-sm text-[#00BFFF] font-medium">Quick View →</span>
                 </div>
             </div>
         </div>

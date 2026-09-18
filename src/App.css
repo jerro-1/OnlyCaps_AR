@@ -489,3 +489,37 @@ input:-webkit-autofill:focus {
         opacity: 0;
     }
 }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+  width: max-content;
+}
+
+
+.admin-content h1,
+.admin-content h2,
+.admin-content h3,
+.admin-content p,
+.admin-content label,
+.admin-content th,
+.admin-content td,
+.admin-content span,
+.admin-content input,
+.admin-content select,
+.admin-content option,
+.admin-content button {
+  color: #14110D !important;
+  opacity: 1 !important;
+}
+
+.admin-content input::placeholder {
+  color: #8A8477 !important;
+}
+
+.admin-content select {
+  background-color: #FFFFFF !important;
+}

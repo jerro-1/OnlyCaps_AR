@@ -119,7 +119,7 @@ export default function AdminLayout({ children }) {
           </div>
         </header>
 
-        <main className="flex-1 p-8 overflow-y-auto">{children}</main>
+        <main className="admin-content flex-1 p-8 overflow-y-auto">{children}</main>
       </div>
     </div>
   );
