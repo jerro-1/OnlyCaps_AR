@@ -1,26 +1,25 @@
-const STATUS_STYLES = {
-  pending: { bg: '#9CE1F0', text: '#000000' },
-  processing: { bg: '#000000', text: '#9CE1F0' },
-  shipped: { bg: '#000000', text: '#9CE1F0' },
-  delivered: { bg: '#9CE1F0', text: '#000000' },
-  cancelled: { bg: '#000000', text: '#FFFFFF' },
-  active: { bg: '#9CE1F0', text: '#000000' },
-  'low stock': { bg: '#9CE1F0', text: '#000000' },
-  'out of stock': { bg: '#000000', text: '#FFFFFF' },
-  'in stock': { bg: '#9CE1F0', text: '#000000' },
-  admin: { bg: '#000000', text: '#9CE1F0' },
-  customer: { bg: '#F0FBFD', text: '#000000' },
+const STATUS_BADGE_CLASS = {
+  pending: 'badge-warning',
+  confirmed: 'badge-info',
+  processing: 'badge-accent',
+  shipped: 'badge-primary',
+  delivered: 'badge-info',
+  completed: 'badge-success',
+  cancelled: 'badge-error',
+  active: 'badge-success',
+  'low stock': 'badge-warning',
+  'out of stock': 'badge-error',
+  'in stock': 'badge-success',
+  admin: 'badge-accent',
+  customer: 'badge-ghost',
 };
 
 export default function StatusBadge({ status }) {
   const key = (status || '').toLowerCase();
-  const style = STATUS_STYLES[key] || { bg: '#F0FBFD', text: '#000000' };
+  const badgeClass = STATUS_BADGE_CLASS[key] || 'badge-ghost';
   return (
-    <span
-      className="rounded-full px-3 py-1 text-xs font-bold capitalize"
-      style={{ backgroundColor: style.bg, color: style.text }}
-    >
+    <div className={`badge ${badgeClass} capitalize font-medium`}>
       {status}
-    </span>
+    </div>
   );
 }

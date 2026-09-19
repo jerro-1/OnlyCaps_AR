@@ -92,12 +92,23 @@ export default function AdminProducts() {
         </div>
       </form>
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        <button onClick={() => setCategory('all')} className={`px-3 py-1.5 rounded-full text-xs font-medium ${category === 'all' ? 'bg-black text-white' : 'bg-white border'}`}>All</button>
-        {CATEGORIES.map(c => (
-          <button key={c} onClick={() => setCategory(c)} className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize ${category === c ? 'bg-black text-white' : 'bg-white border'}`}>{c}</button>
-        ))}
-      </div>
+     <div className="flex flex-wrap gap-2 mb-4">
+  <button
+    onClick={() => setCategory('all')}
+    className={`btn btn-sm ${category === 'all' ? 'btn-primary' : 'btn-outline btn-primary'}`}
+  >
+    All
+  </button>
+  {CATEGORIES.map(c => (
+    <button
+      key={c}
+      onClick={() => setCategory(c)}
+      className={`btn btn-sm capitalize ${category === c ? 'btn-primary' : 'btn-outline btn-primary'}`}
+    >
+      {c}
+    </button>
+  ))}
+</div>
       <input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} className="border rounded-lg px-3 py-2 text-sm mb-4 w-full max-w-sm" />
 
       {loading ? <p>Loading...</p> : (

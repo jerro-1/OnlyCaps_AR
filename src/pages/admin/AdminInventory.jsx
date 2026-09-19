@@ -63,33 +63,37 @@ export default function AdminInventory() {
       />
 
       {loading ? <p>Loading...</p> : (
-        <div className="bg-white rounded-xl border-2 border-black overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead style={{ backgroundColor: BLACK }}>
-              <tr>
-                {['Product', 'Category', 'Stock', 'Status', 'Adjust'].map(h => (
-                  <th key={h} className="p-3 text-left font-bold text-xs uppercase" style={{ color: CYAN }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map(p => (
-                <tr key={p.id} className="border-t border-gray-100 hover:bg-[#F0FBFD]">
-                  <td className="p-3">{p.name}</td>
-                  <td className="p-3 capitalize text-gray-500">{p.category}</td>
-                  <td className="p-3 font-semibold">{p.stock_quantity}</td>
-                  <td className="p-3"><StatusBadge status={statusFor(p.stock_quantity || 0)} /></td>
-                  <td className="p-3">
-                    <div className="flex gap-1">
-                      <button onClick={() => adjustStock(p, -1)} className="w-7 h-7 border-2 border-black rounded-full hover:bg-gray-100 font-bold">−</button>
-                      <button onClick={() => adjustStock(p, 1)} className="w-7 h-7 rounded-full font-bold" style={{ backgroundColor: CYAN, color: BLACK }}>+</button>
-                    </div>
-                  </td>
-                </tr>
+              <div className="bg-white rounded-xl border overflow-x-auto" style={{ borderColor: '#EBEBE8' }}>
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 border-b" style={{ borderColor: '#EBEBE8' }}>
+            <tr>
+              {['Product', 'Category', 'Stock', 'Status', 'Adjust'].map(h => (
+                <th key={h} className="p-3 text-left font-medium text-xs uppercase tracking-wide text-gray-500">{h}</th>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map(p => (
+              <tr key={p.id} className="border-t border-gray-100 hover:bg-gray-50">
+                <td className="p-3">{p.name}</td>
+                <td className="p-3 capitalize text-gray-500">{p.category}</td>
+                <td className="p-3 font-semibold">{p.stock_quantity}</td>
+                <td className="p-3"><StatusBadge status={statusFor(p.stock_quantity || 0)} /></td>
+                <td className="p-3">
+                  <div className="flex gap-2">
+                    <button onClick={() => adjustStock(p, -1)} className="btn btn-circle btn-sm btn-outline btn-primary">
+                      −
+                    </button>
+                    <button onClick={() => adjustStock(p, 1)} className="btn btn-circle btn-sm btn-primary">
+                      +
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       )}
     </AdminLayout>
   );

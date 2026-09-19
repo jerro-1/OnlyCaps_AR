@@ -8,8 +8,12 @@ import {
   HiOutlineDocumentReport, HiOutlineLogout, HiOutlineArrowLeft,
 } from 'react-icons/hi';
 
-const CYAN = '#9CE1F0';
-const BLACK = '#000000';
+const INK = '#16181D';
+const MUTED = '#6B6B66';
+const ACCENT = '#00BFFF';
+const ACCENT_TINT = '#EAF9FE';
+const BORDER = '#EBEBE8';
+const CANVAS = '#FAFAF8';
 
 export default function AdminLayout({ children }) {
   const session = useContext(SessionContext);
@@ -37,8 +41,8 @@ export default function AdminLayout({ children }) {
 
   if (checkingRole) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <p className="font-sans text-sm text-gray-500">Checking access...</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: CANVAS }}>
+        <p className="text-sm" style={{ color: MUTED }}>Checking access...</p>
       </div>
     );
   }
@@ -58,31 +62,33 @@ export default function AdminLayout({ children }) {
   ];
 
   return (
-    <div className="flex min-h-screen bg-white">
-      {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 flex flex-col" style={{ backgroundColor: BLACK }}>
-        <div className="px-6 py-8 flex flex-col items-center text-center border-b border-white/10">
+    <div className="flex min-h-screen" style={{ backgroundColor: CANVAS }}>
+      {/* Sidebar -- light, not dark */}
+      <aside className="w-64 flex-shrink-0 flex flex-col bg-white border-r" style={{ borderColor: BORDER }}>
+        <div className="px-5 py-6 flex items-center gap-3">
           <div
-            className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg mb-3"
-            style={{ backgroundColor: CYAN, color: BLACK }}
+            className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0"
+            style={{ backgroundColor: ACCENT_TINT, color: ACCENT === '#00BFFF' ? '#0090BD' : ACCENT }}
           >
             {initials}
           </div>
-          <p className="text-xs text-white/60">Welcome,</p>
-          <p className="text-sm font-semibold text-white">{displayName}</p>
+          <div className="min-w-0">
+            <p className="text-xs" style={{ color: MUTED }}>Signed in as</p>
+            <p className="text-sm font-medium truncate" style={{ color: INK }}>{displayName}</p>
+          </div>
         </div>
 
-        <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
           {navItems.map(({ to, label, icon: Icon }) => {
             const active = location.pathname === to;
             return (
               <Link
                 key={to}
                 to={to}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-full text-sm font-medium transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
                 style={active
-                  ? { backgroundColor: CYAN, color: BLACK }
-                  : { color: 'rgba(255,255,255,0.7)' }
+                  ? { backgroundColor: ACCENT_TINT, color: '#0090BD' }
+                  : { color: MUTED }
                 }
               >
                 <Icon size={17} />
@@ -92,14 +98,15 @@ export default function AdminLayout({ children }) {
           })}
         </nav>
 
-        <div className="px-3 py-4 border-t border-white/10 space-y-1">
-          <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-full text-sm text-white/60 hover:text-[#9CE1F0] transition-colors">
+        <div className="px-3 py-4 border-t space-y-0.5" style={{ borderColor: BORDER }}>
+          <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors" style={{ color: MUTED }}>
             <HiOutlineArrowLeft size={17} />
             Back to site
           </Link>
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-full text-sm text-white/60 hover:text-[#9CE1F0] transition-colors text-left"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-red-50 hover:text-red-600 transition-colors text-left"
+            style={{ color: MUTED }}
           >
             <HiOutlineLogout size={17} />
             Sign out
@@ -109,18 +116,13 @@ export default function AdminLayout({ children }) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b-2 border-black flex items-center justify-between px-8 flex-shrink-0">
-          <p className="font-bold text-sm uppercase tracking-wide text-black">Admin Dashboard</p>
-          <div className="flex items-center gap-4">
-            <input
-              placeholder="Search..."
-              className="border-2 border-black rounded-full px-4 py-1.5 text-sm w-56 focus:outline-none"
-              style={{ borderColor: BLACK }}
-            />
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: CYAN, color: BLACK }}>
-              {initials}
-            </div>
-          </div>
+        <header className="h-16 bg-white border-b flex items-center justify-between px-8 flex-shrink-0" style={{ borderColor: BORDER }}>
+          <p className="text-sm font-medium" style={{ color: MUTED }}>Admin</p>
+          <input
+            placeholder="Search..."
+            className="border rounded-lg px-3.5 py-1.5 text-sm w-56 focus:outline-none focus:ring-2"
+            style={{ borderColor: BORDER, '--tw-ring-color': ACCENT }}
+          />
         </header>
 
         <main className="admin-content flex-1 p-8 overflow-y-auto">{children}</main>
