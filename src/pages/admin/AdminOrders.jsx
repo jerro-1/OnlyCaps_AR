@@ -26,7 +26,7 @@ export default function AdminOrders() {
     setLoading(true);
     const { data, error } = await supabase
       .from('orders')
-      .select(`id, total, status, user_id, full_name, phone, courier_name, tracking_number, created_at, order_items(*), profiles(email)`)
+      .select(`id, order_number, total, status, user_id, full_name, phone, courier_name, tracking_number, created_at, order_items(*), profiles(email)`)
       .order('id', { ascending: false });
     if (error) console.error(error);
     setOrders(data || []);
@@ -46,7 +46,8 @@ export default function AdminOrders() {
     .filter(o => tab === 'all' || o.status === tab)
     .filter(o => {
       const q = search.toLowerCase();
-      return String(o.id).toLowerCase().includes(q) ||
+      return String(o.order_number || '').toLowerCase().includes(q) ||
+        String(o.id).toLowerCase().includes(q) ||
         (o.full_name || '').toLowerCase().includes(q) ||
         (o.phone || '').toLowerCase().includes(q) ||
         (o.profiles?.email || '').toLowerCase().includes(q);
@@ -133,7 +134,7 @@ export default function AdminOrders() {
               <tbody>
                 {paged.map(order => (
                   <tr key={order.id} className="border-t hover:bg-gray-50 transition-colors" style={{ borderColor: '#F0F0EE' }}>
-                    <td className="p-3 text-gray-500">#{order.id}</td>
+                    <td className="p-3 text-gray-500 font-mono text-xs">#{order.order_number}</td>
                     <td className="p-3 font-medium" style={{ color: INK }}>{order.full_name || order.profiles?.email}</td>
                     <td className="p-3 text-gray-500">{order.phone || 'N/A'}</td>
                     <td className="p-3 font-medium" style={{ color: INK }}>₱{order.total}</td>
@@ -160,7 +161,7 @@ export default function AdminOrders() {
             {paged.map(order => (
               <div key={`courier-${order.id}`} className="bg-white rounded-xl border p-4 grid sm:grid-cols-2 gap-3" style={{ borderColor: BORDER }}>
                 <div>
-                  <label className="text-xs text-gray-500 block mb-1">Courier (Order #{order.id})</label>
+                  <label className="text-xs text-gray-500 block mb-1">Courier (Order #{order.order_number})</label>
                   <input
                     defaultValue={order.courier_name || ''}
                     onBlur={e => updateOrder(order.id, { courier_name: e.target.value })}

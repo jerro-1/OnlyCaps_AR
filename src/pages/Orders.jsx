@@ -28,6 +28,7 @@ const Orders = () => {
                 .from('orders')
                 .select(`
           id,
+          order_number,
           total,
           status,
           order_items (*)
@@ -64,7 +65,7 @@ const Orders = () => {
                             <div key={order.id} className="mb-6 bg-white rounded-md overflow-hidden">
                                 <div className="flex justify-between items-center px-5 py-4 bg-gray-100">
                                     <p className="font-light text-gray-900">
-                                        Order number: {order.id}
+                                        Order number: {order.order_number}
                                     </p>
                                     <p className="text-sm text-gray-600">
                                         Status: {order.status}

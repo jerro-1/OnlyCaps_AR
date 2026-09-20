@@ -12,7 +12,7 @@ export default function AdminPayments() {
 
   useEffect(() => {
     supabase.from('orders')
-      .select('id, total, payment_method, payment_status, full_name, profiles(email), created_at')
+      .select('id, order_number, total, payment_method, payment_status, full_name, profiles(email), created_at')
       .then(({ data, error }) => {
         if (error) console.error(error);
         setOrders(data || []);
@@ -27,6 +27,7 @@ export default function AdminPayments() {
     const q = search.toLowerCase();
     const matchesSearch = (o.full_name || '').toLowerCase().includes(q) ||
       (o.payment_method || '').toLowerCase().includes(q) ||
+      String(o.order_number || '').toLowerCase().includes(q) ||
       String(o.id).toLowerCase().includes(q);
     const inRange = o.total >= Number(minPrice || 0) && o.total <= Number(maxPrice || 999999);
     return matchesSearch && inRange;
@@ -72,7 +73,7 @@ export default function AdminPayments() {
             <tbody>
               {visible.map(o => (
                 <tr key={o.id} className="border-t">
-                  <td className="p-3 text-gray-500">#{o.id}</td>
+                  <td className="p-3 text-gray-500 font-mono text-xs">#{o.order_number}</td>
                   <td className="p-3 font-medium">{o.full_name || o.profiles?.email}</td>
                   <td className="p-3 font-semibold">₱{o.total}</td>
                   <td className="p-3">

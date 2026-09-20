@@ -13,7 +13,7 @@ export default function OrderConfirmation() {
   useEffect(() => {
     supabase
       .from('orders')
-      .select('id, total, status, created_at')
+      .select('id, order_number, total, status, created_at')
       .eq('id', orderId)
       .single()
       .then(({ data }) => {
@@ -38,7 +38,7 @@ export default function OrderConfirmation() {
           {!loading && order && (
             <>
               <p className="font-body text-sm text-[#6B6558] mb-6">
-                Order #{order.id} · ₱{order.total}
+                Order #{order.order_number} · ₱{order.total}
               </p>
               <p className="font-body text-xs text-[#6B6558] mb-8">
                 You can track its status anytime from your order history.
