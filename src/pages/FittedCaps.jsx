@@ -183,27 +183,32 @@ export default function FittedCaps() {
 
                   <div className="space-y-6">
                     <div>
-                      <h2 className="text-3xl md:text-4xl font-heading mb-2">{modal.name}</h2>
+                      <h2 className="text-3xl md:text-4xl font-heading mb-2 text-gray-900">{modal.name}</h2>
                       <p className="text-gray-600 text-lg">{modal.subtitle}</p>
                       <div className="text-3xl font-bold text-blue-600 mt-4">₱{modal.price}</div>
                     </div>
 
-                    <div className="border-t border-b border-gray-200 py-4">
+                    <div className="border-t border-b border-gray-900 py-4">
                       <p className="text-gray-700 leading-relaxed">{modal.description}</p>
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-bold mb-3">Select Size:</h3>
+                      <h3 className="text-lg font-bold mb-3 text-gray-900 ">Select Size:</h3>
                       <div className={`flex flex-wrap gap-2 ${shake ? 'shake' : ''}`}>
-                        {SIZES.map(size => (
-                          <button
-                            key={size}
-                            className={`size-btn ${selectedSize === size ? 'selected' : ''}`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </button>
-                        ))}
+                        {SIZES.map(size => {
+                          const stockForSize = modal.sizes_stock?.[size] ?? 0;
+                          const outOfStock = stockForSize <= 0;
+                          return (
+                            <button
+                              key={size}
+                              disabled={outOfStock}
+                              className={`size-btn ${selectedSize === size ? 'selected' : ''} ${outOfStock ? 'opacity-30 cursor-not-allowed line-through' : ''}`}
+                              onClick={() => !outOfStock && setSelectedSize(size)}
+                            >
+                              {size}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
