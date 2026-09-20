@@ -82,10 +82,10 @@ export default function AdminInventory() {
                 <td className="p-3"><StatusBadge status={statusFor(p.stock_quantity || 0)} /></td>
                 <td className="p-3">
                   <div className="flex gap-2">
-                    <button onClick={() => adjustStock(p, -1)} className="btn btn-circle btn-sm btn-outline btn-primary">
+                    <button onClick={() => adjustStock(p, -1)} className="btn btn-square btn-sm btn-outline text-lg font-bold">
                       −
                     </button>
-                    <button onClick={() => adjustStock(p, 1)} className="btn btn-circle btn-sm btn-primary">
+                    <button onClick={() => adjustStock(p, 1)} className="btn btn-square btn-sm btn-outline text-lg font-bold">
                       +
                     </button>
                   </div>
