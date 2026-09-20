@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
-import StatusBadge from '../../components/admin/StatusBadge';
+import StatusBadge from '../../components/Admin/StatusBadge';
+import SearchInput from '../../components/Admin/SearchInput';
 import supabase from '../../utils/supabase';
 
 const CYAN = '#9CE1F0';
@@ -55,11 +56,11 @@ export default function AdminInventory() {
         </div>
       </div>
 
-      <input
-        placeholder="Search inventory..."
+      <SearchInput
         value={search}
         onChange={e => setSearch(e.target.value)}
-        className="border-2 border-black rounded-full px-4 py-2 text-sm mb-4 w-full max-w-sm"
+        placeholder="Search inventory..."
+        className="mb-4 w-full max-w-sm"
       />
 
       {loading ? <p>Loading...</p> : (

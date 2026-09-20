@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
-import StatusBadge from '../../components/admin/StatusBadge';
-import Button from '../../components/admin/Button';
+import StatusBadge from '../../components/Admin/StatusBadge';
+import Button from '../../components/Admin/Button';
+import SearchInput from '../../components/Admin/SearchInput';
 import supabase from '../../utils/supabase';
 
 const INK = '#16181D';
@@ -81,12 +82,11 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      <input
-        placeholder="Search by name, phone, or order ID..."
+      <SearchInput
         value={search}
         onChange={e => { setSearch(e.target.value); setPage(1); }}
-        className="border rounded-lg px-3.5 py-2 text-sm mb-4 w-full max-w-sm focus:outline-none focus:ring-2"
-        style={{ borderColor: BORDER, '--tw-ring-color': ACCENT }}
+        placeholder="Search by name, phone, or order ID..."
+        className="mb-4 w-full max-w-sm"
       />
 
               <div className="flex flex-wrap gap-2 mb-4">

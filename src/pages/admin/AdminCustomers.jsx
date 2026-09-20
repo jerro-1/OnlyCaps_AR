@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import SearchInput from '../../components/Admin/SearchInput';
 import supabase from '../../utils/supabase';
 
 export default function AdminCustomers() {
@@ -51,11 +52,11 @@ export default function AdminCustomers() {
       <h1 className="text-2xl font-bold mb-1 text-[#14110D]">Customers</h1>
       <p className="text-sm text-gray-500 mb-6">Everyone with an account on OnlyCaps.</p>
 
-      <input
-        placeholder="Search by name or email..."
+      <SearchInput
         value={search}
         onChange={e => setSearch(e.target.value)}
-        className="border rounded-lg px-3 py-2 text-sm mb-4 w-full max-w-sm"
+        placeholder="Search by name or email..."
+        className="mb-4 w-full max-w-sm"
       />
 
       {loading ? <p>Loading...</p> : (

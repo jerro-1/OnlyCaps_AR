@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import SearchInput from '../../components/Admin/SearchInput';
 import supabase from '../../utils/supabase';
 
 export default function AdminPayments() {
@@ -52,7 +53,12 @@ export default function AdminPayments() {
       </div>
 
       <div className="flex flex-wrap gap-3 mb-4">
-        <input placeholder="Search by name, method, or ID..." value={search} onChange={e => setSearch(e.target.value)} className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px]" />
+        <SearchInput
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search by name, method, or ID..."
+          className="flex-1 min-w-[200px]"
+        />
         <input type="number" placeholder="Min price" value={minPrice} onChange={e => setMinPrice(e.target.value)} className="border rounded-lg px-3 py-2 text-sm w-28" />
         <input type="number" placeholder="Max price" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} className="border rounded-lg px-3 py-2 text-sm w-28" />
       </div>
