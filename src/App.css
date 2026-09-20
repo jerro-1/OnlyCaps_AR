@@ -523,3 +523,23 @@ input:-webkit-autofill:focus {
 .admin-content select {
   background-color: #FFFFFF !important;
 }
+
+.admin-content input.admin-search-input {
+  color: unset !important;
+}
+
+.admin-content label.admin-search-box {
+  background-color: transparent !important;
+  border-color: #000000 !important;
+  box-shadow: none !important;
+}
+
+.admin-content .btn-outline-black {
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+
+.admin-content .btn-outline-black:hover {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+}
