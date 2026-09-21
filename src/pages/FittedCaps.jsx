@@ -1,13 +1,15 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, lazy, Suspense } from 'react';
 import { useCart } from '../context/CartContext';
 import { SessionContext } from '../context/SessionContext';
 import ProductCard from '../components/ProductCard';
 import Header from '../components/Header';
 import BgImg2 from '../components/BgImg2';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import FaceTracker from '../pages/FaceTracker';
+import { loadFaceTracker, preloadFaceTracker } from '../utils/faceTrackerPreload';
 import supabase from '../utils/supabase';
 import SignInPromptModal from '../components/SignInPromptModal';
+
+const FaceTracker = lazy(loadFaceTracker);
 
 const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
 
@@ -27,7 +29,7 @@ export default function FittedCaps() {
   const sizeFilter = searchParams.get('size');
 
   const filteredProducts = sizeFilter
-    ? products.filter(p => p.size === sizeFilter)
+    ? products.filter(p => (p.sizes_stock?.[sizeFilter] ?? 0) > 0)
     : products;
 
   const loadMore = () => setVisible(v => Math.min(v + 3, filteredProducts.length));
@@ -59,6 +61,7 @@ export default function FittedCaps() {
   const openModal = (product) => {
     setModal(product);
     setSelectedSize(null);
+    preloadFaceTracker();
     document.body.style.overflow = 'hidden';
   };
 
@@ -80,8 +83,8 @@ export default function FittedCaps() {
     }
 
     addToCart({
-      id: modal.product_id,
-      name: modal.full_name,
+      id: modal.product_id ?? modal.id,
+      name: modal.full_name ?? modal.name,
       price: modal.price,
       size: selectedSize,
       image: modal.image,
@@ -104,8 +107,8 @@ export default function FittedCaps() {
     navigate('/checkout', {
       state: {
         buyNowItem: {
-          id: modal.product_id,
-          name: modal.full_name,
+          id: modal.product_id ?? modal.id,
+          name: modal.full_name ?? modal.name,
           price: modal.price,
           size: selectedSize,
           image: modal.image,
@@ -196,7 +199,11 @@ export default function FittedCaps() {
                       <h3 className="text-lg font-bold mb-3 text-gray-900 ">Select Size:</h3>
                       <div className={`flex flex-wrap gap-2 ${shake ? 'shake' : ''}`}>
                         {SIZES.map(size => {
-                          const stockForSize = modal.sizes_stock?.[size] ?? 0;
+                          // Rows without per-size stock fall back to the overall stock count
+                          const hasSizeData = Object.keys(modal.sizes_stock || {}).length > 0;
+                          const stockForSize = hasSizeData
+                            ? (modal.sizes_stock[size] ?? 0)
+                            : (modal.stock_quantity ?? 0);
                           const outOfStock = stockForSize <= 0;
                           return (
                             <button
@@ -258,7 +265,9 @@ export default function FittedCaps() {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="w-full h-full">
-        <FaceTracker onClose={() => setShowFaceTracker(false)} />
+        <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="try-on-spinner" /></div>}>
+          <FaceTracker onClose={() => setShowFaceTracker(false)} />
+        </Suspense>
       </div>
     </div>
   </div>

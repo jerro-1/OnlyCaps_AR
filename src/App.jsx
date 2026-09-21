@@ -1,41 +1,52 @@
 import { Routes, Route } from 'react-router-dom';
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { CartProvider } from './context/CartContext';
 import { SessionContext } from './context/SessionContext';
 import supabase from './utils/supabase';
 import "./App.css";
 
-// Customer-facing pages
+// Home loads eagerly (first paint); everything else is split into its own
+// chunk and fetched on demand so the first visit downloads far less JS.
 import Home from './pages/Home';
-import FittedCaps from './pages/FittedCaps';
-import AFrames from './pages/AFrames';
-import Trucker from './pages/Trucker';
-import MoreStuff from './pages/MoreStuff';
-import Login from './pages/Login';
-import RegisterEmail from './pages/RegisterEmail';
-import VerifyEmail from './pages/VerifyEmail';
-import MFASetup from './pages/MFASetup';
-import MFAVerify from './pages/MFAVerify';
-import Account from './pages/Account';
-import Orders from './pages/Orders';
-import CartPage from './pages/CartPage';
-import Checkout from './pages/Checkout';
-import OrderConfirmation from './pages/OrderConfirmation';
-import CapMeasurement from './pages/CapMeasurement';
-import FaceTracker from './pages/FaceTracker';
-import SearchResults from './pages/SearchResults';
+
+const FittedCaps = lazy(() => import('./pages/FittedCaps'));
+const AFrames = lazy(() => import('./pages/AFrames'));
+const Trucker = lazy(() => import('./pages/Trucker'));
+const MoreStuff = lazy(() => import('./pages/MoreStuff'));
+const Login = lazy(() => import('./pages/Login'));
+const RegisterEmail = lazy(() => import('./pages/RegisterEmail'));
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
+const MFASetup = lazy(() => import('./pages/MFASetup'));
+const MFAVerify = lazy(() => import('./pages/MFAVerify'));
+const Account = lazy(() => import('./pages/Account'));
+const Orders = lazy(() => import('./pages/Orders'));
+const CartPage = lazy(() => import('./pages/CartPage'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
+const CapMeasurement = lazy(() => import('./pages/CapMeasurement'));
+const FaceTracker = lazy(() => import('./pages/FaceTracker'));
+const SearchResults = lazy(() => import('./pages/SearchResults'));
 
 // Admin pages
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminProducts from './pages/admin/AdminProducts';
-import AdminInventory from './pages/admin/AdminInventory';
-import AdminCustomers from './pages/admin/AdminCustomers';
-import AdminOrders from './pages/admin/AdminOrders';
-import AdminPayments from './pages/admin/AdminPayments';
-import AdminReports from './pages/admin/AdminReports';
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const AdminInventory = lazy(() => import('./pages/admin/AdminInventory'));
+const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'));
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 
 // Global widgets
 import ChatBotWidget from './components/ChatBotWidget';
+import Notification from './components/Notification';
+
+function RouteFallback() {
+  return (
+    <div className="min-h-screen bg-[#0B0B0C] flex items-center justify-center">
+      <div className="try-on-spinner" />
+    </div>
+  );
+}
 
 export default function App() {
   return <AppInner />;
@@ -59,6 +70,7 @@ function AppInner() {
   return (
     <SessionContext.Provider value={session}>
       <CartProvider>
+        <Suspense fallback={<RouteFallback />}>
         <Routes>
           {/* Public / guest-accessible */}
           <Route path="/" element={<Home />} />
@@ -93,9 +105,11 @@ function AppInner() {
           <Route path="/admin/payments" element={<AdminPayments />} />
           <Route path="/admin/reports" element={<AdminReports />} />
         </Routes>
+        </Suspense>
 
         {/* Chatbot floats on every page, guest-accessible (panel note #35) */}
         <ChatBotWidget />
+        <Notification />
       </CartProvider>
     </SessionContext.Provider>
   );
