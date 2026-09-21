@@ -7,10 +7,9 @@ import HeaderNavLink from './HeaderNavLink';
 import ProfileMenu from './ProfileMenu';
 import React, { useContext, useState } from "react";
 import { BsCart2, BsSearch, BsX } from "react-icons/bs";
-import { NavLink } from "react-router-dom";
 
 export default function Header() {
-  const { totalItems } = useCart();
+  const { totalItems, setCartOpen } = useCart();
   const session = useContext(SessionContext);
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -37,7 +36,7 @@ export default function Header() {
 
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <Link to="/">
-              <img src="/images/LOGO.png" alt="ONLYCaps" className="h-8"
+              <img src="/images/LOGO.png" alt="ONLYCaps" className="h-16"
                 onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
               <span className="font-heading text-xl tracking-wider hidden text-[#14110D]">ONLYCAPS</span>
             </Link>
@@ -92,14 +91,19 @@ export default function Header() {
 
               {session && <ProfileMenu />}
 
-              <NavLink to="/cartpage" className="relative text-[#14110D] hover:text-[#A9824C] transition-colors">
+              <button
+                type="button"
+                onClick={() => setCartOpen(true)}
+                className="relative text-[#14110D] hover:text-[#A9824C] transition-colors bg-transparent border-none cursor-pointer p-0"
+                aria-label="Open cart"
+              >
                 <BsCart2 className="h-5 w-5" />
                 {session && totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-[#A9824C] text-[#FAF8F4] text-[10px] font-body font-semibold w-4 h-4 rounded-full flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}
-              </NavLink>
+              </button>
             </div>
           </div>
         </nav>
