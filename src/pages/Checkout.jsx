@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { SessionContext } from '../context/SessionContext';
 import supabase from '../utils/supabase';
+import { callCheckout } from '../utils/checkoutApi';
 import { decryptText } from '../utils/encryption';
 import Header from '../components/Header';
 import BgImg from '../components/BgImg';
@@ -11,9 +12,9 @@ import Footer from '../components/Footer';
 const SHIPPING_FEE = 75;
 
 const PAYMENT_OPTIONS = [
-  { id: 'gcash', label: 'GCash' },
-  { id: 'card', label: 'Credit / Debit Card' },
-  { id: 'cod', label: 'Cash on Delivery' },
+  { id: 'gcash', label: 'GCash', hint: 'Pay with your GCash wallet' },
+  { id: 'card', label: 'Credit / Debit Card', hint: 'Visa, Mastercard and other major cards' },
+  { id: 'cod', label: 'Cash on Delivery', hint: 'Pay in cash when your order arrives' },
 ];
 
 export default function Checkout() {
@@ -72,14 +73,13 @@ export default function Checkout() {
 
     setPlacing(true);
     try {
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: session.user.id,
-          total,
-          status: 'pending',
-          payment_method: paymentMethod,
-          payment_status: paymentMethod === 'cod' ? 'unpaid' : 'paid',
+      // The server builds the order from item ids + quantities and prices it itself;
+      // online payments are then completed on PayMongo's hosted page.
+      const result = await callCheckout({
+        action: 'create',
+        payment_method: paymentMethod,
+        items: items.map(item => ({ id: item.id, size: item.size, quantity: item.quantity })),
+        shipping: {
           full_name: fullName,
           phone,
           address_line1: addressLine1,
@@ -87,37 +87,21 @@ export default function Checkout() {
           city,
           province,
           postal_code: postalCode,
-          shipping_fee: SHIPPING_FEE,
-        })
-        .select()
-        .single();
+        },
+      });
 
-      if (orderError) throw orderError;
-
-      const orderItems = items.map(item => ({
-        order_id: order.id,
-        user_id: session.user.id,
-        product_id: item.id,
-        name: item.name,
-        size: item.size,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image,
-      }));
-
-      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-      if (itemsError) throw itemsError;
-
-      // FIX: only clear the persistent cart if this order actually came from
-      // it -- a Buy Now purchase never touched the cart, so there's nothing to clear
+      // Only clear the persistent cart if this order actually came from it
       if (!buyNowItem) clearCart();
 
-      navigate(`/order-confirmation/${order.id}`);
+      if (result.checkout_url) {
+        window.location.assign(result.checkout_url);
+        return; // keep the button disabled while the browser navigates away
+      }
+      navigate(`/order-confirmation/${result.order_id}`);
     } catch (err) {
       alert(err.message);
-    } finally {
-      setPlacing(false);
     }
+    setPlacing(false);
   };
 
   if (loadingProfile) return null;
@@ -245,17 +229,26 @@ export default function Checkout() {
                 className={`flex items-center justify-between px-4 py-3 rounded-xl border cursor-pointer transition-colors font-body text-sm ${
                   paymentMethod === opt.id ? 'border-[#A9824C] bg-[#F5EEE2] text-[#14110D]' : 'border-[#E4DFD3] text-[#4A453B] hover:border-[#D8D2C4]'
                 }`}>
-                {opt.label}
+                <span>
+                  {opt.label}
+                  <span className="block text-xs text-[#6B6558] font-normal mt-0.5">{opt.hint}</span>
+                </span>
                 <input type="radio" name="payment" value={opt.id} checked={paymentMethod === opt.id}
                   onChange={(e) => setPaymentMethod(e.target.value)} className="accent-[#A9824C]" />
               </label>
             ))}
           </div>
+          {paymentMethod && paymentMethod !== 'cod' && (
+            <p className="font-body text-xs text-[#6B6558] mt-4 flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0 text-[#A9824C]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 11c0-1.1.9-2 2-2m-2 2a2 2 0 10-4 0v1m4-1v4m-6 3h10a2 2 0 002-2v-5a2 2 0 00-2-2H7a2 2 0 00-2 2v5a2 2 0 002 2z" /></svg>
+              You'll be sent to PayMongo's secure page to pay. We never see or store your card or wallet details.
+            </p>
+          )}
         </div>
 
         <button onClick={handlePlaceOrder} disabled={placing}
           className="w-full py-4 bg-[#14110D] text-[#FAF8F4] rounded-full font-body font-medium text-sm hover:bg-[#2A241C] transition-colors disabled:opacity-50">
-          {placing ? 'Placing order...' : `Place order — ₱${total}`}
+          {placing ? 'Please wait...' : paymentMethod === 'cod' || !paymentMethod ? `Place order — ₱${total}` : `Continue to payment — ₱${total}`}
         </button>
       </div>
       <Footer />

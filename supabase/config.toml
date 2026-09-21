@@ -1,0 +1,10 @@
+project_id = "dayrvhcxlveadhvrfnhe"
+
+# Both functions verify their caller themselves:
+#   checkout          -> validates the user's JWT in code
+#   paymongo-webhook  -> validates PayMongo's HMAC signature (PayMongo has no JWT)
+[functions.checkout]
+verify_jwt = false
+
+[functions.paymongo-webhook]
+verify_jwt = false

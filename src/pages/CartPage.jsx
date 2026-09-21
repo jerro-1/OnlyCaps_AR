@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import Header from '../components/Header';
-import supabase from "../utils/supabase";
 import BgImg from '../components/BgImg';
 import Footer from '../components/Footer';
 import { useNavigate } from "react-router-dom";
@@ -9,7 +8,6 @@ import { SessionContext } from '../context/SessionContext';
 
 const CartPage = () => {
     const { cart, removeFromCart, updateQuantity, totalItems, subtotal, clearCart } = useCart();
-    const [paymentMethod, setPaymentMethod] = useState('');
     const session = useContext(SessionContext);
     const user = session?.user || null;
     const navigate = useNavigate();
@@ -54,54 +52,8 @@ const CartPage = () => {
         );
     }
 
-    const handleCheckout = async () => {
-        if (!paymentMethod) {
-            alert('Please select a payment method');
-            return;
-        }
-        try {
-            const { data: order, error: orderError } = await supabase
-                .from('orders')
-                .insert({
-                    user_id: user.id,
-                    total: subtotal,
-                    status: 'pending',
-                    payment_method: paymentMethod,
-                    payment_status: paymentMethod === 'cod' ? 'unpaid' : 'paid'
-                })
-                .select()
-                .single();
-
-            if (orderError) throw orderError;
-
-            const items = cart.map(item => ({
-                order_id: order.id,
-                user_id: user.id,
-                product_id: item.id,
-                name: item.name,
-                size: item.size,
-                price: item.price,
-                quantity: item.quantity,
-                image: item.image
-            }));
-
-            const { error: itemsError } = await supabase
-                .from('order_items')
-                .insert(items);
-
-            if (itemsError) throw itemsError;
-
-            alert('Order placed successfully!');
-            clearCart();
-        } catch (error) {
-            alert(error.message);
-        }
-    };
-
-    const PAYMENT_OPTIONS = [
-        { id: 'gcash', label: 'GCash' },
-        { id: 'card', label: 'Credit / Debit Card' },
-    ];
+    // Order creation and payment happen on the checkout page (server-side pricing + PayMongo).
+    const handleCheckout = () => navigate('/checkout');
 
     return (
         <>
@@ -191,37 +143,11 @@ const CartPage = () => {
                                 <span className="font-heading text-xl text-[#14110D]">₱{subtotal}</span>
                             </div>
 
-                            <div className="mt-7">
-                                <h3 className="font-body text-xs text-[#6B6558] mb-3">Payment method</h3>
-                                <div className="space-y-2">
-                                    {PAYMENT_OPTIONS.map(opt => (
-                                        <label
-                                            key={opt.id}
-                                            className={`flex items-center justify-between px-4 py-3 rounded-xl border cursor-pointer transition-colors font-body text-sm ${
-                                                paymentMethod === opt.id
-                                                    ? 'border-[#A9824C] bg-[#F5EEE2] text-[#14110D]'
-                                                    : 'border-[#E4DFD3] text-[#4A453B] hover:border-[#D8D2C4]'
-                                            }`}
-                                        >
-                                            {opt.label}
-                                            <input
-                                                type="radio"
-                                                name="payment"
-                                                value={opt.id}
-                                                checked={paymentMethod === opt.id}
-                                                onChange={(e) => setPaymentMethod(e.target.value)}
-                                                className="accent-[#A9824C]"
-                                            />
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-
                             <button
                                 className="w-full mt-7 py-3.5 bg-[#14110D] text-[#FAF8F4] rounded-full font-body font-medium text-sm hover:bg-[#2A241C] transition-colors"
                                 onClick={handleCheckout}
                             >
-                                Checkout — ₱{subtotal}
+                                Proceed to checkout — ₱{subtotal}
                             </button>
                         </div>
 

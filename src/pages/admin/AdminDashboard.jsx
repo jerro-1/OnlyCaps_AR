@@ -12,16 +12,18 @@ export default function AdminDashboard() {
 
   const loadStats = async () => {
     setLoading(true);
-    const [{ data: orders }, { data: products }, { count: userCount }] = await Promise.all([
+    const [{ data: orders }, { data: products }, { count: userCount }, { data: paid }] = await Promise.all([
       supabase.from('orders').select('id, total, status'),
       supabase.from('products').select('id'),
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('payments').select('amount').eq('status', 'paid'),
     ]);
 
     setStats({
       totalOrders: orders?.length || 0,
       pendingOrders: orders?.filter(o => o.status === 'pending').length || 0,
-      revenue: orders?.filter(o => o.status !== 'cancelled').reduce((s, o) => s + (o.total || 0), 0) || 0,
+      // Only money PayMongo (or an admin, for cash on delivery) has actually confirmed
+      revenue: paid?.reduce((s, p) => s + Number(p.amount || 0), 0) || 0,
       totalUsers: userCount || 0,
       totalProducts: products?.length || 0,
     });
@@ -29,7 +31,7 @@ export default function AdminDashboard() {
   };
 
   const cards = [
-    { label: 'Total Revenue', value: `₱${stats.revenue.toLocaleString()}` },
+    { label: 'Confirmed Revenue', value: `₱${stats.revenue.toLocaleString()}` },
     { label: 'Total Orders', value: stats.totalOrders },
     { label: 'Pending Orders', value: stats.pendingOrders, alert: stats.pendingOrders > 0 },
     { label: 'Total Users', value: stats.totalUsers },

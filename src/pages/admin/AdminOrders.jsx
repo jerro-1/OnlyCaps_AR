@@ -26,7 +26,7 @@ export default function AdminOrders() {
     setLoading(true);
     const { data, error } = await supabase
       .from('orders')
-      .select(`id, order_number, total, status, user_id, full_name, phone, courier_name, tracking_number, created_at, order_items(*), profiles(email)`)
+      .select(`id, order_number, total, status, payment_method, payment_status, user_id, full_name, phone, courier_name, tracking_number, created_at, order_items(*), profiles(email)`)
       .order('id', { ascending: false });
     if (error) console.error(error);
     setOrders(data || []);
@@ -125,7 +125,7 @@ export default function AdminOrders() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b" style={{ borderColor: BORDER }}>
                 <tr>
-                  {['Order ID', 'Customer', 'Contact', 'Total', 'Placed', 'Status'].map(h => (
+                  {['Order ID', 'Customer', 'Contact', 'Total', 'Payment', 'Placed', 'Status'].map(h => (
                     <th key={h} className="p-3 text-left text-gray-500 font-medium text-xs uppercase tracking-wide">{h}</th>
                   ))}
                   <th className="p-3"></th>
@@ -138,6 +138,11 @@ export default function AdminOrders() {
                     <td className="p-3 font-medium" style={{ color: INK }}>{order.full_name || order.profiles?.email}</td>
                     <td className="p-3 text-gray-500">{order.phone || 'N/A'}</td>
                     <td className="p-3 font-medium" style={{ color: INK }}>₱{order.total}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${order.payment_status === 'paid' ? 'bg-emerald-50 text-emerald-700' : order.payment_status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
+                        {order.payment_status === 'unpaid' ? (order.payment_method === 'cod' ? 'COD · unpaid' : 'Awaiting payment') : order.payment_status}
+                      </span>
+                    </td>
                     <td className="p-3 text-gray-500">{order.created_at ? new Date(order.created_at).toLocaleDateString() : '—'}</td>
                     <td className="p-3"><StatusBadge status={order.status} /></td>
                     <td className="p-3">
