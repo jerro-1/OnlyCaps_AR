@@ -72,8 +72,8 @@ export default function SearchResults() {
     }
 
     addToCart({
-      id: modal.product_id,
-      name: modal.full_name,
+      id: modal.product_id ?? modal.id,
+      name: modal.full_name ?? modal.name,
       price: modal.price,
       size: selectedSize,
       image: modal.image,

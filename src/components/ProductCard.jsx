@@ -10,7 +10,7 @@ const ProductCard = ({ product, onClick }) => {
             <div className="relative overflow-hidden">
                 <img
                     src={product.image}
-                    alt={product.fullName}
+                    alt={product.full_name ?? product.name}
                     className="w-full h-64 object-contain p-6 transition duration-300 hover:scale-105"
                 />
             </div>

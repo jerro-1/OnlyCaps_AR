@@ -51,8 +51,9 @@ export default function AdminProducts() {
     e.preventDefault();
     const totalStock = Object.values(form.sizes_stock).reduce((sum, n) => sum + (n || 0), 0);
 
+    const name = form.name.trim();
     const payload = {
-      name: form.name,
+      name,
       category: form.category,
       price: parseFloat(form.price) || 0,
       image: form.image,
@@ -61,9 +62,18 @@ export default function AdminProducts() {
       stock_quantity: totalStock,
     };
 
+    // The storefront cart and orders key on product_id and full_name, so new
+    // products must have them (edits keep whatever the row already has).
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const newProductFields = {
+      product_id: `${slug}-${Date.now().toString(36)}`,
+      full_name: name,
+      active: true,
+    };
+
     const { error } = editingId
       ? await supabase.from('products').update(payload).eq('id', editingId)
-      : await supabase.from('products').insert({ ...payload, active: true });
+      : await supabase.from('products').insert({ ...payload, ...newProductFields });
 
     if (error) return alert(error.message);
     resetForm();
