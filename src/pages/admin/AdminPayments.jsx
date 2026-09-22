@@ -3,11 +3,13 @@ import AdminLayout from '../../components/AdminLayout';
 import SearchInput from '../../components/Admin/SearchInput';
 import supabase from '../../utils/supabase';
 
-const METHOD_LABEL = { gcash: 'GCash', card: 'Card', cod: 'Cash on delivery' };
+// 'online' is the transient state between checkout and the PayMongo webhook
+// confirming which method the shopper actually picked on PayMongo's page.
+const METHOD_LABEL = { online: 'Online (pending)', gcash: 'GCash', card: 'Card', cod: 'Cash on delivery' };
 const STATUS_STYLE = {
-  paid: 'bg-emerald-50 text-emerald-700',
+  paid: 'bg-green-50 text-green-700',
   pending: 'bg-amber-50 text-amber-700',
-  failed: 'bg-red-50 text-red-700',
+  failed: 'bg-[#E10600]/10 text-[#E10600]',
   refunded: 'bg-gray-100 text-gray-600',
   flagged: 'bg-purple-50 text-purple-700',
 };

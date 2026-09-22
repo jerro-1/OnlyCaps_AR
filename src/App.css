@@ -1,6 +1,20 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+/* Override daisyUI's default success/warning/error palette so every badge,
+   button and status pill in the admin dashboard (badge-success, btn-error,
+   text-warning, etc.) uses the exact green/amber/red used everywhere else in
+   the app, instead of daisyUI's default error shade, which renders as a pale
+   pink rather than a real red. */
+:root {
+    --color-success: #22c55e;
+    --color-success-content: #ffffff;
+    --color-warning: #f59e0b;
+    --color-warning-content: #1a1608;
+    --color-error: #E10600;
+    --color-error-content: #ffffff;
+}
+
 /* ===== CUSTOM STYLES ===== */
 
 /* Force our own colors on autofilled inputs -- browsers otherwise
@@ -119,9 +133,41 @@ input:-webkit-autofill:focus {
 }
 
 .size-btn.selected {
-    background-color: black;
-    color: white;
-    /* text color */
+    border-width: 2px;
+    font-weight: 700;
+}
+
+/* Stock status dot (beside Buy Now, and on each size button): a colored
+   circle with a soft matching glow, gently pulsing to draw the eye. Colors
+   are fixed here rather than taken from the daisyUI theme, so green/yellow/red
+   stay consistent even if the theme changes. */
+.status-glow {
+    animation: statusGlowPulse 1.8s ease-in-out infinite;
+}
+
+.status-glow.status-success {
+    background-color: #22c55e;
+    box-shadow: 0 0 6px 2px rgba(34, 197, 94, 0.65);
+}
+
+.status-glow.status-warning {
+    background-color: #f59e0b;
+    box-shadow: 0 0 6px 2px rgba(245, 158, 11, 0.65);
+}
+
+.status-glow.status-error {
+    background-color: #E10600;
+    box-shadow: 0 0 6px 2px rgba(225, 6, 0, 0.65);
+}
+
+@keyframes statusGlowPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 .nav-link:hover {
@@ -495,7 +541,7 @@ input:-webkit-autofill:focus {
   to { transform: translateX(-50%); }
 }
 .animate-marquee {
-  animation: marquee 25s linear infinite;
+  animation: marquee 45s linear infinite;
   width: max-content;
 }
 

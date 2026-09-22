@@ -1,6 +1,7 @@
 import { useCart } from '../context/CartContext';
 
-const BG = { success: '#10b981', error: '#ef4444', warning: '#f59e0b' };
+// Same green/amber/red used for stock status everywhere else in the app
+const BG = { success: '#22c55e', error: '#E10600', warning: '#f59e0b' };
 
 export default function Notification() {
   const { notification } = useCart();

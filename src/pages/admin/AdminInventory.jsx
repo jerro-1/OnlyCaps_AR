@@ -4,8 +4,11 @@ import StatusBadge from '../../components/Admin/StatusBadge';
 import SearchInput from '../../components/Admin/SearchInput';
 import supabase from '../../utils/supabase';
 
-const CYAN = '#9CE1F0';
 const BLACK = '#000000';
+// Same green/yellow/red used for the stock status dots on the storefront
+// (src/App.css .status-glow), kept consistent here in the admin dashboard.
+const WARNING = '#f59e0b';
+const ERROR = '#E10600';
 const LOW_STOCK = 5;
 
 export default function AdminInventory() {
@@ -46,13 +49,13 @@ export default function AdminInventory() {
           <p className="text-xs text-gray-500 uppercase font-semibold">Total Products</p>
           <p className="text-2xl font-bold text-black">{products.length}</p>
         </div>
-        <div className="bg-white rounded-xl p-5 border-t-4 shadow-sm" style={{ borderColor: CYAN }}>
+        <div className="bg-white rounded-xl p-5 border-t-4 shadow-sm" style={{ borderColor: WARNING }}>
           <p className="text-xs text-gray-500 uppercase font-semibold">Low Stock</p>
-          <p className="text-2xl font-bold text-black">{lowStockCount}</p>
+          <p className="text-2xl font-bold" style={{ color: WARNING }}>{lowStockCount}</p>
         </div>
-        <div className="bg-white rounded-xl p-5 border-t-4 border-black shadow-sm">
+        <div className="bg-white rounded-xl p-5 border-t-4 shadow-sm" style={{ borderColor: ERROR }}>
           <p className="text-xs text-gray-500 uppercase font-semibold">Out of Stock</p>
-          <p className="text-2xl font-bold text-black">{outOfStockCount}</p>
+          <p className="text-2xl font-bold" style={{ color: ERROR }}>{outOfStockCount}</p>
         </div>
       </div>
 
