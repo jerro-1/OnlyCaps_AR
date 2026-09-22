@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, lazy, Suspense } from 'react';
+import { useCallback, useEffect, useState, useContext, lazy, Suspense } from 'react';
 import { useCart } from '../context/CartContext';
 import { SessionContext } from '../context/SessionContext';
 import ProductCard from '../components/ProductCard';
@@ -6,12 +6,30 @@ import Header from '../components/Header';
 import BgImg2 from '../components/BgImg2';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { loadFaceTracker, preloadFaceTracker } from '../utils/faceTrackerPreload';
+import { useInfiniteScroll } from '../utils/useInfiniteScroll';
 import supabase from '../utils/supabase';
 import SignInPromptModal from '../components/SignInPromptModal';
 
 const FaceTracker = lazy(loadFaceTracker);
 
 const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
+const LOW_STOCK = 5;
+
+// Rows without per-size stock fall back to the overall stock count
+const getSizeStock = (product, size) => {
+  const hasSizeData = Object.keys(product.sizes_stock || {}).length > 0;
+  return hasSizeData ? (product.sizes_stock[size] ?? 0) : (product.stock_quantity ?? 0);
+};
+
+const getOverallStock = (product) => {
+  const hasSizeData = Object.keys(product.sizes_stock || {}).length > 0;
+  return hasSizeData
+    ? Object.values(product.sizes_stock).reduce((sum, n) => sum + (n || 0), 0)
+    : (product.stock_quantity ?? 0);
+};
+
+const stockLevel = (qty) => (qty <= 0 ? 'error' : qty <= LOW_STOCK ? 'warning' : 'success');
+const stockLabel = { success: 'In stock', warning: 'Low stock', error: 'Out of stock' };
 
 export default function FittedCaps() {
   const { addToCart } = useCart();
@@ -32,7 +50,9 @@ export default function FittedCaps() {
     ? products.filter(p => (p.sizes_stock?.[sizeFilter] ?? 0) > 0)
     : products;
 
-  const loadMore = () => setVisible(v => Math.min(v + 3, filteredProducts.length));
+  const hasMore = visible < filteredProducts.length;
+  const loadMore = useCallback(() => setVisible(v => Math.min(v + 3, filteredProducts.length)), [filteredProducts.length]);
+  const sentinelRef = useInfiniteScroll(loadMore, hasMore);
 
   useEffect(() => {
     fetchProducts();
@@ -69,6 +89,11 @@ export default function FittedCaps() {
     setModal(null);
     document.body.style.overflow = 'auto';
   };
+
+  // Stock behind Buy Now: the selected size once one is picked, otherwise the
+  // product's overall stock across all sizes
+  const activeStockQty = modal ? (selectedSize ? getSizeStock(modal, selectedSize) : getOverallStock(modal)) : 0;
+  const activeStockLevel = stockLevel(activeStockQty);
 
   const handleAddToCart = () => {
     if (!session) {
@@ -130,7 +155,16 @@ export default function FittedCaps() {
               </h1>
 
               {sizeFilter && (
-                <div className="flex justify-center mb-8">
+                <div className="flex justify-center items-center gap-3 mb-8 flex-wrap">
+                  <Link
+                    to="/sizing"
+                    className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-2 rounded-full transition-colors"
+                  >
+                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                    Back to size guide
+                  </Link>
                   <div className="flex items-center gap-2 bg-white/10 text-white text-sm px-4 py-2 rounded-full">
                     <span>Filtering by size: <strong>{sizeFilter}</strong></span>
                     <Link to="/fitted-caps" className="text-[#00BFFF] hover:underline ml-2">
@@ -152,14 +186,10 @@ export default function FittedCaps() {
                 </p>
               )}
 
-              <div className="text-center mt-12">
-                {visible < filteredProducts.length ? (
-                  <button
-                    onClick={loadMore}
-                    className="btn-hover bg-gray-800 text-white px-10 py-3 rounded-full font-medium hover:bg-black transition text-sm border-none cursor-pointer"
-                  >
-                    LOAD MORE
-                  </button>
+              {/* Scrolling near here loads the next batch automatically -- see useInfiniteScroll */}
+              <div ref={sentinelRef} className="text-center mt-12 h-4">
+                {hasMore ? (
+                  <div className="try-on-spinner mx-auto" />
                 ) : filteredProducts.length > 0 ? (
                   <p className="text-white text-sm opacity-70">All products loaded</p>
                 ) : null}
@@ -196,22 +226,27 @@ export default function FittedCaps() {
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-bold mb-3 text-gray-900 ">Select Size:</h3>
+                      <div className="flex items-center gap-2 mb-3">
+                        <h3 className="text-lg font-bold text-gray-900">Select Size:</h3>
+                        <span className={`status status-glow status-${activeStockLevel}`} aria-hidden="true"></span>
+                        <span className="text-sm font-medium text-gray-600">{stockLabel[activeStockLevel]}</span>
+                      </div>
                       <div className={`flex flex-wrap gap-2 ${shake ? 'shake' : ''}`}>
                         {SIZES.map(size => {
-                          // Rows without per-size stock fall back to the overall stock count
-                          const hasSizeData = Object.keys(modal.sizes_stock || {}).length > 0;
-                          const stockForSize = hasSizeData
-                            ? (modal.sizes_stock[size] ?? 0)
-                            : (modal.stock_quantity ?? 0);
+                          const stockForSize = getSizeStock(modal, size);
                           const outOfStock = stockForSize <= 0;
+                          const level = stockLevel(stockForSize);
+                          const isSelected = selectedSize === size;
                           return (
                             <button
                               key={size}
                               disabled={outOfStock}
-                              className={`size-btn ${selectedSize === size ? 'selected' : ''} ${outOfStock ? 'opacity-30 cursor-not-allowed line-through' : ''}`}
+                              title={stockLabel[level]}
+                              className={`size-btn inline-flex items-center gap-1.5 ${isSelected ? 'selected' : ''} ${outOfStock ? 'opacity-30 cursor-not-allowed line-through' : ''}`}
                               onClick={() => !outOfStock && setSelectedSize(size)}
                             >
+                              {/* Only the clicked size reveals its stock status, keeping the row quiet until then */}
+                              {isSelected && <span className={`status status-glow status-${level}`} aria-hidden="true"></span>}
                               {size}
                             </button>
                           );

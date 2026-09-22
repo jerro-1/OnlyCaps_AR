@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useInfiniteScroll } from '../utils/useInfiniteScroll';
 
 const PRODUCTS = [
   { id: 'trucker-classic', name: 'Classic Mesh Trucker', description: 'Traditional mesh back with foam front', price: 450, image: '/images/trucker-classic.png' },
@@ -16,6 +17,9 @@ const PRODUCTS = [
 export default function Trucker() {
   const { addToCart } = useCart();
   const [visible, setVisible] = useState(9);
+  const hasMore = visible < PRODUCTS.length;
+  const loadMore = useCallback(() => setVisible(v => Math.min(v + 3, PRODUCTS.length)), []);
+  const sentinelRef = useInfiniteScroll(loadMore, hasMore);
 
   return (
     <div className="page-bg-trucker font-body">
@@ -48,14 +52,10 @@ export default function Trucker() {
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            {visible < PRODUCTS.length ? (
-              <button
-                onClick={() => setVisible(v => Math.min(v + 3, PRODUCTS.length))}
-                className="btn-hover bg-gray-800 text-white px-10 py-3 rounded-full font-medium hover:bg-black transition text-sm border-none cursor-pointer"
-              >
-                LOAD MORE
-              </button>
+          {/* Scrolling near here loads the next batch automatically -- see useInfiniteScroll */}
+          <div ref={sentinelRef} className="text-center mt-12 h-4">
+            {hasMore ? (
+              <div className="try-on-spinner mx-auto" />
             ) : (
               <p className="text-white text-sm opacity-70">All products loaded</p>
             )}
