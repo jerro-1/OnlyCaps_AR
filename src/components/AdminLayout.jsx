@@ -65,6 +65,17 @@ export default function AdminLayout({ children }) {
     <div className="flex min-h-screen" style={{ backgroundColor: CANVAS }}>
       {/* Sidebar -- light, not dark */}
       <aside className="w-64 flex-shrink-0 flex flex-col bg-white border-r" style={{ borderColor: BORDER }}>
+        <div className="px-5 pt-5 flex justify-center border-b" style={{ borderColor: BORDER }}>
+          <Link to="/">
+            <img
+              src="/images/LOGO.png"
+              alt="ONLYCaps"
+              className="h-16"
+              onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+            />
+            <span className="font-heading text-lg tracking-wider hidden" style={{ color: INK }}>ONLYCAPS</span>
+          </Link>
+        </div>
         <div className="px-5 py-6 flex items-center gap-3">
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0"

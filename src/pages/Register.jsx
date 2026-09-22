@@ -89,7 +89,7 @@ const Register = () => {
                     <img
                       src="/images/LOGO.png"
                       alt="ONLYCaps"
-                      className="logo-img-large"
+                      className="h-16"
                     />
                   </NavLink>
                 </div>

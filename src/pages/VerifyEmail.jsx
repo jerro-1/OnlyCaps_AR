@@ -76,7 +76,7 @@ const VerifyEmail = () => {
                                 <img
                                     src="/images/LOGO.png"
                                     alt="ONLYCaps"
-                                    className="h-9"
+                                    className="h-16"
                                     onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
                                 />
                                 <span className="font-heading text-xl tracking-wider hidden text-[#14110D]">ONLYCAPS</span>
