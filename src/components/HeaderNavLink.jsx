@@ -6,7 +6,7 @@ const HeaderNavLink = ({ to, linkText }) => {
             className={({ isActive }) =>
                 `px-3 py-1 rounded-full text-base transition-colors ${
                     isActive
-                        ? "bg-[#14110D] text-[#9CE1F0] font-medium"
+                        ? "bg-[#9CE1F0]/25 text-[#14110D] font-medium"
                         : "text-[#14110D] font-normal hover:bg-[#14110D]/10"
                 }`
             }
