@@ -139,7 +139,7 @@ export default function AdminOrders() {
                     <td className="p-3 text-gray-500">{order.phone || 'N/A'}</td>
                     <td className="p-3 font-medium" style={{ color: INK }}>₱{order.total}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${order.payment_status === 'paid' ? 'bg-emerald-50 text-emerald-700' : order.payment_status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${order.payment_status === 'paid' ? 'bg-green-50 text-green-700' : order.payment_status === 'failed' ? 'bg-[#E10600]/10 text-[#E10600]' : 'bg-amber-50 text-amber-700'}`}>
                         {order.payment_status === 'unpaid' ? (order.payment_method === 'cod' ? 'COD · unpaid' : 'Awaiting payment') : order.payment_status}
                       </span>
                     </td>
@@ -201,8 +201,8 @@ export default function AdminOrders() {
               <button
                 key={n}
                 onClick={() => setPage(n)}
-                className="w-8 h-8 rounded-lg text-sm font-medium transition-colors"
-                style={n === page ? { backgroundColor: INK, color: '#fff' } : { border: `1px solid ${BORDER}`, color: '#5A5A55' }}
+                className="w-9 h-9 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-100"
+                style={n === page ? { border: `1.5px solid ${INK}`, color: INK } : { border: '1.5px solid #C7CBD1', color: '#374151' }}
               >
                 {n}
               </button>
@@ -214,16 +214,16 @@ export default function AdminOrders() {
             >
               Next
             </Button>
-            <div className="flex items-center gap-1.5 ml-3">
-              <span className="text-xs text-gray-500">Go to page:</span>
+            <div className="flex items-center gap-1.5 w-full sm:w-auto justify-center sm:ml-3">
+              <span className="text-xs font-medium text-gray-600">Go to page:</span>
               <input
                 value={goToPage}
                 onChange={e => setGoToPage(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleGoToPage()}
-                className="w-14 border rounded-lg px-2 py-1 text-xs text-center focus:outline-none focus:ring-2"
-                style={{ borderColor: BORDER, '--tw-ring-color': ACCENT }}
+                className="w-14 h-9 border rounded-lg px-2 text-sm text-center font-medium focus:outline-none focus:ring-2"
+                style={{ borderColor: '#C7CBD1', color: INK, '--tw-ring-color': ACCENT }}
               />
-              <Button variant="accent" onClick={handleGoToPage} className="text-xs px-3 py-1">Go</Button>
+              <Button variant="accent" onClick={handleGoToPage} className="h-9! text-sm px-3 py-0!">Go</Button>
             </div>
           </div>
         </>
