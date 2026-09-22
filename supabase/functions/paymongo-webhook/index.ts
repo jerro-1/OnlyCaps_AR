@@ -87,12 +87,13 @@ Deno.serve(async (req) => {
           p_paymongo_payment_id: paid.paymentId,
           p_payment_intent_id: paid.paymentIntentId,
           p_amount_centavos: paid.amountCentavos,
+          p_method: paid.method,
           p_card_brand: paid.cardBrand,
           p_card_last4: paid.cardLast4,
         });
         if (error) throw new Error(error.message);
         result = data;
-        summary = { ...summary, amount: paid.amountCentavos, result };
+        summary = { ...summary, amount: paid.amountCentavos, method: paid.method, result };
       }
     } else if (type === 'payment.failed') {
       const ref = resource?.attributes?.payment_intent_id;

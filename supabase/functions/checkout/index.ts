@@ -14,11 +14,49 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders, resolveReturnOrigin } from '../_shared/cors.ts';
 import { createCheckoutSession, extractPaid, getCheckoutSession, type LineItem } from '../_shared/paymongo.ts';
 
-const SHIPPING_FEE = 75;
 const MAX_LINES = 30;
 const MAX_QTY = 20;
-const METHODS = ['gcash', 'card', 'cod'] as const;
+
+// The shopper now only picks between "online" (PayMongo) and "cod" here --
+// which specific PayMongo method (GCash, card, ...) they use is chosen on
+// PayMongo's own hosted checkout page, matching how the site's payment
+// section presents it (one "Secure Payments via PayMongo" row + a separate
+// Cash on Delivery row, same as Shopify's collapsed payment picker).
+const METHODS = ['online', 'cod'] as const;
 type Method = (typeof METHODS)[number];
+
+// Every PayMongo-hosted method we want offered on that page. Add to this list
+// only once the method is actually enabled in the PayMongo dashboard --
+// requesting a disabled one fails the whole session.
+const ONLINE_PAYMENT_METHOD_TYPES = ['gcash', 'card'];
+
+// Shipping: three courier options. J&T and LBC are flat-rate by zone; Lalamove
+// is same-day and booked (and paid) by the customer directly in the Lalamove
+// app, so it costs nothing here.
+//
+// Keep ZONE_PRICES in sync with src/utils/shipping.js on the frontend -- that
+// copy only drives the UI, this is the only copy that decides what a customer
+// is actually charged.
+const COURIERS = ['jnt', 'lbc', 'lalamove'] as const;
+type Courier = (typeof COURIERS)[number];
+const ZONE_PRICES: Record<string, number> = { metro: 85, luzon: 110, visayas: 140, mindanao: 155 };
+const ZONE_LABELS: Record<string, string> = { metro: 'Metro Manila & nearby', luzon: 'Luzon', visayas: 'Visayas', mindanao: 'Mindanao' };
+
+function shippingFeeFor(courier: Courier, zone: unknown): number {
+  if (courier === 'lalamove') return 0;
+  const fee = ZONE_PRICES[String(zone)];
+  if (fee === undefined) throw new HttpError(400, 'Please select your shipping zone.');
+  return fee;
+}
+
+// A readable label stored on the order (courier_name) so admins see what the
+// customer picked; they can still overwrite it once the parcel actually ships.
+function courierLabel(courier: Courier, zone: unknown): string {
+  if (courier === 'lalamove') return 'Lalamove (self-booked by customer)';
+  const name = courier === 'jnt' ? 'J&T Express' : 'LBC';
+  const zoneLabel = ZONE_LABELS[String(zone)];
+  return zoneLabel ? `${name} (${zoneLabel})` : name;
+}
 
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false },
@@ -47,15 +85,10 @@ async function authenticate(req: Request) {
   return data.user;
 }
 
-function toPaymentMethodTypes(method: Method) {
-  return method === 'gcash' ? ['gcash'] : ['card'];
-}
-
 async function startPaymongoSession(opts: {
   order: { id: number; order_number: string; full_name: string; phone: string | null };
   items: { name: string; size: string; price: number; quantity: number; image: string | null }[];
   shippingFee: number;
-  method: Method;
   email?: string;
   origin: string;
 }) {
@@ -68,11 +101,14 @@ async function startPaymongoSession(opts: {
     if (i.image && /^https:\/\//.test(i.image)) li.images = [i.image];
     return li;
   });
-  lineItems.push({ name: 'Shipping', amount: Math.round(opts.shippingFee * 100), quantity: 1 });
+  // Lalamove is booked and paid outside the site, so its ₱0 fee gets no line item
+  if (opts.shippingFee > 0) {
+    lineItems.push({ name: 'Shipping', amount: Math.round(opts.shippingFee * 100), quantity: 1 });
+  }
 
   return await createCheckoutSession({
     lineItems,
-    paymentMethodTypes: toPaymentMethodTypes(opts.method),
+    paymentMethodTypes: ONLINE_PAYMENT_METHOD_TYPES,
     successUrl: `${opts.origin}/order-confirmation/${opts.order.id}?payment=success`,
     cancelUrl: `${opts.origin}/order-confirmation/${opts.order.id}?payment=cancelled`,
     description: `OnlyCaps order #${opts.order.order_number}`,
@@ -88,6 +124,10 @@ async function createOrder(req: Request, body: any) {
 
   const method = body.payment_method as Method;
   if (!METHODS.includes(method)) throw new HttpError(400, 'Please choose a payment method.');
+
+  const courier = body.shipping_method as Courier;
+  if (!COURIERS.includes(courier)) throw new HttpError(400, 'Please choose a shipping method.');
+  const shippingFee = shippingFeeFor(courier, body.shipping_zone);
 
   const s = body.shipping ?? {};
   const shipping = {
@@ -152,7 +192,7 @@ async function createOrder(req: Request, body: any) {
   }
 
   const subtotal = orderLines.reduce((sum: number, l: any) => sum + Number(l.product.price) * l.quantity, 0);
-  const total = subtotal + SHIPPING_FEE;
+  const total = subtotal + shippingFee;
 
   // ---- write the order (service role: browsers can no longer do this)
   const { data: order, error: orderError } = await admin
@@ -163,7 +203,8 @@ async function createOrder(req: Request, body: any) {
       status: 'pending',
       payment_method: method,
       payment_status: 'unpaid',
-      shipping_fee: SHIPPING_FEE,
+      shipping_fee: shippingFee,
+      courier_name: courierLabel(courier, body.shipping_zone),
       ...shipping,
     })
     .select('id, order_number, full_name, phone')
@@ -215,8 +256,7 @@ async function createOrder(req: Request, body: any) {
     const session = await startPaymongoSession({
       order,
       items: itemRows,
-      shippingFee: SHIPPING_FEE,
-      method,
+      shippingFee,
       email: user.email,
       origin: resolveReturnOrigin(body.return_origin),
     });
@@ -267,6 +307,7 @@ async function reconcile(sessionId: string) {
     p_paymongo_payment_id: paid.paymentId,
     p_payment_intent_id: paid.paymentIntentId,
     p_amount_centavos: paid.amountCentavos,
+    p_method: paid.method,
     p_card_brand: paid.cardBrand,
     p_card_last4: paid.cardLast4,
   });
@@ -311,8 +352,7 @@ async function payOrder(req: Request, body: any) {
     session = await startPaymongoSession({
       order,
       items,
-      shippingFee: Number(order.shipping_fee ?? SHIPPING_FEE),
-      method: order.payment_method as Method,
+      shippingFee: Number(order.shipping_fee ?? 0),
       email: user.email,
       origin: resolveReturnOrigin(body.return_origin),
     });

@@ -70,11 +70,16 @@ export function extractPaid(session: any) {
   const paid = payments.find((p) => p?.attributes?.status === 'paid');
   if (!paid) return null;
   const a = paid.attributes;
+  // Since the shopper now picks GCash vs card on PayMongo's own page (we no
+  // longer ask them to pick on ours), this is how we find out which one they
+  // actually used, e.g. to label it correctly in the admin dashboard.
+  const sourceType = a.source?.type as string | undefined;
   return {
     paymentId: paid.id as string,
     amountCentavos: Number(a.amount),
-    cardBrand: (a.source?.type === 'card' ? a.source?.brand : null) ?? null,
-    cardLast4: (a.source?.type === 'card' ? a.source?.last4 : null) ?? null,
+    method: sourceType ?? null,
+    cardBrand: (sourceType === 'card' ? a.source?.brand : null) ?? null,
+    cardLast4: (sourceType === 'card' ? a.source?.last4 : null) ?? null,
     paymentIntentId: (session?.attributes?.payment_intent?.id ?? null) as string | null,
   };
 }
