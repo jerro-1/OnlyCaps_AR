@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState, lazy, Suspense } from "react";
 import { CartProvider } from './context/CartContext';
 import { SessionContext } from './context/SessionContext';
@@ -54,6 +54,8 @@ export default function App() {
 
 function AppInner() {
   const [session, setSession] = useState(null);
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -107,8 +109,8 @@ function AppInner() {
         </Routes>
         </Suspense>
 
-        {/* Chatbot floats on every page, guest-accessible (panel note #35) */}
-        <ChatBotWidget />
+        {/* Chatbot floats on every storefront page, guest-accessible (panel note #35) -- hidden in admin */}
+        {!isAdminRoute && <ChatBotWidget />}
         <Notification />
       </CartProvider>
     </SessionContext.Provider>

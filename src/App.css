@@ -667,3 +667,16 @@ input:-webkit-autofill:focus {
 .page-fade-in {
     animation: fadeIn 0.25s ease-out;
 }
+
+/* Cap Finder chatbot: drifting cap icons in the background, combined with a
+   live cursor-parallax offset (--px/--py, set inline per-cap from JS) so both
+   effects compose in the same transform instead of overriding each other. */
+@keyframes capFloat {
+    0%, 100% {
+        transform: translate(var(--px, 0px), var(--py, 0px)) translateY(0) rotate(var(--rotate, 0deg));
+    }
+
+    50% {
+        transform: translate(var(--px, 0px), var(--py, 0px)) translateY(-18px) rotate(calc(var(--rotate, 0deg) + 10deg));
+    }
+}
