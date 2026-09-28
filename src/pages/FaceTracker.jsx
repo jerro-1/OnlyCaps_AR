@@ -1,163 +1,258 @@
-import { useEffect, useRef, useState } from "react";
-import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
+import { useEffect, useRef } from 'react';
+import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-// The wasm runtime is served from our own origin (copied out of node_modules by
-// scripts/copy-mediapipe.mjs) so it comes from the same CDN/cache as the site
-// instead of a cold third-party request on every "Try it on".
-const WASM_BASE = "/mediapipe";
-const MODEL_URL = "/models/face_landmarker.task";
+export default function FaceTracker() {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
-async function createLandmarker() {
-    const vision = await FilesetResolver.forVisionTasks(WASM_BASE);
-    const options = (delegate) => ({
-        baseOptions: { modelAssetPath: MODEL_URL, delegate },
-        runningMode: "VIDEO",
+  const faceLandmarkerRef = useRef(null);
+  const lastVideoTimeRef = useRef(-1);
+
+  const hatRef = useRef(null);
+  const rendererRef = useRef(null);
+  const sceneRef = useRef(null);
+  const prevMatrixRef = useRef(null);
+  const cameraRef = useRef(null);
+  const threeCanvasRef = useRef(null);
+
+  useEffect(() => {
+    const init = async () => {
+      // 1. Load MediaPipe WASM
+      const vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm',
+      );
+
+      // 2. Load Face Landmarker model
+      faceLandmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: '/models/face_landmarker.task',
+        },
+        runningMode: 'VIDEO',
         numFaces: 1,
-    });
-    try {
-        return await FaceLandmarker.createFromOptions(vision, options("GPU"));
-    } catch {
-        return await FaceLandmarker.createFromOptions(vision, options("CPU"));
-    }
-}
+        outputFacialTransformationMatrixes: true,
+      });
 
-function getCamera() {
-    return navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-    });
-}
+      // 2.5 Set up Three.js
+      const scene = new THREE.Scene();
+      const container = threeCanvasRef.current.parentElement;
+      const W = container.offsetWidth;
+      const H = container.offsetHeight;
+      const camera = new THREE.PerspectiveCamera(57.5, W / H, 0.1, 5000);
+      camera.position.set(0, 0, 0);
 
-export default function FaceTracker({ onClose }) {
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-    const [status, setStatus] = useState("loading");
-    const [errorMessage, setErrorMessage] = useState("");
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setClearColor(0x000000, 0);
+      renderer.setSize(W, H);
+      renderer.domElement.style.position = 'absolute';
+      renderer.domElement.style.top = '0';
+      renderer.domElement.style.left = '0';
+      renderer.domElement.style.pointerEvents = 'none';
+      threeCanvasRef.current.appendChild(renderer.domElement);
 
-    useEffect(() => {
-        let cancelled = false;
-        let landmarker = null;
-        let stream = null;
-        let rafId = null;
-        let lastVideoTime = -1;
+      const light = new THREE.DirectionalLight(0xffffff, 3);
+      light.position.set(-1, 2, 4);
+      scene.add(light);
 
-        const detectLoop = () => {
-            const video = videoRef.current;
-            const canvas = canvasRef.current;
-            if (cancelled || !video || !canvas) return;
+      sceneRef.current = scene;
+      cameraRef.current = camera;
+      rendererRef.current = renderer;
 
-            if (video.readyState >= 2 && video.currentTime !== lastVideoTime) {
-                lastVideoTime = video.currentTime;
-                const result = landmarker.detectForVideo(video, performance.now());
+      await new Promise(resolve => {
+        const loader = new GLTFLoader();
+        loader.load('/models/CapModels/BLUELA_AFrame.glb', gltf => {
+          hatRef.current = gltf.scene;
+          hatRef.current.matrixAutoUpdate = false;
 
-                const cw = video.clientWidth;
-                const ch = video.clientHeight;
-                if (canvas.width !== cw || canvas.height !== ch) {
-                    canvas.width = cw;
-                    canvas.height = ch;
-                }
-                const ctx = canvas.getContext("2d");
-                ctx.clearRect(0, 0, cw, ch);
-
-                const face = result.faceLandmarks?.[0];
-                if (face) {
-                    // The video is object-fit: cover, so map landmarks through the same crop
-                    const scale = Math.max(cw / video.videoWidth, ch / video.videoHeight);
-                    const offsetX = (cw - video.videoWidth * scale) / 2;
-                    const offsetY = (ch - video.videoHeight * scale) / 2;
-                    ctx.fillStyle = "white";
-                    for (const p of face) {
-                        ctx.fillRect(p.x * video.videoWidth * scale + offsetX, p.y * video.videoHeight * scale + offsetY, 2, 2);
-                    }
-                }
+          hatRef.current.traverse(child => {
+            if (child.isMesh && child.name === 'head_occluder') {
+              child.material = new THREE.MeshBasicMaterial({
+                colorWrite: false, // invisible
+                depthWrite: true,
+              });
+              child.renderOrder = -1; // renders before the hat so it blocks correctly
             }
-            rafId = requestAnimationFrame(detectLoop);
-        };
+          });
 
-        const init = async () => {
-            try {
-                // Model and camera load at the same time instead of one after the other
-                const [lm, cam] = await Promise.all([
-                    createLandmarker().then(l => {
-                        if (cancelled) l.close();
-                        return l;
-                    }),
-                    getCamera().then(s => {
-                        if (cancelled) s.getTracks().forEach(t => t.stop());
-                        return s;
-                    }),
-                ]);
-                landmarker = lm;
-                stream = cam;
-                if (cancelled) {
-                    lm.close();
-                    cam.getTracks().forEach(t => t.stop());
-                    return;
-                }
+          scene.add(hatRef.current);
+          resolve();
+        });
+      });
 
-                const video = videoRef.current;
-                video.srcObject = stream;
-                await video.play();
-                setStatus("ready");
-                detectLoop();
-            } catch (err) {
-                if (cancelled) return;
-                setErrorMessage(
-                    err?.name === "NotAllowedError"
-                        ? "Camera access was blocked. Allow the camera in your browser to try caps on."
-                        : err?.name === "NotFoundError"
-                            ? "No camera was found on this device."
-                            : "Couldn't start the try-on. Please try again."
-                );
-                setStatus("error");
+      // 3. Start webcam safely
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+      });
+
+      const video = videoRef.current;
+      video.srcObject = stream;
+
+      // IMPORTANT FIX (prevents AbortError)
+      video.onloadedmetadata = async () => {
+        await video.play();
+        detectLoop();
+      };
+    };
+
+    const detectLoop = () => {
+      if (!rendererRef.current || !sceneRef.current || !cameraRef.current) {
+        requestAnimationFrame(detectLoop);
+        return;
+      }
+      const video = videoRef.current;
+      const landmarker = faceLandmarkerRef.current;
+
+      if (!video || !landmarker) return;
+
+      // only process new frames
+      if (video.currentTime !== lastVideoTimeRef.current) {
+        const result = landmarker.detectForVideo(video, performance.now());
+
+        lastVideoTimeRef.current = video.currentTime;
+
+        if (result.faceLandmarks?.length > 0) {
+          const landmarks = result.faceLandmarks[0];
+
+          // log raw landmark 10 (forehead top)
+          console.log('landmark 10:', landmarks[10]);
+
+          if (result.facialTransformationMatrixes?.length > 0) {
+            const matrix = result.facialTransformationMatrixes[0];
+
+            const threeMatrix = new THREE.Matrix4();
+            threeMatrix.fromArray(matrix.data);
+
+            // proper mirror transform instead of flipping individual elements
+            const mirrorMatrix = new THREE.Matrix4().set(
+              -1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+            );
+            threeMatrix.premultiply(mirrorMatrix);
+
+            // apply offsets BEFORE premultiply affects position
+            const worldOffset = new THREE.Vector3(0, -3, -14);
+            threeMatrix.setPosition(
+              threeMatrix.elements[12] + worldOffset.x,
+              threeMatrix.elements[13] + worldOffset.y,
+              threeMatrix.elements[14] + worldOffset.z,
+            );
+
+            // smooth between frames
+            if (prevMatrixRef.current) {
+              for (let i = 0; i < 16; i++) {
+                threeMatrix.elements[i] =
+                  prevMatrixRef.current.elements[i] * 0.6 + threeMatrix.elements[i] * 0.4;
+              }
             }
-        };
+            prevMatrixRef.current = threeMatrix.clone();
 
-        init();
+            // keep your position and depth offsets
 
-        return () => {
-            cancelled = true;
-            if (rafId) cancelAnimationFrame(rafId);
-            stream?.getTracks().forEach(track => track.stop());
-            landmarker?.close();
-            if (videoRef.current) videoRef.current.srcObject = null;
-        };
-    }, []);
+            const s = 11.5;
+            threeMatrix.elements[0] *= s;
+            threeMatrix.elements[1] *= s;
+            threeMatrix.elements[2] *= s;
+            threeMatrix.elements[4] *= s;
+            threeMatrix.elements[5] *= s;
+            threeMatrix.elements[6] *= s;
+            threeMatrix.elements[8] *= s;
+            threeMatrix.elements[9] *= s;
+            threeMatrix.elements[10] *= s;
 
-    return (
-        <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#0B0B0C" }}>
-            <video ref={videoRef} autoPlay playsInline muted
-                style={{
-                    width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)",
-                    position: "absolute", top: 0, left: 0,
-                    opacity: status === "ready" ? 1 : 0, transition: "opacity 0.4s ease",
-                }} />
-            <canvas ref={canvasRef}
-                style={{ width: "100%", height: "100%", transform: "scaleX(-1)", position: "absolute", top: 0, left: 0, pointerEvents: "none" }} />
+            if (hatRef.current) {
+              hatRef.current.matrix.copy(threeMatrix);
+            }
+          }
 
-            {status !== "ready" && (
-                <div style={{
-                    position: "absolute", inset: 0, display: "flex", flexDirection: "column",
-                    alignItems: "center", justifyContent: "center", gap: 16, padding: 24,
-                    color: "#F2F2F3", textAlign: "center", fontSize: 14,
-                }}>
-                    {status === "loading" ? (
-                        <>
-                            <div className="try-on-spinner" />
-                            <p style={{ margin: 0, color: "#A3A3A8" }}>Starting your camera…</p>
-                        </>
-                    ) : (
-                        <p style={{ margin: 0, maxWidth: 320, lineHeight: 1.5 }}>{errorMessage}</p>
-                    )}
-                </div>
-            )}
+          // DEBUG DRAWING
+          const canvas = canvasRef.current;
+          const ctx = canvas.getContext('2d');
 
-            <button
-                onClick={() => onClose?.()}
-                aria-label="Close try on"
-                style={{ position: "absolute", top: 16, right: 16, color: "white", zIndex: 10, background: "rgba(0,0,0,0.5)", borderRadius: "9999px", padding: "8px 12px", border: "none", cursor: "pointer" }}
-            >
-                ✕
-            </button>
-        </div>
-    );
+          const displayWidth = video.offsetWidth;
+          const displayHeight = video.offsetHeight;
+
+          canvas.width = displayWidth;
+          canvas.height = displayHeight;
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // draw dots
+          for (let i = 0; i < landmarks.length; i++) {
+            const x = landmarks[i].x * canvas.width;
+            const y = landmarks[i].y * canvas.height;
+
+            ctx.fillStyle = 'white';
+            ctx.fillRect(x, y, 2, 2);
+          }
+        }
+      }
+      // render Three.js scene each frame
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
+
+      requestAnimationFrame(detectLoop);
+    };
+
+    init();
+    // console.log(videoRef.current);
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      <video
+        ref={videoRef}
+        style={{
+          width: '100%',
+          height: '100%',
+          transform: 'scaleX(-1)',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      />
+      <canvas
+        ref={canvasRef}
+        style={{
+          width: '100%',
+          height: '100%',
+          transform: 'scaleX(-1)',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        ref={threeCanvasRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          pointerEvents: 'none',
+        }}
+      />
+    </div>
+  );
 }
