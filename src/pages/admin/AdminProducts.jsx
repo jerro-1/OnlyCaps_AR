@@ -5,7 +5,10 @@ import supabase from '../../utils/supabase';
 
 const CATEGORIES = ['fitted', 'aframe', 'trucker', 'more'];
 const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
-const EMPTY_FORM = { name: '', category: 'fitted', price: '', image: '', description: '', sizes_stock: {} };
+// A-Frames and Truckers are adjustable, one-size-fits-all caps -- they get a
+// single stock count instead of the per-hat-size picker fitted caps use.
+const ONE_SIZE_CATEGORIES = ['aframe', 'trucker'];
+const EMPTY_FORM = { name: '', category: 'fitted', price: '', image: '', description: '', sizes_stock: {}, oneSizeStock: '' };
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -49,7 +52,11 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const totalStock = Object.values(form.sizes_stock).reduce((sum, n) => sum + (n || 0), 0);
+    const isOneSize = ONE_SIZE_CATEGORIES.includes(form.category);
+    const sizesStock = isOneSize ? {} : form.sizes_stock;
+    const totalStock = isOneSize
+      ? Math.max(0, parseInt(form.oneSizeStock) || 0)
+      : Object.values(form.sizes_stock).reduce((sum, n) => sum + (n || 0), 0);
 
     const name = form.name.trim();
     const payload = {
@@ -58,7 +65,7 @@ export default function AdminProducts() {
       price: parseFloat(form.price) || 0,
       image: form.image,
       description: form.description,
-      sizes_stock: form.sizes_stock,
+      sizes_stock: sizesStock,
       stock_quantity: totalStock,
     };
 
@@ -88,6 +95,7 @@ export default function AdminProducts() {
       image: p.image || '',
       description: p.description || '',
       sizes_stock: p.sizes_stock || {},
+      oneSizeStock: String(p.stock_quantity ?? 0),
     });
     setEditingId(p.id);
   };
@@ -193,38 +201,55 @@ export default function AdminProducts() {
               />
             </fieldset>
 
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Available sizes &amp; stock</legend>
-              <div className="flex flex-wrap gap-2">
-                {SIZES.map(size => {
-                  const selected = size in (form.sizes_stock || {});
-                  return (
-                    <div key={size} className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => toggleSize(size)}
-                        className={`btn btn-sm ${selected ? 'btn-primary' : 'btn-outline btn-primary'}`}
-                      >
-                        {size}
-                      </button>
-                      {selected && (
-                        <input
-                          type="number"
-                          min="0"
-                          value={form.sizes_stock[size]}
-                          onChange={e => setSizeStock(size, e.target.value)}
-                          placeholder="Qty"
-                          className="input input-bordered input-sm w-16"
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              {Object.keys(form.sizes_stock || {}).length === 0 && (
-                <p className="text-xs text-base-content/50 mt-2">Click a size above to make it available, then set its stock.</p>
-              )}
-            </fieldset>
+            {ONE_SIZE_CATEGORIES.includes(form.category) ? (
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Stock quantity</legend>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={form.oneSizeStock}
+                  onChange={e => setForm({ ...form, oneSizeStock: e.target.value })}
+                  className="input input-bordered w-32"
+                />
+                <p className="text-xs text-base-content/50 mt-2">
+                  This is an adjustable, one-size cap, so it just needs a single stock count.
+                </p>
+              </fieldset>
+            ) : (
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Available sizes &amp; stock</legend>
+                <div className="flex flex-wrap gap-2">
+                  {SIZES.map(size => {
+                    const selected = size in (form.sizes_stock || {});
+                    return (
+                      <div key={size} className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleSize(size)}
+                          className={`btn btn-sm ${selected ? 'btn-primary' : 'btn-outline btn-primary'}`}
+                        >
+                          {size}
+                        </button>
+                        {selected && (
+                          <input
+                            type="number"
+                            min="0"
+                            value={form.sizes_stock[size]}
+                            onChange={e => setSizeStock(size, e.target.value)}
+                            placeholder="Qty"
+                            className="input input-bordered input-sm w-16"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {Object.keys(form.sizes_stock || {}).length === 0 && (
+                  <p className="text-xs text-base-content/50 mt-2">Click a size above to make it available, then set its stock.</p>
+                )}
+              </fieldset>
+            )}
 
             <div className="card-actions justify-start pt-2">
               <button type="submit" className="btn btn-primary">
@@ -361,7 +386,9 @@ export default function AdminProducts() {
                   <p className="text-xs font-medium text-base-content/50 uppercase tracking-wide mb-2">
                     Sizes &amp; stock
                   </p>
-                  {Object.keys(viewingProduct.sizes_stock || {}).length === 0 ? (
+                  {ONE_SIZE_CATEGORIES.includes(viewingProduct.category) ? (
+                    <p className="text-sm text-base-content/70">One size (adjustable)</p>
+                  ) : Object.keys(viewingProduct.sizes_stock || {}).length === 0 ? (
                     <p className="text-sm text-base-content/40">No sizes configured yet.</p>
                   ) : (
                     <div className="flex flex-wrap gap-2">

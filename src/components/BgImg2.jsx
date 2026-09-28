@@ -1,10 +1,10 @@
 import React from 'react'
 
-const BgImg2 = ({ children }) => {
+const BgImg2 = ({ children, image = '/images/FITTED CAPS.png' }) => {
     return (
         <div
             style={{
-                backgroundImage: "url('/images/FITTED CAPS.png')",
+                backgroundImage: `url('${image}')`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
