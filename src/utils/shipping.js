@@ -19,11 +19,12 @@ export const COURIERS = [
 ];
 
 export const LALAMOVE_PICKUP = {
-  name: 'OnlyCaps',
+  // Contact name/phone live in .env (gitignored), not here -- personal
+  // contact details for whoever's handing off the parcel don't belong in
+  // source control. Falls back to just "OnlyCaps" if .env isn't set up.
+  name: import.meta.env.VITE_LALAMOVE_CONTACT_NAME || 'OnlyCaps',
   address: 'Block 8, Lot 17, Italy St., St. Bernice Estates, Brgy. San Jose, Antipolo City, Rizal',
-  // TODO: still missing a contact number -- a Lalamove rider will need one to
-  // call on arrival. Fill in a real number here once you have one to give out.
-  phone: '',
+  phone: import.meta.env.VITE_LALAMOVE_CONTACT_PHONE || '',
 };
 
 export const shippingFeeFor = (courierId, zoneId) => {
