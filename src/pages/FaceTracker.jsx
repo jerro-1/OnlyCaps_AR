@@ -3,7 +3,7 @@ import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export default function FaceTracker() {
+export default function FaceTracker({ onClose }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -18,6 +18,10 @@ export default function FaceTracker() {
   const threeCanvasRef = useRef(null);
 
   useEffect(() => {
+    let cancelled = false;
+    let rafId = null;
+    let stream = null;
+
     const init = async () => {
       // 1. Load MediaPipe WASM
       const vision = await FilesetResolver.forVisionTasks(
@@ -81,9 +85,13 @@ export default function FaceTracker() {
       });
 
       // 3. Start webcam safely
-      const stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         video: true,
       });
+      if (cancelled) {
+        stream.getTracks().forEach(t => t.stop());
+        return;
+      }
 
       const video = videoRef.current;
       video.srcObject = stream;
@@ -96,8 +104,9 @@ export default function FaceTracker() {
     };
 
     const detectLoop = () => {
+      if (cancelled) return;
       if (!rendererRef.current || !sceneRef.current || !cameraRef.current) {
-        requestAnimationFrame(detectLoop);
+        rafId = requestAnimationFrame(detectLoop);
         return;
       }
       const video = videoRef.current;
@@ -113,9 +122,6 @@ export default function FaceTracker() {
 
         if (result.faceLandmarks?.length > 0) {
           const landmarks = result.faceLandmarks[0];
-
-          // log raw landmark 10 (forehead top)
-          console.log('landmark 10:', landmarks[10]);
 
           if (result.facialTransformationMatrixes?.length > 0) {
             const matrix = result.facialTransformationMatrixes[0];
@@ -206,11 +212,22 @@ export default function FaceTracker() {
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
 
-      requestAnimationFrame(detectLoop);
+      rafId = requestAnimationFrame(detectLoop);
     };
 
-    init();
-    // console.log(videoRef.current);
+    init().catch(err => {
+      if (!cancelled) console.error('Try It On failed to start', err);
+    });
+
+    // Without this, leaving the page (or closing the modal) left the camera
+    // recording and the render loop running in the background indefinitely.
+    return () => {
+      cancelled = true;
+      if (rafId) cancelAnimationFrame(rafId);
+      stream?.getTracks().forEach(t => t.stop());
+      faceLandmarkerRef.current?.close();
+      rendererRef.current?.dispose();
+    };
   }, []);
 
   return (
@@ -253,6 +270,17 @@ export default function FaceTracker() {
           pointerEvents: 'none',
         }}
       />
+      <button
+        onClick={() => onClose?.()}
+        aria-label="Close try on"
+        style={{
+          position: 'absolute', top: 16, right: 16, color: 'white', zIndex: 10,
+          background: 'rgba(0,0,0,0.5)', borderRadius: '9999px', padding: '8px 12px',
+          border: 'none', cursor: 'pointer',
+        }}
+      >
+        ✕
+      </button>
     </div>
   );
 }
