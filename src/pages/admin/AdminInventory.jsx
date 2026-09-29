@@ -1,8 +1,20 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import StatusBadge from '../../components/Admin/StatusBadge';
 import SearchInput from '../../components/Admin/SearchInput';
 import supabase from '../../utils/supabase';
+
+// Products with a size picker (Fitted Caps) keep their real stock in
+// sizes_stock, a per-size JSON map -- stock_quantity on those rows is just a
+// cached total, not the number this page's +/- buttons should be touching
+// (there's no single size to add/remove a unit from). hasSizes() tells the
+// two apart so this page can show the true total and disable the ambiguous
+// quick-adjust for them instead of silently doing nothing useful.
+const hasSizes = (p) => p.sizes_stock && Object.keys(p.sizes_stock).length > 0;
+const effectiveStock = (p) => hasSizes(p)
+  ? Object.values(p.sizes_stock).reduce((sum, n) => sum + (Number(n) || 0), 0)
+  : (p.stock_quantity || 0);
 
 const BLACK = '#000000';
 // Same green/yellow/red used for the stock status dots on the storefront
@@ -33,8 +45,8 @@ export default function AdminInventory() {
     if (error) { alert(error.message); fetchProducts(); }
   };
 
-  const lowStockCount = products.filter(p => p.stock_quantity > 0 && p.stock_quantity <= LOW_STOCK).length;
-  const outOfStockCount = products.filter(p => p.stock_quantity <= 0).length;
+  const lowStockCount = products.filter(p => effectiveStock(p) > 0 && effectiveStock(p) <= LOW_STOCK).length;
+  const outOfStockCount = products.filter(p => effectiveStock(p) <= 0).length;
   const visible = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
   const statusFor = (qty) => qty <= 0 ? 'out of stock' : qty <= LOW_STOCK ? 'low stock' : 'in stock';
@@ -81,17 +93,23 @@ export default function AdminInventory() {
               <tr key={p.id} className="border-t border-gray-100 hover:bg-gray-50">
                 <td className="p-3">{p.name}</td>
                 <td className="p-3 capitalize text-gray-500">{p.category}</td>
-                <td className="p-3 font-semibold">{p.stock_quantity}</td>
-                <td className="p-3"><StatusBadge status={statusFor(p.stock_quantity || 0)} /></td>
+                <td className="p-3 font-semibold">{effectiveStock(p)}</td>
+                <td className="p-3"><StatusBadge status={statusFor(effectiveStock(p))} /></td>
                 <td className="p-3">
-                  <div className="flex gap-2">
-                    <button onClick={() => adjustStock(p, -1)} className="btn btn-square btn-sm btn-outline text-lg font-bold">
-                      −
-                    </button>
-                    <button onClick={() => adjustStock(p, 1)} className="btn btn-square btn-sm btn-outline text-lg font-bold">
-                      +
-                    </button>
-                  </div>
+                  {hasSizes(p) ? (
+                    <Link to="/admin/products" className="btn btn-sm btn-outline whitespace-nowrap">
+                      Edit sizes →
+                    </Link>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button onClick={() => adjustStock(p, -1)} className="btn btn-square btn-sm btn-outline text-lg font-bold">
+                        −
+                      </button>
+                      <button onClick={() => adjustStock(p, 1)} className="btn btn-square btn-sm btn-outline text-lg font-bold">
+                        +
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
