@@ -181,14 +181,25 @@ async function createOrder(req: Request, body: any) {
     return { product: p, ...l };
   });
 
+  // Reserve stock now, atomically per product/size (a DB row lock via
+  // adjust_stock, not just a read-then-compare) so two simultaneous
+  // checkouts for the last unit of the same item can't both succeed.
+  // Anything reserved here is given back if a later step below fails.
+  const reserved: { pid: string; size: string; qty: number }[] = [];
+  const restoreReserved = async () => {
+    for (const r of reserved) {
+      await admin.rpc('adjust_stock', { p_identifier: r.pid, p_size: r.size, p_delta: r.qty });
+    }
+  };
   for (const [key, qty] of wanted) {
     const [pid, size] = key.split('|');
     const p = [...products.values()].find((x) => String(x.id) === pid);
-    const perSize = p.sizes_stock && Object.keys(p.sizes_stock).length > 0;
-    const available = perSize ? Number(p.sizes_stock[size] ?? 0) : Number(p.stock_quantity ?? 0);
-    if (qty > available) {
+    const { error: stockError } = await admin.rpc('adjust_stock', { p_identifier: pid, p_size: size, p_delta: -qty });
+    if (stockError) {
+      await restoreReserved();
       throw new HttpError(409, `${p.full_name ?? p.name} (${size}) doesn't have enough stock left.`);
     }
+    reserved.push({ pid, size, qty });
   }
 
   const subtotal = orderLines.reduce((sum: number, l: any) => sum + Number(l.product.price) * l.quantity, 0);
@@ -205,11 +216,17 @@ async function createOrder(req: Request, body: any) {
       payment_status: 'unpaid',
       shipping_fee: shippingFee,
       courier_name: courierLabel(courier, body.shipping_zone),
+      stock_deducted: true,
       ...shipping,
     })
     .select('id, order_number, full_name, phone')
     .single();
-  if (orderError || !order) throw new Error(`Order insert failed: ${orderError?.message}`);
+  if (orderError || !order) {
+    // No order row exists yet for the restock trigger to act on, so give the
+    // reservation back directly.
+    await restoreReserved();
+    throw new Error(`Order insert failed: ${orderError?.message}`);
+  }
 
   const itemRows = orderLines.map((l: any) => ({
     order_id: order.id,
@@ -222,6 +239,10 @@ async function createOrder(req: Request, body: any) {
     image: l.product.image,
   }));
 
+  // The order row already exists with stock_deducted = true, so setting it
+  // to cancelled/failed here fires trg_restock_on_order_failure and the
+  // reserved stock is given back automatically -- no manual restock call
+  // needed in this path.
   const cleanup = async () => {
     await admin.from('order_items').delete().eq('order_id', order.id);
     await admin.from('orders').update({ status: 'cancelled', payment_status: 'failed' }).eq('id', order.id);
