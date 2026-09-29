@@ -20,9 +20,9 @@ export const COURIERS = [
 
 export const LALAMOVE_PICKUP = {
   name: 'OnlyCaps',
-  // TODO: this is missing a city/province -- add them so a Lalamove rider
-  // (or Google Maps) can find the address on its own.
-  address: 'Block 8, Lot 17, Italy St., St. Bernice Estates, Brgy. San Jose',
+  address: 'Block 8, Lot 17, Italy St., St. Bernice Estates, Brgy. San Jose, Antipolo City, Rizal',
+  // TODO: still missing a contact number -- a Lalamove rider will need one to
+  // call on arrival. Fill in a real number here once you have one to give out.
   phone: '',
 };
 
