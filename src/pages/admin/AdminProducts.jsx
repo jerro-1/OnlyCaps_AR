@@ -62,7 +62,7 @@ export default function AdminProducts() {
     const payload = {
       name,
       category: form.category,
-      price: parseFloat(form.price) || 0,
+      price: Math.max(0, parseFloat(form.price) || 0),
       image: form.image,
       description: form.description,
       sizes_stock: sizesStock,
@@ -172,6 +172,7 @@ export default function AdminProducts() {
                   required
                   type="number"
                   step="0.01"
+                  min="0"
                   placeholder="500"
                   value={form.price}
                   onChange={e => setForm({ ...form, price: e.target.value })}
