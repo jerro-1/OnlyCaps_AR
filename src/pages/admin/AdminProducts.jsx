@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import SearchInput from '../../components/Admin/SearchInput';
 import FilterTabs from '../../components/Admin/FilterTabs';
+import { CAP_SIZES } from '../../utils/capSizes';
 import supabase from '../../utils/supabase';
 
 const CATEGORIES = ['fitted', 'aframe', 'trucker', 'more'];
 const CATEGORY_LABELS = { fitted: 'Fitted Caps', aframe: 'A-Frames', trucker: 'Trucker', more: 'More Stuff' };
-const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
+const SIZES = CAP_SIZES;
 // A-Frames and Truckers are adjustable, one-size-fits-all caps -- they get a
 // single stock count instead of the per-hat-size picker fitted caps use.
 const ONE_SIZE_CATEGORIES = ['aframe', 'trucker'];

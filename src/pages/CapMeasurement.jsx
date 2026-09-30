@@ -4,24 +4,20 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BgImg from '../components/BgImg';
 import supabase from '../utils/supabase';
+import { CAP_SIZE_CHART } from '../utils/capSizes';
 
 const LOW_STOCK = 5;
 const SAVED_SIZE_KEY = 'onlycaps:size';
 
-// Head circumference (cm) of a hat size: a size is the diameter in inches,
-// so circumference = size * pi. 7 -> 55.9 cm, 7 3/8 -> 58.8 cm.
-const cmFor = (decimal) => decimal * Math.PI * 2.54;
-
-const SIZES = [
-  { size: '6 7/8', decimal: 6.875, note: 'Extra snug' },
-  { size: '7', decimal: 7, note: 'Narrow crown' },
-  { size: '7 1/8', decimal: 7.125, note: 'Snug everyday' },
-  { size: '7 1/4', decimal: 7.25, note: 'Classic fit' },
-  { size: '7 3/8', decimal: 7.375, note: 'Classic fit' },
-  { size: '7 1/2', decimal: 7.5, note: 'Standard-roomy' },
-  { size: '7 5/8', decimal: 7.625, note: 'Roomy crown' },
-  { size: '7 3/4', decimal: 7.75, note: 'Extra roomy' },
-].map(s => ({ ...s, cm: cmFor(s.decimal) }));
+// New Era's own published chart -- real measurements, not a geometric
+// estimate (a head isn't a perfect circle, so circumference isn't simply
+// size * pi; these are the actual reference numbers).
+const FIT_NOTE = {
+  '6 7/8': 'Extra snug', '7': 'Narrow crown', '7 1/8': 'Snug everyday',
+  '7 1/4': 'Classic fit', '7 3/8': 'Classic fit', '7 1/2': 'Standard-roomy',
+  '7 5/8': 'Roomy crown', '7 3/4': 'Extra roomy', '7 7/8': 'Largest fit',
+};
+const SIZES = CAP_SIZE_CHART.map(s => ({ ...s, note: FIT_NOTE[s.size] }));
 
 const MIN_CM = SIZES[0].cm - 0.5;
 const MAX_CM = SIZES[SIZES.length - 1].cm + 0.5;

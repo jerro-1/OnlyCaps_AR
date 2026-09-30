@@ -8,11 +8,12 @@ import BgImg2 from './BgImg2';
 import SignInPromptModal from './SignInPromptModal';
 import { loadFaceTracker, preloadFaceTracker } from '../utils/faceTrackerPreload';
 import { useInfiniteScroll } from '../utils/useInfiniteScroll';
+import { CAP_SIZES } from '../utils/capSizes';
 import supabase from '../utils/supabase';
 
 const FaceTracker = lazy(loadFaceTracker);
 
-const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
+const SIZES = CAP_SIZES;
 const LOW_STOCK = 5;
 
 // Rows without per-size stock fall back to the overall stock count

@@ -7,8 +7,9 @@ import Header from '../components/Header';
 import BgImg2 from '../components/BgImg2';
 import supabase from '../utils/supabase';
 import SignInPromptModal from '../components/SignInPromptModal';
+import { CAP_SIZES } from '../utils/capSizes';
 
-const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
+const SIZES = CAP_SIZES;
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams();
