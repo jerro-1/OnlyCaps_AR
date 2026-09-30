@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
-import StatusBadge from '../../components/Admin/StatusBadge';
+import StatusBadge, { statusDotColor } from '../../components/Admin/StatusBadge';
 import Button from '../../components/Admin/Button';
 import SearchInput from '../../components/Admin/SearchInput';
+import FilterTabs from '../../components/Admin/FilterTabs';
 import supabase from '../../utils/supabase';
 
 const INK = '#16181D';
@@ -10,14 +11,6 @@ const ACCENT = '#00BFFF';
 const BORDER = '#E5E5E1';
 const STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'];
 const PAGE_SIZE = 10;
-
-// Same tone-per-status mapping StatusBadge renders with, reused here for the
-// filter tabs and each row's left accent so the whole page reads as one
-// system instead of the badge being the only colored thing on it.
-const STATUS_DOT = {
-  pending: '#f59e0b', confirmed: '#3b82f6', processing: '#3b82f6', shipped: '#3b82f6',
-  delivered: '#22c55e', completed: '#22c55e', cancelled: '#E10600',
-};
 
 const paymentLabel = (order) =>
   order.payment_status === 'unpaid'
@@ -118,30 +111,15 @@ export default function AdminOrders() {
         className="mb-4 w-full max-w-sm"
       />
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        <button
-          onClick={() => { setTab('all'); setPage(1); }}
-          className="px-3 py-1.5 rounded-full text-sm font-medium capitalize border transition-colors"
-          style={tab === 'all'
-            ? { background: INK, borderColor: INK, color: 'white' }
-            : { background: 'white', borderColor: BORDER, color: '#4b5563' }}
-        >
-          All {orders.length}
-        </button>
-        {STATUSES.map(s => (
-          <button
-            key={s}
-            onClick={() => { setTab(s); setPage(1); }}
-            className="px-3 py-1.5 rounded-full text-sm font-medium capitalize border transition-colors flex items-center gap-1.5"
-            style={tab === s
-              ? { background: `${STATUS_DOT[s]}1a`, borderColor: STATUS_DOT[s], color: STATUS_DOT[s] }
-              : { background: 'white', borderColor: BORDER, color: '#4b5563' }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: STATUS_DOT[s] }} />
-            {s} {counts[s] || 0}
-          </button>
-        ))}
-      </div>
+      <FilterTabs
+        tabs={[
+          { value: 'all', label: 'All', count: orders.length },
+          ...STATUSES.map(s => ({ value: s, count: counts[s] || 0, color: statusDotColor(s) })),
+        ]}
+        active={tab}
+        onChange={t => { setTab(t); setPage(1); }}
+      />
+      <div className="mb-4" />
 
       {loading ? <OrdersTableSkeleton /> : filtered.length === 0 ? (
         <div className="bg-white rounded-xl border p-10 text-center mb-4" style={{ borderColor: BORDER }}>
@@ -163,7 +141,7 @@ export default function AdminOrders() {
                   <tr
                     key={order.id}
                     className="border-t hover:bg-gray-50 transition-colors"
-                    style={{ borderColor: '#F0F0EE', borderLeft: `3px solid ${STATUS_DOT[order.status] || 'transparent'}` }}
+                    style={{ borderColor: '#F0F0EE', borderLeft: `3px solid ${statusDotColor(order.status)}` }}
                   >
                     <td className="p-3 text-gray-500 font-mono text-xs whitespace-nowrap">#{order.order_number}</td>
                     <td className="p-3 font-medium whitespace-nowrap" style={{ color: INK }}>{order.full_name || order.profiles?.email}</td>

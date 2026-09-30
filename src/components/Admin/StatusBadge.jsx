@@ -10,6 +10,10 @@ const TONES = {
   error: { bg: '#E106001a', text: '#E10600', dot: '#E10600' },
   info: { bg: '#3b82f61a', text: '#1d4ed8', dot: '#3b82f6' },
   neutral: { bg: '#6b72801a', text: '#4b5563', dot: '#9ca3af' },
+  // A payment amount that didn't match what was charged needs a human to
+  // look at it -- distinct from a hard failure, so it isn't lost among
+  // ordinary "failed" rows.
+  review: { bg: '#9333ea1a', text: '#7e22ce', dot: '#9333ea' },
 };
 
 const STATUS_TONE = {
@@ -26,7 +30,7 @@ const STATUS_TONE = {
   unpaid: 'warning',
   failed: 'error',
   refunded: 'neutral',
-  flagged: 'error',
+  flagged: 'review',
   // Inventory
   active: 'success',
   'low stock': 'warning',
@@ -36,6 +40,11 @@ const STATUS_TONE = {
   admin: 'info',
   customer: 'neutral',
 };
+
+// So a page's FilterTabs can highlight "pending"/"paid"/etc. in the exact
+// same color this badge renders that status in, instead of keeping a second,
+// separately-maintained color map that can drift out of sync with this one.
+export const statusDotColor = (status) => (TONES[STATUS_TONE[(status || '').toLowerCase()]] || TONES.neutral).dot;
 
 export default function StatusBadge({ status, label }) {
   const key = (status || '').toLowerCase();

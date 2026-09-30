@@ -1,18 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import SearchInput from '../../components/Admin/SearchInput';
+import StatusBadge, { statusDotColor } from '../../components/Admin/StatusBadge';
+import FilterTabs from '../../components/Admin/FilterTabs';
 import supabase from '../../utils/supabase';
 
 // 'online' is the transient state between checkout and the PayMongo webhook
 // confirming which method the shopper actually picked on PayMongo's page.
 const METHOD_LABEL = { online: 'Online (pending)', gcash: 'GCash', card: 'Card', cod: 'Cash on delivery' };
-const STATUS_STYLE = {
-  paid: 'bg-green-50 text-green-700',
-  pending: 'bg-amber-50 text-amber-700',
-  failed: 'bg-[#E10600]/10 text-[#E10600]',
-  refunded: 'bg-gray-100 text-gray-600',
-  flagged: 'bg-purple-50 text-purple-700',
-};
 const TABS = ['all', 'paid', 'pending', 'failed', 'refunded', 'flagged'];
 
 const peso = (n) => `₱${Number(n || 0).toLocaleString()}`;
@@ -99,17 +94,16 @@ export default function AdminPayments() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        {TABS.map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`btn btn-sm capitalize ${tab === t ? 'btn-neutral' : 'btn-outline'}`}
-          >
-            {t} {t === 'all' ? payments.length : count(t)}
-          </button>
-        ))}
-      </div>
+      <FilterTabs
+        tabs={TABS.map(t => ({
+          value: t,
+          count: t === 'all' ? payments.length : count(t),
+          color: t === 'all' ? undefined : statusDotColor(t),
+        }))}
+        active={tab}
+        onChange={setTab}
+      />
+      <div className="mb-4" />
 
       <SearchInput
         value={search}
@@ -151,9 +145,7 @@ export default function AdminPayments() {
                     )}
                   </td>
                   <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_STYLE[p.status] || 'bg-gray-100'}`}>
-                      {p.status}
-                    </span>
+                    <StatusBadge status={p.status} />
                     {p.failure_reason && <span className="block text-[11px] text-gray-400 mt-1 max-w-[220px]">{p.failure_reason}</span>}
                   </td>
                   <td className="p-3 text-gray-400 font-mono text-[11px]">

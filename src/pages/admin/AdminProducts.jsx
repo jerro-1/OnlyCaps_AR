@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import SearchInput from '../../components/Admin/SearchInput';
+import FilterTabs from '../../components/Admin/FilterTabs';
 import supabase from '../../utils/supabase';
 
 const CATEGORIES = ['fitted', 'aframe', 'trucker', 'more'];
+const CATEGORY_LABELS = { fitted: 'Fitted Caps', aframe: 'A-Frames', trucker: 'Trucker', more: 'More Stuff' };
 const SIZES = ['6 7/8', '7', '7 1/8', '7 1/4', '7 3/8', '7 1/2'];
 // A-Frames and Truckers are adjustable, one-size-fits-all caps -- they get a
 // single stock count instead of the per-hat-size picker fitted caps use.
@@ -268,23 +270,14 @@ export default function AdminProducts() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setCategory('all')}
-            className={`btn btn-sm ${category === 'all' ? 'btn-primary' : 'btn-outline btn-outline-black'}`}
-          >
-            All
-          </button>
-          {CATEGORIES.map(c => (
-            <button
-              key={c}
-              onClick={() => setCategory(c)}
-              className={`btn btn-sm capitalize ${category === c ? 'btn-primary' : 'btn-outline btn-outline-black'}`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
+        <FilterTabs
+          tabs={[
+            { value: 'all', label: 'All' },
+            ...CATEGORIES.map(c => ({ value: c, label: CATEGORY_LABELS[c] })),
+          ]}
+          active={category}
+          onChange={setCategory}
+        />
         <SearchInput
           value={search}
           onChange={e => setSearch(e.target.value)}

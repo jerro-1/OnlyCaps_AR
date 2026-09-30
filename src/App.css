@@ -638,6 +638,17 @@ input:-webkit-autofill:focus {
   background-color: #F1F1EE !important;
   border-color: transparent !important;
 }
+
+/* Shared filter/tab row (FilterTabs.jsx) used by every admin page's status
+   or category tabs. An inactive tab gets the same cyan-tinted hover as every
+   other outline control in this dashboard -- :not(.is-active) so hovering
+   the already-selected tab doesn't fight its own status color. */
+.admin-filter-tab:hover:not(.is-active) {
+  background-color: #EAF9FE !important;
+  border-color: #00BFFF !important;
+  color: #0090BD !important;
+}
+
 /* Loading spinner (try-on camera, route transitions) */
 .try-on-spinner {
     width: 36px;
