@@ -11,7 +11,11 @@ const SIZES = CAP_SIZES;
 // A-Frames and Truckers are adjustable, one-size-fits-all caps -- they get a
 // single stock count instead of the per-hat-size picker fitted caps use.
 const ONE_SIZE_CATEGORIES = ['aframe', 'trucker'];
-const EMPTY_FORM = { name: '', category: 'fitted', price: '', image: '', description: '', sizes_stock: {}, oneSizeStock: '' };
+// The .glb files actually present in public/models/CapModels/ -- Try It On
+// loads whichever one a product is assigned, and falls back to the first if
+// a product has none set.
+const MODEL_FILES = ['BLUELA_AFrame.glb', 'DeepBlue_FittedCap.glb', 'FittedCap_BlueLA.glb', 'Pink_FittedCap.glb'];
+const EMPTY_FORM = { name: '', category: 'fitted', price: '', image: '', description: '', sizes_stock: {}, oneSizeStock: '', model_filename: '' };
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -70,6 +74,7 @@ export default function AdminProducts() {
       description: form.description,
       sizes_stock: sizesStock,
       stock_quantity: totalStock,
+      model_filename: form.model_filename || null,
     };
 
     // The storefront cart and orders key on product_id and full_name, so new
@@ -99,6 +104,7 @@ export default function AdminProducts() {
       description: p.description || '',
       sizes_stock: p.sizes_stock || {},
       oneSizeStock: String(p.stock_quantity ?? 0),
+      model_filename: p.model_filename || '',
     });
     setEditingId(p.id);
   };
@@ -192,6 +198,18 @@ export default function AdminProducts() {
                 onChange={e => setForm({ ...form, image: e.target.value })}
                 className="input input-bordered w-full"
               />
+            </fieldset>
+
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">Try It On model (optional)</legend>
+              <select
+                value={form.model_filename}
+                onChange={e => setForm({ ...form, model_filename: e.target.value })}
+                className="select select-bordered w-full"
+              >
+                <option value="">No 3D model (Try It On uses a default)</option>
+                {MODEL_FILES.map(f => <option key={f} value={f}>{f}</option>)}
+              </select>
             </fieldset>
 
             <fieldset className="fieldset">
