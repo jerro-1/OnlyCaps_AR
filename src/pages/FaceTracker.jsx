@@ -3,7 +3,9 @@ import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export default function FaceTracker() {
+export default function FaceTracker({ modelFile }) {
+   const modelUrl = `/models/CapModels/${modelFile}`;
+   console.log("loading model:", modelUrl);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -36,11 +38,13 @@ export default function FaceTracker() {
 
       // 2.5 Set up Three.js
       const scene = new THREE.Scene();
+      scene.scale.x = -1;
       const container = threeCanvasRef.current.parentElement;
       const W = container.offsetWidth;
       const H = container.offsetHeight;
       const camera = new THREE.PerspectiveCamera(57.5, W / H, 0.1, 5000);
       camera.position.set(0, 0, 0);
+
 
       const renderer = new THREE.WebGLRenderer({ alpha: true });
       renderer.setClearColor(0x000000, 0);
@@ -59,13 +63,12 @@ export default function FaceTracker() {
       cameraRef.current = camera;
       rendererRef.current = renderer;
 
-      await new Promise(resolve => {
+    await new Promise(resolve => {
         const loader = new GLTFLoader();
-        loader.load('/models/CapModels/BLUELA_AFrame.glb', gltf => {
-          hatRef.current = gltf.scene;
-          hatRef.current.matrixAutoUpdate = false;
+        loader.load(modelUrl, gltf => {
+          const loadedScene = gltf.scene;                      // NEW: temp reference
 
-          hatRef.current.traverse(child => {
+          loadedScene.traverse(child => {                      // CHANGED: was hatRef.current.traverse
             if (child.isMesh && child.name === 'head_occluder') {
               child.material = new THREE.MeshBasicMaterial({
                 colorWrite: false, // invisible
@@ -74,6 +77,16 @@ export default function FaceTracker() {
               child.renderOrder = -1; // renders before the hat so it blocks correctly
             }
           });
+
+          const mirrorWrapper = new THREE.Group();              // NEW
+          mirrorWrapper.scale.x = -1;                           // NEW
+          while (loadedScene.children.length > 0) {             // NEW
+            mirrorWrapper.add(loadedScene.children[0]);          // NEW
+          }                                                      // NEW
+
+          hatRef.current = new THREE.Group();                   // CHANGED: was gltf.scene directly
+          hatRef.current.add(mirrorWrapper);                    // NEW
+          hatRef.current.matrixAutoUpdate = false;               // unchanged, just moved down
 
           scene.add(hatRef.current);
           resolve();
@@ -123,29 +136,29 @@ export default function FaceTracker() {
             const threeMatrix = new THREE.Matrix4();
             threeMatrix.fromArray(matrix.data);
 
-            // proper mirror transform instead of flipping individual elements
-            const mirrorMatrix = new THREE.Matrix4().set(
-              -1,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              0,
-              1,
-            );
-            threeMatrix.premultiply(mirrorMatrix);
+            // // proper mirror transform instead of flipping individual elements
+            // const mirrorMatrix = new THREE.Matrix4().set(
+            //   -1,
+            //   0,
+            //   0,
+            //   0,
+            //   0,
+            //   1,
+            //   0,
+            //   0,
+            //   0,
+            //   0,
+            //   1,
+            //   0,
+            //   0,
+            //   0,
+            //   0,
+            //   1,
+            // );
+            // threeMatrix.premultiply(mirrorMatrix);
 
             // apply offsets BEFORE premultiply affects position
-            const worldOffset = new THREE.Vector3(0, -3, -14);
+            const worldOffset = new THREE.Vector3(0, 1, -14);
             threeMatrix.setPosition(
               threeMatrix.elements[12] + worldOffset.x,
               threeMatrix.elements[13] + worldOffset.y,

@@ -60,6 +60,7 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
   const hasMore = visible < filteredProducts.length;
   const loadMore = useCallback(() => setVisible(v => Math.min(v + 3, filteredProducts.length)), [filteredProducts.length]);
   const sentinelRef = useInfiniteScroll(loadMore, hasMore);
+  const [currentModelFile, setCurrentModelFile] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -297,8 +298,11 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
 
                     <button
                       onClick={() => {
+                        const modelFile = modal.model_filename;
                         closeModal();
+                        setCurrentModelFile(modelFile);
                         setShowFaceTracker(true);
+                        console.log("opening face tracker with model:", modelFile);
                       }}
                       className="w-full flex items-center justify-between bg-gray-100 hover:bg-gray-200 rounded-xl px-5 py-4 transition-colors border-none cursor-pointer text-left"
                     >
@@ -356,9 +360,16 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                 className="bg-black rounded-2xl max-w-4xl w-full h-[90vh] relative overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="w-full h-full">
+                <button
+                onClick={() => setShowFaceTracker(false)}
+                className="absolute top-4 right-4 text-white z-10 bg-black/50 rounded-full p-2 border-none cursor-pointer"
+            >
+                ✕
+            </button>
+
+                <div className="w-full h-full flex items-center justify-center">
                   <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="try-on-spinner" /></div>}>
-                    <FaceTracker onClose={() => setShowFaceTracker(false)} />
+                    <FaceTracker modelFile={currentModelFile} onClose={() => setShowFaceTracker(false)} />
                   </Suspense>
                 </div>
               </div>
