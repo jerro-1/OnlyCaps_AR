@@ -6,6 +6,7 @@ import ProductCard from './ProductCard';
 import Header from './Header';
 import BgImg2 from './BgImg2';
 import SignInPromptModal from './SignInPromptModal';
+import SizeGuideCard from './SizeGuideCard';
 import { loadFaceTracker, preloadFaceTracker } from '../utils/faceTrackerPreload';
 import { useInfiniteScroll } from '../utils/useInfiniteScroll';
 import { CAP_SIZES } from '../utils/capSizes';
@@ -48,6 +49,7 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
   const [shake, setShake] = useState(false);
   const navigate = useNavigate();
   const [showFaceTracker, setShowFaceTracker] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [currentModelFile, setCurrentModelFile] = useState(null);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [descOpen, setDescOpen] = useState(true);
@@ -243,9 +245,13 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                     <div>
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-sm font-bold text-gray-900">Size</span>
-                        <Link to="/sizing" className="text-sm text-gray-500 underline hover:text-gray-700">
+                        <button
+                          type="button"
+                          onClick={() => setShowSizeGuide(true)}
+                          className="text-sm text-gray-500 underline hover:text-gray-700 bg-transparent border-none cursor-pointer p-0"
+                        >
                           Sizing Chart
-                        </Link>
+                        </button>
                       </div>
 
                       {oneSize ? (
@@ -312,16 +318,16 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                       </span>
                     </button>
 
-                    <Link
-                      to="/sizing"
-                      className="w-full flex items-center justify-between bg-gray-100 hover:bg-gray-200 rounded-xl px-5 py-4 transition-colors no-underline"
+                    <button
+                      onClick={() => setShowSizeGuide(true)}
+                      className="w-full flex items-center justify-between bg-gray-100 hover:bg-gray-200 rounded-xl px-5 py-4 transition-colors border-none cursor-pointer text-left"
                     >
                       <span className="font-bold text-gray-900 text-sm">Size Guide</span>
                       <span className="text-gray-500 text-sm flex items-center gap-1">
                         Find your fit
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                       </span>
-                    </Link>
+                    </button>
 
                     <div className="border-t border-gray-200 pt-4">
                       <button
@@ -364,6 +370,27 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                     <FaceTracker modelFile={currentModelFile} onClose={() => setShowFaceTracker(false)} />
                   </Suspense>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {showSizeGuide && (
+            <div
+              className="fixed inset-0 bg-black/70 z-70 flex items-center justify-center p-4"
+              onClick={() => setShowSizeGuide(false)}
+            >
+              <div
+                className="bg-[#0B0B0C] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative p-6 sm:p-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={() => setShowSizeGuide(false)}
+                  aria-label="Close size guide"
+                  className="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 border-none cursor-pointer z-10"
+                >
+                  ✕
+                </button>
+                <SizeGuideCard onSaved={() => setShowSizeGuide(false)} />
               </div>
             </div>
           )}
