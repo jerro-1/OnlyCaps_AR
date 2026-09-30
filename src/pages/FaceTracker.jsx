@@ -11,7 +11,7 @@ const DEFAULT_MODEL = 'BLUELA_AFrame.glb';
 // every .glb is normalized to the same internal scale/pivot on load (see
 // below), so one shared calibration now applies to all of them instead of
 // each hat needing its own hand-tuned constant.
-const HAT_SCALE = 7;           // how big the hat renders relative to the tracked head
+const HAT_SCALE = 33;          // how big the hat renders relative to the tracked head
 const HAT_LIFT = 5.5;          // moves the hat up onto the crown/forehead instead of down over the eyes
 const HAT_DEPTH = -14;         // pushes the hat forward off the face plane so it doesn't clip into it
 
