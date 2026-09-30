@@ -13,6 +13,7 @@ import { CAP_SIZES } from '../utils/capSizes';
 import supabase from '../utils/supabase';
 
 const FaceTracker = lazy(loadFaceTracker);
+const AITryOnModal = lazy(() => import('./AITryOnModal'));
 
 const SIZES = CAP_SIZES;
 const LOW_STOCK = 5;
@@ -50,6 +51,8 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
   const navigate = useNavigate();
   const [showFaceTracker, setShowFaceTracker] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [showAITryOn, setShowAITryOn] = useState(false);
+  const [currentAITryOnProduct, setCurrentAITryOnProduct] = useState(null);
   const [currentModelFile, setCurrentModelFile] = useState(null);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [descOpen, setDescOpen] = useState(true);
@@ -319,6 +322,21 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                     </button>
 
                     <button
+                      onClick={() => {
+                        setCurrentAITryOnProduct(modal);
+                        closeModal();
+                        setShowAITryOn(true);
+                      }}
+                      className="w-full flex items-center justify-between bg-gray-100 hover:bg-gray-200 rounded-xl px-5 py-4 transition-colors border-none cursor-pointer text-left"
+                    >
+                      <span className="font-bold text-gray-900 text-sm">AI Photo Try-On</span>
+                      <span className="text-gray-500 text-sm flex items-center gap-1">
+                        Take a selfie
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                      </span>
+                    </button>
+
+                    <button
                       onClick={() => setShowSizeGuide(true)}
                       className="w-full flex items-center justify-between bg-gray-100 hover:bg-gray-200 rounded-xl px-5 py-4 transition-colors border-none cursor-pointer text-left"
                     >
@@ -393,6 +411,16 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                 <SizeGuideCard onSaved={() => setShowSizeGuide(false)} />
               </div>
             </div>
+          )}
+
+          {showAITryOn && currentAITryOnProduct && (
+            <Suspense fallback={
+              <div className="fixed inset-0 bg-black/70 z-70 flex items-center justify-center p-4">
+                <div className="try-on-spinner" />
+              </div>
+            }>
+              <AITryOnModal product={currentAITryOnProduct} onClose={() => setShowAITryOn(false)} />
+            </Suspense>
           )}
 
           {showSignInPrompt && (
