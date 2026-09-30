@@ -3,7 +3,12 @@ import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export default function FaceTracker({ onClose }) {
+// Falls back to the A-Frame model so nothing breaks for a product that
+// hasn't been given its own model_filename yet.
+const DEFAULT_MODEL = 'BLUELA_AFrame.glb';
+
+export default function FaceTracker({ modelFile, onClose }) {
+  const modelUrl = `/models/CapModels/${modelFile || DEFAULT_MODEL}`;
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -40,6 +45,7 @@ export default function FaceTracker({ onClose }) {
 
       // 2.5 Set up Three.js
       const scene = new THREE.Scene();
+      scene.scale.x = -1; // mirror the whole scene to match the mirrored video/canvas
       const container = threeCanvasRef.current.parentElement;
       const W = container.offsetWidth;
       const H = container.offsetHeight;
@@ -65,11 +71,10 @@ export default function FaceTracker({ onClose }) {
 
       await new Promise(resolve => {
         const loader = new GLTFLoader();
-        loader.load('/models/CapModels/BLUELA_AFrame.glb', gltf => {
-          hatRef.current = gltf.scene;
-          hatRef.current.matrixAutoUpdate = false;
+        loader.load(modelUrl, gltf => {
+          const loadedScene = gltf.scene;
 
-          hatRef.current.traverse(child => {
+          loadedScene.traverse(child => {
             if (child.isMesh && child.name === 'head_occluder') {
               child.material = new THREE.MeshBasicMaterial({
                 colorWrite: false, // invisible
@@ -78,6 +83,19 @@ export default function FaceTracker({ onClose }) {
               child.renderOrder = -1; // renders before the hat so it blocks correctly
             }
           });
+
+          // Undo the scene-level mirror for the model itself -- only the
+          // scene needs flipping to match the mirrored video; the hat's own
+          // geometry shouldn't also come out backwards.
+          const mirrorWrapper = new THREE.Group();
+          mirrorWrapper.scale.x = -1;
+          while (loadedScene.children.length > 0) {
+            mirrorWrapper.add(loadedScene.children[0]);
+          }
+
+          hatRef.current = new THREE.Group();
+          hatRef.current.add(mirrorWrapper);
+          hatRef.current.matrixAutoUpdate = false;
 
           scene.add(hatRef.current);
           resolve();
@@ -129,29 +147,11 @@ export default function FaceTracker({ onClose }) {
             const threeMatrix = new THREE.Matrix4();
             threeMatrix.fromArray(matrix.data);
 
-            // proper mirror transform instead of flipping individual elements
-            const mirrorMatrix = new THREE.Matrix4().set(
-              -1,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              0,
-              1,
-            );
-            threeMatrix.premultiply(mirrorMatrix);
+            // Mirroring now happens once at the scene level (scene.scale.x =
+            // -1, undone per-model in the loader above) instead of here --
+            // doing it both places would mirror the hat twice.
 
-            // apply offsets BEFORE premultiply affects position
-            const worldOffset = new THREE.Vector3(0, -3, -14);
+            const worldOffset = new THREE.Vector3(0, 1, -14);
             threeMatrix.setPosition(
               threeMatrix.elements[12] + worldOffset.x,
               threeMatrix.elements[13] + worldOffset.y,

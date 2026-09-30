@@ -48,6 +48,7 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
   const [shake, setShake] = useState(false);
   const navigate = useNavigate();
   const [showFaceTracker, setShowFaceTracker] = useState(false);
+  const [currentModelFile, setCurrentModelFile] = useState(null);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [descOpen, setDescOpen] = useState(true);
 
@@ -298,6 +299,7 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
 
                     <button
                       onClick={() => {
+                        setCurrentModelFile(modal.model_filename);
                         closeModal();
                         setShowFaceTracker(true);
                       }}
@@ -359,7 +361,7 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
               >
                 <div className="w-full h-full">
                   <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="try-on-spinner" /></div>}>
-                    <FaceTracker onClose={() => setShowFaceTracker(false)} />
+                    <FaceTracker modelFile={currentModelFile} onClose={() => setShowFaceTracker(false)} />
                   </Suspense>
                 </div>
               </div>
