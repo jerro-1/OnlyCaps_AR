@@ -7,6 +7,14 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // hasn't been given its own model_filename yet.
 const DEFAULT_MODEL = 'BLUELA_AFrame.glb';
 
+// The only three numbers that should ever need re-tuning, for any model:
+// every .glb is normalized to the same internal scale/pivot on load (see
+// below), so one shared calibration now applies to all of them instead of
+// each hat needing its own hand-tuned constant.
+const HAT_SCALE = 7;           // how big the hat renders relative to the tracked head
+const HAT_LIFT = 5.5;          // moves the hat up onto the crown/forehead instead of down over the eyes
+const HAT_DEPTH = -14;         // pushes the hat forward off the face plane so it doesn't clip into it
+
 export default function FaceTracker({ modelFile, onClose }) {
   const modelUrl = `/models/CapModels/${modelFile || DEFAULT_MODEL}`;
   const videoRef = useRef(null);
@@ -73,9 +81,11 @@ export default function FaceTracker({ modelFile, onClose }) {
         const loader = new GLTFLoader();
         loader.load(modelUrl, gltf => {
           const loadedScene = gltf.scene;
+          let occluder = null;
 
           loadedScene.traverse(child => {
             if (child.isMesh && child.name === 'head_occluder') {
+              occluder = child;
               child.material = new THREE.MeshBasicMaterial({
                 colorWrite: false, // invisible
                 depthWrite: true,
@@ -84,14 +94,32 @@ export default function FaceTracker({ modelFile, onClose }) {
             }
           });
 
+          // Every hat .glb was modeled/exported independently, each at
+          // whatever scale and pivot its own author's tool happened to use --
+          // that's why one shared scale constant made some hats render
+          // enormous. Measure the hat's OWN geometry (excluding the
+          // head_occluder, which is deliberately head-sized -- much bigger
+          // than the actual cap -- and would otherwise dominate the
+          // measurement) and normalize every model to the same width and to
+          // a pivot at the horizontal center of its brim's underside, which
+          // is the point that should actually sit against the head.
+          if (occluder) occluder.visible = false;
+          const box = new THREE.Box3().setFromObject(loadedScene);
+          if (occluder) occluder.visible = true;
+          const size = box.getSize(new THREE.Vector3());
+          const center = box.getCenter(new THREE.Vector3());
+          const width = Math.max(size.x, size.z) || 1;
+          const normalize = 1 / width;
+
+          loadedScene.scale.setScalar(normalize);
+          loadedScene.position.set(-center.x * normalize, -box.min.y * normalize, -center.z * normalize);
+
           // Undo the scene-level mirror for the model itself -- only the
           // scene needs flipping to match the mirrored video; the hat's own
           // geometry shouldn't also come out backwards.
           const mirrorWrapper = new THREE.Group();
           mirrorWrapper.scale.x = -1;
-          while (loadedScene.children.length > 0) {
-            mirrorWrapper.add(loadedScene.children[0]);
-          }
+          mirrorWrapper.add(loadedScene);
 
           hatRef.current = new THREE.Group();
           hatRef.current.add(mirrorWrapper);
@@ -151,11 +179,10 @@ export default function FaceTracker({ modelFile, onClose }) {
             // -1, undone per-model in the loader above) instead of here --
             // doing it both places would mirror the hat twice.
 
-            const worldOffset = new THREE.Vector3(0, 1, -14);
             threeMatrix.setPosition(
-              threeMatrix.elements[12] + worldOffset.x,
-              threeMatrix.elements[13] + worldOffset.y,
-              threeMatrix.elements[14] + worldOffset.z,
+              threeMatrix.elements[12],
+              threeMatrix.elements[13] + HAT_LIFT,
+              threeMatrix.elements[14] + HAT_DEPTH,
             );
 
             // smooth between frames
@@ -167,18 +194,17 @@ export default function FaceTracker({ modelFile, onClose }) {
             }
             prevMatrixRef.current = threeMatrix.clone();
 
-            // keep your position and depth offsets
-
-            const s = 11.5;
-            threeMatrix.elements[0] *= s;
-            threeMatrix.elements[1] *= s;
-            threeMatrix.elements[2] *= s;
-            threeMatrix.elements[4] *= s;
-            threeMatrix.elements[5] *= s;
-            threeMatrix.elements[6] *= s;
-            threeMatrix.elements[8] *= s;
-            threeMatrix.elements[9] *= s;
-            threeMatrix.elements[10] *= s;
+            // Every model was normalized to the same width on load, so this
+            // one HAT_SCALE now governs how big every hat renders.
+            threeMatrix.elements[0] *= HAT_SCALE;
+            threeMatrix.elements[1] *= HAT_SCALE;
+            threeMatrix.elements[2] *= HAT_SCALE;
+            threeMatrix.elements[4] *= HAT_SCALE;
+            threeMatrix.elements[5] *= HAT_SCALE;
+            threeMatrix.elements[6] *= HAT_SCALE;
+            threeMatrix.elements[8] *= HAT_SCALE;
+            threeMatrix.elements[9] *= HAT_SCALE;
+            threeMatrix.elements[10] *= HAT_SCALE;
 
             if (hatRef.current) {
               hatRef.current.matrix.copy(threeMatrix);
