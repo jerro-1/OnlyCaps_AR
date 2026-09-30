@@ -10,7 +10,13 @@ import { corsHeaders } from '../_shared/cors.ts';
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8MB
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
-const GEMINI_MODEL = 'gemini-2.5-flash-image';
+// gemini-2.5-flash-image ("Nano Banana") is deprecated, shutting down
+// 2026-10-02 -- gemini-3.1-flash-image ("Nano Banana 2") is its direct,
+// current successor. Neither has ever had a free tier; every Gemini image
+// model requires a billing-enabled account (confirmed against Google's own
+// pricing page, not a third-party summary). This one runs ~$0.045-0.067 per
+// generated image depending on resolution.
+const GEMINI_MODEL = 'gemini-3.1-flash-image';
 
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false },
