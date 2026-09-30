@@ -97,7 +97,7 @@ function EditAddressModal({ order, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-80 px-4">
-      <div className="bg-[#FAF8F4] rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#FAF8F4] rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] p-6 sm:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
         <h2 className="font-heading text-xl uppercase tracking-wide text-[#14110D] mb-1">Edit delivery details</h2>
         <p className="font-body text-xs text-[#6B6558] mb-6">Order #{order.order_number}</p>
 
@@ -118,11 +118,11 @@ function EditAddressModal({ order, onClose, onSaved }) {
           </div>
           {field('postal_code', 'Postal code')}
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-[#14110D] text-[#FAF8F4] font-body text-sm font-medium py-2.5 rounded-full hover:bg-[#2A241C] transition-colors disabled:opacity-50"
+              className="flex-1 bg-[#14110D] text-[#FAF8F4] font-body text-sm font-medium py-3 sm:py-2.5 rounded-full hover:bg-[#2A241C] transition-colors disabled:opacity-50"
             >
               {saving ? 'Saving...' : 'Save changes'}
             </button>
@@ -130,7 +130,7 @@ function EditAddressModal({ order, onClose, onSaved }) {
               type="button"
               onClick={onClose}
               disabled={saving}
-              className="flex-1 bg-transparent border border-[#D8D2C4] text-[#14110D] font-body text-sm font-medium py-2.5 rounded-full hover:bg-[#F0ECE1] transition-colors"
+              className="flex-1 bg-transparent border border-[#D8D2C4] text-[#14110D] font-body text-sm font-medium py-3 sm:py-2.5 rounded-full hover:bg-[#F0ECE1] transition-colors"
             >
               Cancel
             </button>
@@ -356,12 +356,12 @@ const Orders = () => {
                           </div>
 
                           {(needsPayment || canCancel) && (
-                            <div className="flex flex-wrap gap-3 px-5 py-4 border-t border-[#EDE8DC]">
+                            <div className="flex flex-col sm:flex-row gap-3 px-5 py-4 border-t border-[#EDE8DC]">
                               {needsPayment && (
                                 <button
                                   onClick={() => payNow(order)}
                                   disabled={isBusy}
-                                  className="flex-1 min-w-35 bg-[#A9824C] text-[#FAF8F4] font-body text-sm font-medium py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
+                                  className="flex-1 bg-[#A9824C] text-[#FAF8F4] font-body text-sm font-medium py-3 sm:py-2.5 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
                                 >
                                   {isBusy ? 'Opening…' : 'Pay now'}
                                 </button>
@@ -370,7 +370,7 @@ const Orders = () => {
                                 <button
                                   onClick={() => cancelOrder(order)}
                                   disabled={isBusy}
-                                  className="flex-1 min-w-35 border border-[#D8D2C4] text-[#943D35] font-body text-sm font-medium py-2.5 rounded-full hover:bg-[#F5E9E7] transition-colors disabled:opacity-50"
+                                  className="flex-1 border border-[#D8D2C4] text-[#943D35] font-body text-sm font-medium py-3 sm:py-2.5 rounded-full hover:bg-[#F5E9E7] transition-colors disabled:opacity-50"
                                 >
                                   Cancel order
                                 </button>
