@@ -27,23 +27,33 @@ export default function FaceTracker({ modelFile, onClose }) {
     let rafId = null;
     let stream = null;
 
-    const init = async () => {
-      // 1. Load MediaPipe WASM
-      const vision = await FilesetResolver.forVisionTasks(
-        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm',
-      );
-
-      // 2. Load Face Landmarker model
-      faceLandmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: '/models/face_landmarker.task',
-        },
+    // The wasm runtime is served from our own origin (copied out of
+    // node_modules by scripts/copy-mediapipe.mjs) instead of a cold
+    // third-party request to jsdelivr on every "Try it on" -- and GPU
+    // delegate decodes noticeably faster than CPU where it's available.
+    const createLandmarker = async () => {
+      const vision = await FilesetResolver.forVisionTasks('/mediapipe');
+      const options = (delegate) => ({
+        baseOptions: { modelAssetPath: '/models/face_landmarker.task', delegate },
         runningMode: 'VIDEO',
         numFaces: 1,
         outputFacialTransformationMatrixes: true,
       });
+      try {
+        return await FaceLandmarker.createFromOptions(vision, options('GPU'));
+      } catch {
+        return await FaceLandmarker.createFromOptions(vision, options('CPU'));
+      }
+    };
 
-      // 2.5 Set up Three.js
+    const loadHatModel = () => new Promise((resolve, reject) => {
+      new GLTFLoader().load(modelUrl, gltf => resolve(gltf.scene), undefined, reject);
+    });
+
+    const init = async () => {
+      // Three.js scene/renderer setup is cheap and synchronous -- do it
+      // immediately so the canvas is ready the instant everything below
+      // finishes, instead of only starting to set it up after other loads.
       const scene = new THREE.Scene();
       scene.scale.x = -1; // mirror the whole scene to match the mirrored video/canvas
       const container = threeCanvasRef.current.parentElement;
@@ -69,47 +79,47 @@ export default function FaceTracker({ modelFile, onClose }) {
       cameraRef.current = camera;
       rendererRef.current = renderer;
 
-      await new Promise(resolve => {
-        const loader = new GLTFLoader();
-        loader.load(modelUrl, gltf => {
-          const loadedScene = gltf.scene;
-
-          loadedScene.traverse(child => {
-            if (child.isMesh && child.name === 'head_occluder') {
-              child.material = new THREE.MeshBasicMaterial({
-                colorWrite: false, // invisible
-                depthWrite: true,
-              });
-              child.renderOrder = -1; // renders before the hat so it blocks correctly
-            }
-          });
-
-          // Undo the scene-level mirror for the model itself -- only the
-          // scene needs flipping to match the mirrored video; the hat's own
-          // geometry shouldn't also come out backwards.
-          const mirrorWrapper = new THREE.Group();
-          mirrorWrapper.scale.x = -1;
-          while (loadedScene.children.length > 0) {
-            mirrorWrapper.add(loadedScene.children[0]);
-          }
-
-          hatRef.current = new THREE.Group();
-          hatRef.current.add(mirrorWrapper);
-          hatRef.current.matrixAutoUpdate = false;
-
-          scene.add(hatRef.current);
-          resolve();
-        });
-      });
-
-      // 3. Start webcam safely
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-      });
+      // The camera permission prompt, the face landmarker, and the hat model
+      // all start loading at the same instant instead of one after another.
+      // Previously the camera prompt -- the thing the user is actually
+      // staring at, waiting to tap "Allow" -- didn't even appear until the
+      // face model AND the hat model had both finished downloading first.
+      const [landmarker, loadedScene, camStream] = await Promise.all([
+        createLandmarker(),
+        loadHatModel(),
+        navigator.mediaDevices.getUserMedia({ video: true }),
+      ]);
+      stream = camStream;
       if (cancelled) {
         stream.getTracks().forEach(t => t.stop());
+        landmarker.close();
         return;
       }
+      faceLandmarkerRef.current = landmarker;
+
+      loadedScene.traverse(child => {
+        if (child.isMesh && child.name === 'head_occluder') {
+          child.material = new THREE.MeshBasicMaterial({
+            colorWrite: false, // invisible
+            depthWrite: true,
+          });
+          child.renderOrder = -1; // renders before the hat so it blocks correctly
+        }
+      });
+
+      // Undo the scene-level mirror for the model itself -- only the
+      // scene needs flipping to match the mirrored video; the hat's own
+      // geometry shouldn't also come out backwards.
+      const mirrorWrapper = new THREE.Group();
+      mirrorWrapper.scale.x = -1;
+      while (loadedScene.children.length > 0) {
+        mirrorWrapper.add(loadedScene.children[0]);
+      }
+
+      hatRef.current = new THREE.Group();
+      hatRef.current.add(mirrorWrapper);
+      hatRef.current.matrixAutoUpdate = false;
+      scene.add(hatRef.current);
 
       const video = videoRef.current;
       video.srcObject = stream;
