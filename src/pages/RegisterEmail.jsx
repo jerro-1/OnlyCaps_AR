@@ -82,7 +82,7 @@ const RegisterEmail = () => {
                         <div className="flex justify-center mb-6">
                             <NavLink to="/">
                                 <img
-                                    src="/images/LOGO.png"
+                                    src="/images/LOGO.webp"
                                     alt="ONLYCaps"
                                     className="h-16"
                                     onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}

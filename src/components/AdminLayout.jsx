@@ -68,7 +68,7 @@ export default function AdminLayout({ children }) {
         <div className="px-5 pt-5 flex justify-center border-b" style={{ borderColor: BORDER }}>
           <Link to="/">
             <img
-              src="/images/LOGO.png"
+              src="/images/LOGO.webp"
               alt="ONLYCaps"
               className="h-16"
               onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}

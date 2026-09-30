@@ -5,7 +5,7 @@ export default function MoreStuff() {
     <CategoryShop
       category="more"
       heading="MORE STUFF"
-      bgImage="/images/MORE STUFF.png"
+      bgImage="/images/MORE STUFF.webp"
       emptyText="No products available right now."
     />
   );

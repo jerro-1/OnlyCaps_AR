@@ -28,7 +28,7 @@ export default function CategoryPreview({ category, title, viewAllLink }) {
           {products.map(p => (
             <Link key={p.id} to={viewAllLink} className="block group">
               <div className="bg-white rounded-xl overflow-hidden">
-                <img src={p.image} alt={p.name} className="w-full h-48 object-cover group-hover:scale-105 transition duration-300" />
+                <img src={p.image} alt={p.name} loading="lazy" decoding="async" className="w-full h-48 object-cover group-hover:scale-105 transition duration-300" />
               </div>
               <p className="font-body text-sm text-white mt-2 truncate">{p.name}</p>
               <p className="font-body text-sm text-[#A9824C]">₱{p.price}</p>

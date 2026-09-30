@@ -5,7 +5,7 @@ export default function Trucker() {
     <CategoryShop
       category="trucker"
       heading="TRUCKER CAPS"
-      bgImage="/images/TRUCKER.png"
+      bgImage="/images/TRUCKER.webp"
       emptyText="No trucker caps available right now."
       oneSize
     />

@@ -36,39 +36,39 @@ input:-webkit-autofill:focus {
 
 /* Standard CSS for the Backgrouund Images */
 .hero-background {
-    background-image: url('/images/FRONT PAGE.png');
+    background-image: url('/images/FRONT PAGE.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 }
 
 .grid-section-1 {
-    background-image: url('/images/FITTED CAPS.png');
+    background-image: url('/images/FITTED CAPS.webp');
     background-size: cover;
     background-position: center;
 }
 
 .grid-section-2 {
-    background-image: url('/images/A FRAMES.png');
+    background-image: url('/images/A FRAMES.webp');
     background-size: cover;
     background-position: center;
 }
 
 .grid-section-3 {
-    background-image: url('/images/TRUCKER.png');
+    background-image: url('/images/TRUCKER.webp');
     background-size: cover;
     background-position: center;
 }
 
 .grid-section-4 {
-    background-image: url('/images/MORE STUFF.png');
+    background-image: url('/images/MORE STUFF.webp');
     background-size: cover;
     background-position: center;
 }
 
 /* About Section Background */
 .about-background {
-    background-image: url('/images/about.png');
+    background-image: url('/images/about.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -262,7 +262,7 @@ input:-webkit-autofill:focus {
     width: 100%;
     min-height: 250px;
     background-color: #1a1a1a;
-    background-image: url('/images/element.png');
+    background-image: url('/images/element.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

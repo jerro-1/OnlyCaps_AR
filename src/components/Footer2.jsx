@@ -8,7 +8,7 @@ const Footer2 = () => {
         <>
             <footer className="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
                 <aside>
-                    <img src="/images/LOGO.png" alt="OnlyCaps" className="h-12 w-auto" />
+                    <img src="/images/LOGO.webp" alt="OnlyCaps" className="h-12 w-auto" />
                     <p>
                         OnlyCaps
                         <br />

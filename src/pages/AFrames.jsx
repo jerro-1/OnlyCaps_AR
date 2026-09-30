@@ -5,7 +5,7 @@ export default function AFrames() {
     <CategoryShop
       category="aframe"
       heading="A-FRAMES"
-      bgImage="/images/A FRAMES.png"
+      bgImage="/images/A FRAMES.webp"
       emptyText="No A-Frame caps available right now."
       oneSize
     />

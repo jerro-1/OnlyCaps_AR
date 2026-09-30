@@ -11,6 +11,8 @@ const ProductCard = ({ product, onClick }) => {
                 <img
                     src={product.image}
                     alt={product.full_name ?? product.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-64 object-contain p-6 transition duration-300 hover:scale-105"
                 />
             </div>

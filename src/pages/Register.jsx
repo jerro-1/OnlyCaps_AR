@@ -87,7 +87,7 @@ const Register = () => {
                 <div className="flex justify-center mb-6">
                   <NavLink to="/">
                     <img
-                      src="/images/LOGO.png"
+                      src="/images/LOGO.webp"
                       alt="ONLYCaps"
                       className="h-16"
                     />

@@ -38,7 +38,7 @@ export default function Header() {
 
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <Link to="/">
-              <img src="/images/LOGO.png" alt="ONLYCaps" className="h-16"
+              <img src="/images/LOGO.webp" alt="ONLYCaps" className="h-16"
                 onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
               <span className="font-heading text-xl tracking-wider hidden text-[#14110D]">ONLYCAPS</span>
             </Link>

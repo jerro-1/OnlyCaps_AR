@@ -4,7 +4,7 @@ const BgImg = ({ children }) => {
     return (
         <div
             style={{
-                backgroundImage: "url('/images/Darkbg.png')",
+                backgroundImage: "url('/images/Darkbg.webp')",
                 backgroundSize: "cover",
 
                 backgroundRepeat: "no-repeat",

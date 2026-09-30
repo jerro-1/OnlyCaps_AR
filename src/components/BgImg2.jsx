@@ -1,6 +1,6 @@
 import React from 'react'
 
-const BgImg2 = ({ children, image = '/images/FITTED CAPS.png' }) => {
+const BgImg2 = ({ children, image = '/images/FITTED CAPS.webp' }) => {
     return (
         <div
             style={{
