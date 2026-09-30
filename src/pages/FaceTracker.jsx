@@ -11,7 +11,7 @@ const DEFAULT_MODEL = 'BLUELA_AFrame.glb';
 // every .glb is normalized to the same internal scale/pivot on load (see
 // below), so one shared calibration now applies to all of them instead of
 // each hat needing its own hand-tuned constant.
-const HAT_SCALE = 33;          // how big the hat renders relative to the tracked head
+const HAT_SCALE = 1.9;         // how big the hat renders relative to the tracked head
 const HAT_LIFT = 5.5;          // moves the hat up onto the crown/forehead instead of down over the eyes
 const HAT_DEPTH = -14;         // pushes the hat forward off the face plane so it doesn't clip into it
 
@@ -103,9 +103,21 @@ export default function FaceTracker({ modelFile, onClose }) {
           // measurement) and normalize every model to the same width and to
           // a pivot at the horizontal center of its brim's underside, which
           // is the point that should actually sit against the head.
-          if (occluder) occluder.visible = false;
-          const box = new THREE.Box3().setFromObject(loadedScene);
-          if (occluder) occluder.visible = true;
+          //
+          // Box3.setFromObject/expandByObject does NOT check .visible (a
+          // real three.js gotcha) -- toggling the occluder's visibility here
+          // did nothing, so it was still being counted every time, throwing
+          // the pivot off by exactly the occluder's own bulk. Excluding it
+          // by name instead, mirroring the actual mesh geometry.
+          const box = new THREE.Box3();
+          loadedScene.updateWorldMatrix(true, true);
+          loadedScene.traverse(child => {
+            if (child.isMesh && child !== occluder && child.geometry) {
+              const geomBox = new THREE.Box3().setFromBufferAttribute(child.geometry.attributes.position);
+              geomBox.applyMatrix4(child.matrixWorld);
+              box.union(geomBox);
+            }
+          });
           const size = box.getSize(new THREE.Vector3());
           const center = box.getCenter(new THREE.Vector3());
           const width = Math.max(size.x, size.z) || 1;
