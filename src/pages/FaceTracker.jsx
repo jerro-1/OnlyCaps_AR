@@ -170,10 +170,15 @@ export default function FaceTracker({ modelFile, onClose }) {
       const nativeWidth = Math.max(size.x, size.z) || 1;
       const normalize = 1 / nativeWidth;
       loadedScene.scale.setScalar(normalize);
-      // Re-center so (0,0,0) is the horizontal center of the brim's
-      // underside -- the point that should actually sit against the head --
-      // instead of wherever each file's own origin happened to be.
-      loadedScene.position.set(-center.x * normalize, -box.min.y * normalize, -center.z * normalize);
+      // Re-center horizontally, but the vertical anchor is NOT the lowest
+      // point of the mesh -- on a baseball cap that's the tip of the front
+      // brim, well below where the cap actually wraps around a head. Using
+      // that as (0,0,0) put almost the whole crown above the tracked point
+      // no matter how much extra lift got added on top. Anchoring ~20% up
+      // from the bottom instead approximates the brim/crown line -- much
+      // closer to where the head actually is.
+      const pivotY = box.min.y + 0.2 * size.y;
+      loadedScene.position.set(-center.x * normalize, -pivotY * normalize, -center.z * normalize);
 
       // Undo the scene-level mirror for the model itself -- only the
       // scene needs flipping to match the mirrored video; the hat's own
@@ -283,16 +288,13 @@ export default function FaceTracker({ modelFile, onClose }) {
               const HEAD_WIDTH_VS_FACE_WIDTH = 2.07;
               s = faceWidthFraction * visibleWidthAtDepth * HEAD_WIDTH_VS_FACE_WIDTH;
 
-              // Same reasoning as the width fix, applied to the vertical
-              // lift that used to be a flat +1: express it as a fraction of
-              // how much vertical space is actually visible at this depth,
-              // so it scales with distance instead of only being right at
-              // one. The face mesh has no points above the eyebrows, so
-              // this is still a reasoned estimate of where the crown
-              // probably is, not a measurement -- 0.01 is a first pass from
-              // your last screenshot's small-but-real floating gap, likely
-              // still needs a nudge.
-              const LIFT_FRACTION_OF_HEIGHT = 0.01;
+              // Set to 0 for this round on purpose -- the pivot fix above
+              // (anchoring ~20% up from the hat's bottom instead of at the
+              // very bottom) should now account for most of the vertical
+              // position by itself. Zeroing this out means the next
+              // screenshot shows exactly what the pivot fix did on its own,
+              // instead of mixing it with another guessed lift value.
+              const LIFT_FRACTION_OF_HEIGHT = 0;
               const lift = LIFT_FRACTION_OF_HEIGHT * visibleHeightAtDepth;
               threeMatrix.elements[13] += lift;
 
