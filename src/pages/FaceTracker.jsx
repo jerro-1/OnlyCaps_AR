@@ -220,7 +220,12 @@ export default function FaceTracker({ modelFile, onClose }) {
             // -1, undone per-model in the loader above) instead of here --
             // doing it both places would mirror the hat twice.
 
-            const worldOffset = new THREE.Vector3(0, 1, -14);
+            // The vertical lift used to be a fixed +1, which only looks
+            // right at one specific distance from the camera -- sit closer
+            // and the same absolute lift is too small a fraction of what's
+            // visible, sit back and it's too much. It's made proportional
+            // to distance below instead, once that's known.
+            const worldOffset = new THREE.Vector3(0, 0, -14);
             threeMatrix.setPosition(
               threeMatrix.elements[12] + worldOffset.x,
               threeMatrix.elements[13] + worldOffset.y,
@@ -278,6 +283,19 @@ export default function FaceTracker({ modelFile, onClose }) {
               const HEAD_WIDTH_VS_FACE_WIDTH = 2.07;
               s = faceWidthFraction * visibleWidthAtDepth * HEAD_WIDTH_VS_FACE_WIDTH;
 
+              // Same reasoning as the width fix, applied to the vertical
+              // lift that used to be a flat +1: express it as a fraction of
+              // how much vertical space is actually visible at this depth,
+              // so it scales with distance instead of only being right at
+              // one. The face mesh has no points above the eyebrows, so
+              // this is still a reasoned estimate of where the crown
+              // probably is, not a measurement -- 0.01 is a first pass from
+              // your last screenshot's small-but-real floating gap, likely
+              // still needs a nudge.
+              const LIFT_FRACTION_OF_HEIGHT = 0.01;
+              const lift = LIFT_FRACTION_OF_HEIGHT * visibleHeightAtDepth;
+              threeMatrix.elements[13] += lift;
+
               // TEMP: real numbers on screen so we can calibrate this from a
               // screenshot instead of guessing blind again.
               if (debugRef.current) {
@@ -287,7 +305,7 @@ export default function FaceTracker({ modelFile, onClose }) {
                   `distance=${distance.toFixed(2)} ` +
                   `fov=${cam.fov.toFixed(1)} aspect=${cam.aspect.toFixed(2)} ` +
                   `visibleWidthAtDepth=${visibleWidthAtDepth.toFixed(2)} ` +
-                  `s=${s.toFixed(2)}`;
+                  `s=${s.toFixed(2)} lift=${lift.toFixed(2)}`;
               }
             }
             threeMatrix.elements[0] *= s;
