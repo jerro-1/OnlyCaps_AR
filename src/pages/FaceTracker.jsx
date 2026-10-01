@@ -135,8 +135,10 @@ export default function FaceTracker({ modelFile, onClose }) {
       }
       faceLandmarkerRef.current = landmarker;
 
+      let occluder = null;
       loadedScene.traverse(child => {
         if (child.isMesh && child.name === 'head_occluder') {
+          occluder = child;
           child.material = new THREE.MeshBasicMaterial({
             colorWrite: false, // invisible
             depthWrite: true,
@@ -145,14 +147,40 @@ export default function FaceTracker({ modelFile, onClose }) {
         }
       });
 
+      // Every hat .glb was modeled/exported independently (BLUELA_AFrame is
+      // ~2.16 units wide natively, the three fitted-cap models ~2.70) --
+      // the dynamic scale computed in detectLoop() assumes it's setting the
+      // hat's FINAL width directly, which only works if every model starts
+      // out exactly 1 unit wide. Normalize that here instead of guessing a
+      // per-model fudge factor. Measured by walking each mesh's own
+      // geometry directly (excluding the occluder by reference) -- THREE.
+      // Box3 does NOT check .visible, so toggling the occluder invisible
+      // first (an earlier attempt) silently measured it anyway.
+      const box = new THREE.Box3();
+      loadedScene.updateWorldMatrix(true, true);
+      loadedScene.traverse(child => {
+        if (child.isMesh && child !== occluder && child.geometry) {
+          const geomBox = new THREE.Box3().setFromBufferAttribute(child.geometry.attributes.position);
+          geomBox.applyMatrix4(child.matrixWorld);
+          box.union(geomBox);
+        }
+      });
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const nativeWidth = Math.max(size.x, size.z) || 1;
+      const normalize = 1 / nativeWidth;
+      loadedScene.scale.setScalar(normalize);
+      // Re-center so (0,0,0) is the horizontal center of the brim's
+      // underside -- the point that should actually sit against the head --
+      // instead of wherever each file's own origin happened to be.
+      loadedScene.position.set(-center.x * normalize, -box.min.y * normalize, -center.z * normalize);
+
       // Undo the scene-level mirror for the model itself -- only the
       // scene needs flipping to match the mirrored video; the hat's own
       // geometry shouldn't also come out backwards.
       const mirrorWrapper = new THREE.Group();
       mirrorWrapper.scale.x = -1;
-      while (loadedScene.children.length > 0) {
-        mirrorWrapper.add(loadedScene.children[0]);
-      }
+      mirrorWrapper.add(loadedScene);
 
       hatRef.current = new THREE.Group();
       hatRef.current.add(mirrorWrapper);
