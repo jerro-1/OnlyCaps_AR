@@ -22,6 +22,7 @@ export default function FaceTracker({ modelFile, onClose }) {
   const cameraRef = useRef(null);
   const threeCanvasRef = useRef(null);
   const resizeObserverRef = useRef(null);
+  const debugRef = useRef(null); // TEMP: on-screen readout while calibrating dynamic hat scale
   const [hatReady, setHatReady] = useState(false);
 
   useEffect(() => {
@@ -243,6 +244,18 @@ export default function FaceTracker({ modelFile, onClose }) {
               // A hat sits a bit wider than the bare measured face width.
               const HEAD_WIDTH_VS_FACE_WIDTH = 1.15;
               s = faceWidthFraction * visibleWidthAtDepth * HEAD_WIDTH_VS_FACE_WIDTH;
+
+              // TEMP: real numbers on screen so we can calibrate this from a
+              // screenshot instead of guessing blind again.
+              if (debugRef.current) {
+                debugRef.current.textContent =
+                  `faceWidthFraction=${faceWidthFraction.toFixed(3)} ` +
+                  `rawZ=${matrix.data[14].toFixed(2)} ` +
+                  `distance=${distance.toFixed(2)} ` +
+                  `fov=${cam.fov.toFixed(1)} aspect=${cam.aspect.toFixed(2)} ` +
+                  `visibleWidthAtDepth=${visibleWidthAtDepth.toFixed(2)} ` +
+                  `s=${s.toFixed(2)}`;
+              }
             }
             threeMatrix.elements[0] *= s;
             threeMatrix.elements[1] *= s;
@@ -359,6 +372,15 @@ export default function FaceTracker({ modelFile, onClose }) {
           Loading hat…
         </div>
       )}
+      {/* TEMP: remove once hat scale is calibrated */}
+      <pre
+        ref={debugRef}
+        style={{
+          position: 'absolute', bottom: 8, left: 8, right: 8, zIndex: 10,
+          color: '#0f0', background: 'rgba(0,0,0,0.7)', padding: '6px 10px',
+          fontSize: 11, borderRadius: 8, whiteSpace: 'pre-wrap', margin: 0,
+        }}
+      />
       <button
         onClick={() => onClose?.()}
         aria-label="Close try on"
