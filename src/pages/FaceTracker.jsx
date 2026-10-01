@@ -230,7 +230,13 @@ export default function FaceTracker({ modelFile, onClose }) {
                 (right.y - left.y) * video.videoHeight,
               );
               const faceWidthFraction = faceWidthPx / video.videoWidth;
-              const distance = Math.abs(worldOffset.z);
+              // The hat's real distance from the camera is MediaPipe's own
+              // tracked depth plus our small offset -- that's already sitting
+              // in elements[14] at this point, smoothing included. Using the
+              // fixed offset alone (14) instead of this was the bug: it's
+              // only a few units, while the tracked depth is much larger, so
+              // every scale came out far smaller than it should have.
+              const distance = Math.abs(threeMatrix.elements[14]);
               const vFovRad = (cam.fov * Math.PI) / 180;
               const visibleHeightAtDepth = 2 * distance * Math.tan(vFovRad / 2);
               const visibleWidthAtDepth = visibleHeightAtDepth * cam.aspect;
