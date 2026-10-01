@@ -269,8 +269,13 @@ export default function FaceTracker({ modelFile, onClose }) {
               const vFovRad = (cam.fov * Math.PI) / 180;
               const visibleHeightAtDepth = 2 * distance * Math.tan(vFovRad / 2);
               const visibleWidthAtDepth = visibleHeightAtDepth * cam.aspect;
-              // A hat sits a bit wider than the bare measured face width.
-              const HEAD_WIDTH_VS_FACE_WIDTH = 1.15;
+              // Calibrated from a real screenshot, not guessed: at s=18.41
+              // (this constant at 1.15) the hat rendered at roughly 0.64x
+              // the actual head width -- landmarks 234/454 sit on the
+              // cheeks, noticeably narrower than the temple-to-temple width
+              // a hat actually needs. 1.15 * (1.15/0.64) ~= 2.07 corrects
+              // for that gap directly from the measured ratio.
+              const HEAD_WIDTH_VS_FACE_WIDTH = 2.07;
               s = faceWidthFraction * visibleWidthAtDepth * HEAD_WIDTH_VS_FACE_WIDTH;
 
               // TEMP: real numbers on screen so we can calibrate this from a
