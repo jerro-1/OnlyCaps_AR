@@ -21,6 +21,7 @@ export default function FaceTracker({ modelFile, onClose }) {
   const prevMatrixRef = useRef(null);
   const cameraRef = useRef(null);
   const threeCanvasRef = useRef(null);
+  const resizeObserverRef = useRef(null);
   const [hatReady, setHatReady] = useState(false);
 
   useEffect(() => {
@@ -58,8 +59,20 @@ export default function FaceTracker({ modelFile, onClose }) {
       const scene = new THREE.Scene();
       scene.scale.x = -1; // mirror the whole scene to match the mirrored video/canvas
       const container = threeCanvasRef.current.parentElement;
-      const W = container.offsetWidth;
-      const H = container.offsetHeight;
+
+      // Right when this component mounts (e.g. coming out of a Suspense
+      // fallback), the container can briefly report 0x0 before the browser
+      // finishes laying it out -- that's what was making the AR view come
+      // out the wrong size. Wait a frame and re-measure instead of building
+      // the camera/renderer against a size that isn't real yet.
+      let W = container.offsetWidth;
+      let H = container.offsetHeight;
+      for (let tries = 0; (W === 0 || H === 0) && tries < 10; tries++) {
+        await new Promise(r => requestAnimationFrame(r));
+        W = container.offsetWidth;
+        H = container.offsetHeight;
+      }
+
       const camera = new THREE.PerspectiveCamera(57.5, W / H, 0.1, 5000);
       camera.position.set(0, 0, 0);
 
@@ -71,6 +84,20 @@ export default function FaceTracker({ modelFile, onClose }) {
       renderer.domElement.style.left = '0';
       renderer.domElement.style.pointerEvents = 'none';
       threeCanvasRef.current.appendChild(renderer.domElement);
+
+      // Keeps the AR view correctly sized/proportioned if the container
+      // ever actually changes size (window resize, phone rotation) --
+      // a fixed size measured once wouldn't survive either of those.
+      const resizeObserver = new ResizeObserver(() => {
+        const w = container.offsetWidth;
+        const h = container.offsetHeight;
+        if (w === 0 || h === 0) return;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      });
+      resizeObserver.observe(container);
+      resizeObserverRef.current = resizeObserver;
 
       const light = new THREE.DirectionalLight(0xffffff, 3);
       light.position.set(-1, 2, 4);
@@ -240,6 +267,7 @@ export default function FaceTracker({ modelFile, onClose }) {
       stream?.getTracks().forEach(t => t.stop());
       faceLandmarkerRef.current?.close();
       rendererRef.current?.dispose();
+      resizeObserverRef.current?.disconnect();
     };
   }, []);
 
@@ -280,6 +308,8 @@ export default function FaceTracker({ modelFile, onClose }) {
           position: 'absolute',
           top: 0,
           left: 0,
+          width: '100%',
+          height: '100%',
           pointerEvents: 'none',
         }}
       />
