@@ -264,9 +264,17 @@ export default function FaceTracker({ modelFile, onClose }) {
             const cam = cameraRef.current;
             let s = 11.5; // fallback if landmarks/camera aren't available yet
             if (left && right && cam && video.videoWidth) {
+              // 2D screen-space distance alone shrinks when the head turns
+              // -- the same foreshortening that makes a rotated rectangle
+              // look narrower from an angle -- even though the real head
+              // hasn't changed size. MediaPipe's landmarks include a z (depth)
+              // per point, using roughly the same scale convention as x, so
+              // including it gives the actual 3D separation between the two
+              // cheek points, which stays consistent as the head rotates.
               const faceWidthPx = Math.hypot(
                 (right.x - left.x) * video.videoWidth,
                 (right.y - left.y) * video.videoHeight,
+                (right.z - left.z) * video.videoWidth,
               );
               const faceWidthFraction = faceWidthPx / video.videoWidth;
               // The hat's real distance from the camera is MediaPipe's own
