@@ -207,9 +207,37 @@ export default function FaceTracker({ modelFile, onClose }) {
             }
             prevMatrixRef.current = threeMatrix.clone();
 
-            // keep your position and depth offsets
-
-            const s = 11.5;
+            // Size the hat from the ACTUAL detected head width this frame,
+            // instead of one fixed number -- a fixed scale only ever looks
+            // right on whichever camera/sitting distance/person it was
+            // tuned against, since a different webcam's field of view or a
+            // different distance from the camera both change how big a
+            // fixed scale appears, with nothing to do with the hat itself.
+            //
+            // Measure the face across landmarks 234/454 (left/right cheek,
+            // a standard face-width pair) in real video pixels, express that
+            // as a fraction of the frame width, then convert that fraction
+            // into this hat model's own scale units using the same
+            // perspective math the renderer itself uses: how wide a slice
+            // of the 3D scene is actually visible at the hat's depth.
+            const left = landmarks[234];
+            const right = landmarks[454];
+            const cam = cameraRef.current;
+            let s = 11.5; // fallback if landmarks/camera aren't available yet
+            if (left && right && cam && video.videoWidth) {
+              const faceWidthPx = Math.hypot(
+                (right.x - left.x) * video.videoWidth,
+                (right.y - left.y) * video.videoHeight,
+              );
+              const faceWidthFraction = faceWidthPx / video.videoWidth;
+              const distance = Math.abs(worldOffset.z);
+              const vFovRad = (cam.fov * Math.PI) / 180;
+              const visibleHeightAtDepth = 2 * distance * Math.tan(vFovRad / 2);
+              const visibleWidthAtDepth = visibleHeightAtDepth * cam.aspect;
+              // A hat sits a bit wider than the bare measured face width.
+              const HEAD_WIDTH_VS_FACE_WIDTH = 1.15;
+              s = faceWidthFraction * visibleWidthAtDepth * HEAD_WIDTH_VS_FACE_WIDTH;
+            }
             threeMatrix.elements[0] *= s;
             threeMatrix.elements[1] *= s;
             threeMatrix.elements[2] *= s;
