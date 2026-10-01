@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -21,6 +21,7 @@ export default function FaceTracker({ modelFile, onClose }) {
   const prevMatrixRef = useRef(null);
   const cameraRef = useRef(null);
   const threeCanvasRef = useRef(null);
+  const [hatReady, setHatReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,19 +80,28 @@ export default function FaceTracker({ modelFile, onClose }) {
       cameraRef.current = camera;
       rendererRef.current = renderer;
 
-      // The camera permission prompt, the face landmarker, and the hat model
-      // all start loading at the same instant instead of one after another.
-      // Previously the camera prompt -- the thing the user is actually
-      // staring at, waiting to tap "Allow" -- didn't even appear until the
-      // face model AND the hat model had both finished downloading first.
-      const [landmarker, loadedScene, camStream] = await Promise.all([
-        createLandmarker(),
-        loadHatModel(),
-        navigator.mediaDevices.getUserMedia({ video: true }),
-      ]);
-      stream = camStream;
+      // The camera is the thing the shopper is actually staring at, waiting
+      // to tap "Allow" -- it now starts the instant permission is granted
+      // instead of waiting for the face model and hat model to finish
+      // downloading first. detectLoop() below already tolerates those not
+      // being ready yet, so video shows up immediately and the hat simply
+      // fades in a moment later once it's loaded.
+      stream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (cancelled) {
         stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+      const video = videoRef.current;
+      video.srcObject = stream;
+      video.onloadedmetadata = () => {
+        video.play();
+        detectLoop();
+      };
+
+      // Face model + hat model load in the background, in parallel with
+      // each other, while the shopper already sees themselves on camera.
+      const [landmarker, loadedScene] = await Promise.all([createLandmarker(), loadHatModel()]);
+      if (cancelled) {
         landmarker.close();
         return;
       }
@@ -120,27 +130,20 @@ export default function FaceTracker({ modelFile, onClose }) {
       hatRef.current.add(mirrorWrapper);
       hatRef.current.matrixAutoUpdate = false;
       scene.add(hatRef.current);
-
-      const video = videoRef.current;
-      video.srcObject = stream;
-
-      // IMPORTANT FIX (prevents AbortError)
-      video.onloadedmetadata = async () => {
-        await video.play();
-        detectLoop();
-      };
+      if (!cancelled) setHatReady(true);
     };
 
     const detectLoop = () => {
       if (cancelled) return;
-      if (!rendererRef.current || !sceneRef.current || !cameraRef.current) {
+      const video = videoRef.current;
+      const landmarker = faceLandmarkerRef.current;
+      if (!video || !landmarker) {
+        // Camera's already live; just waiting on the face model / hat model
+        // to finish loading in the background -- keep looping so detection
+        // starts the instant they're ready instead of stalling here.
         rafId = requestAnimationFrame(detectLoop);
         return;
       }
-      const video = videoRef.current;
-      const landmarker = faceLandmarkerRef.current;
-
-      if (!video || !landmarker) return;
 
       // only process new frames
       if (video.currentTime !== lastVideoTimeRef.current) {
@@ -280,6 +283,18 @@ export default function FaceTracker({ modelFile, onClose }) {
           pointerEvents: 'none',
         }}
       />
+      {!hatReady && (
+        <div
+          style={{
+            position: 'absolute', top: 16, left: 16, color: 'white', zIndex: 10,
+            background: 'rgba(0,0,0,0.5)', borderRadius: '9999px', padding: '6px 14px',
+            fontSize: 13, display: 'flex', alignItems: 'center', gap: 8,
+          }}
+        >
+          <span className="try-on-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
+          Loading hat…
+        </div>
+      )}
       <button
         onClick={() => onClose?.()}
         aria-label="Close try on"
