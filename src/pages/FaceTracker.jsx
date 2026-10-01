@@ -42,13 +42,13 @@ export default function FaceTracker({ modelFile }) {
       const container = threeCanvasRef.current.parentElement;
       const W = container.offsetWidth;
       const H = container.offsetHeight;
-      const camera = new THREE.PerspectiveCamera(57.5, W / H, 0.1, 5000);
+      const camera = new THREE.PerspectiveCamera(57.5, 805 / 604, 0.1, 5000);
       camera.position.set(0, 0, 0);
 
 
       const renderer = new THREE.WebGLRenderer({ alpha: true });
       renderer.setClearColor(0x000000, 0);
-      renderer.setSize(W, H);
+      renderer.setSize(805, 604);
       renderer.domElement.style.position = 'absolute';
       renderer.domElement.style.top = '0';
       renderer.domElement.style.left = '0';
@@ -228,44 +228,44 @@ export default function FaceTracker({ modelFile }) {
 
   return (
     <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-      }}
-    >
-      <video
-        ref={videoRef}
-        style={{
-          width: '100%',
-          height: '100%',
-          transform: 'scaleX(-1)',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-        }}
-      />
-      <canvas
-        ref={canvasRef}
-        style={{
-          width: '100%',
-          height: '100%',
-          transform: 'scaleX(-1)',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        ref={threeCanvasRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          pointerEvents: 'none',
-        }}
-      />
-    </div>
+            style={{
+                position: "relative",
+                width: "805px",
+                height: "604px",
+            }}
+        >
+            <video
+                ref={videoRef}
+                style={{
+                    width: "805px",
+                    height: "604px",
+                    transform: "scaleX(-1)",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                }}
+            />
+            <canvas
+                ref={canvasRef}
+                style={{
+                    width: "805px",
+                    height: "604px",
+                    transform: "scaleX(-1)",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    pointerEvents: "none",
+                }}
+            />
+            <div
+                ref={threeCanvasRef}
+                style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    pointerEvents: "none",
+                }}
+            />
+        </div>
   );
 }

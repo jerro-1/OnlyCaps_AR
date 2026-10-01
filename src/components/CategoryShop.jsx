@@ -368,7 +368,7 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
             </button>
 
                 <div className="w-full h-full flex items-center justify-center">
-                  <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="try-on-spinner" /></div>}>
+                  <Suspense fallback={<div className="w-full h-full"><div className="try-on-spinner" /></div>}>
                     <FaceTracker modelFile={currentModelFile} onClose={() => setShowFaceTracker(false)} />
                   </Suspense>
                 </div>
