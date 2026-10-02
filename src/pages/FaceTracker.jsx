@@ -237,11 +237,17 @@ export default function FaceTracker({ modelFile, onClose }) {
               threeMatrix.elements[14] + worldOffset.z,
             );
 
-            // smooth between frames
+            // Smooth between frames so tiny landmark jitter doesn't make the
+            // hat shake -- but a heavy blend also means it takes several
+            // frames to catch up after a real, sudden head movement (e.g.
+            // right after opening Try It On), which can look like a bad fit
+            // for a moment when it's actually just lag. Lightened from
+            // 0.6/0.4 so it settles noticeably faster after a real move,
+            // while still smoothing out normal frame-to-frame noise.
             if (prevMatrixRef.current) {
               for (let i = 0; i < 16; i++) {
                 threeMatrix.elements[i] =
-                  prevMatrixRef.current.elements[i] * 0.6 + threeMatrix.elements[i] * 0.4;
+                  prevMatrixRef.current.elements[i] * 0.3 + threeMatrix.elements[i] * 0.7;
               }
             }
             prevMatrixRef.current = threeMatrix.clone();
