@@ -313,7 +313,7 @@ export default function FaceTracker({ modelFile, onClose }) {
               if (noseTip && foreheadTop) {
                 const foreheadGapPx = (noseTip.y - foreheadTop.y) * video.videoHeight;
                 const worldPerPixelY = visibleHeightAtDepth / video.videoHeight;
-                const EXTRA_INTO_HAIRLINE = 0.15; // sit a bit further up than the bare forehead-top point
+                const EXTRA_INTO_HAIRLINE = 0; // the bare forehead-top measurement alone is landing within ~2 units of correct now
                 lift = foreheadGapPx * worldPerPixelY * (1 + EXTRA_INTO_HAIRLINE);
               }
               threeMatrix.elements[13] += lift;
