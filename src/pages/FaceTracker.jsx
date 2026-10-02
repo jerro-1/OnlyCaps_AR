@@ -296,14 +296,26 @@ export default function FaceTracker({ modelFile, onClose }) {
               const HEAD_WIDTH_VS_FACE_WIDTH = 2.07;
               s = faceWidthFraction * visibleWidthAtDepth * HEAD_WIDTH_VS_FACE_WIDTH;
 
-              // Set to 0 for this round on purpose -- the pivot fix above
-              // (anchoring ~20% up from the hat's bottom instead of at the
-              // very bottom) should now account for most of the vertical
-              // position by itself. Zeroing this out means the next
-              // screenshot shows exactly what the pivot fix did on its own,
-              // instead of mixing it with another guessed lift value.
-              const LIFT_FRACTION_OF_HEIGHT = 0;
-              const lift = LIFT_FRACTION_OF_HEIGHT * visibleHeightAtDepth;
+              // A flat lift constant has now failed twice at two different
+              // distances/head angles -- it can't work in general, because
+              // how far "above the nose" the hairline sits depends on this
+              // specific person's face and how far back their head is
+              // tilted, not just distance from the camera. Measuring it
+              // directly instead: landmark 10 is a well-established
+              // forehead-top/hairline reference point. The real screen-space
+              // gap between it and the nose tip (landmark 1), converted to
+              // world units the same validated way the width fix already
+              // is, gives an actual per-frame measurement instead of a
+              // guessed number.
+              const noseTip = landmarks[1];
+              const foreheadTop = landmarks[10];
+              let lift = 0;
+              if (noseTip && foreheadTop) {
+                const foreheadGapPx = (noseTip.y - foreheadTop.y) * video.videoHeight;
+                const worldPerPixelY = visibleHeightAtDepth / video.videoHeight;
+                const EXTRA_INTO_HAIRLINE = 0.3; // sit a bit further up than the bare forehead-top point
+                lift = foreheadGapPx * worldPerPixelY * (1 + EXTRA_INTO_HAIRLINE);
+              }
               threeMatrix.elements[13] += lift;
 
               // TEMP: real numbers on screen so we can calibrate this from a
