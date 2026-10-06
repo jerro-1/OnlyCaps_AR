@@ -40,8 +40,7 @@ export default function FaceTracker({ modelFile }) {
       const scene = new THREE.Scene();
       scene.scale.x = -1;
       const container = threeCanvasRef.current.parentElement;
-      const W = container.offsetWidth;
-      const H = container.offsetHeight;
+
       const camera = new THREE.PerspectiveCamera(57.5, 805 / 604, 0.1, 5000);
       camera.position.set(0, 0, 0);
 
@@ -136,6 +135,15 @@ export default function FaceTracker({ modelFile }) {
             const threeMatrix = new THREE.Matrix4();
             threeMatrix.fromArray(matrix.data);
 
+            const faceCenterX = landmarks[168].x - 0.5;
+const faceCenterY = landmarks[168].y - 0.5;
+const distFromCenter = Math.sqrt(faceCenterX * faceCenterX + faceCenterY * faceCenterY);
+const correctionStrength = 2 + distFromCenter * 4;
+threeMatrix.elements[12] -= faceCenterX * correctionStrength;
+threeMatrix.elements[13] += faceCenterY * correctionStrength;
+
+
+
             // // proper mirror transform instead of flipping individual elements
             // const mirrorMatrix = new THREE.Matrix4().set(
             //   -1,
@@ -169,7 +177,7 @@ export default function FaceTracker({ modelFile }) {
             if (prevMatrixRef.current) {
               for (let i = 0; i < 16; i++) {
                 threeMatrix.elements[i] =
-                  prevMatrixRef.current.elements[i] * 0.6 + threeMatrix.elements[i] * 0.4;
+                  prevMatrixRef.current.elements[i] * 0.5 + threeMatrix.elements[i] * 0.4;
               }
             }
             prevMatrixRef.current = threeMatrix.clone();
