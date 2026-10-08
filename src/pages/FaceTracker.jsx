@@ -2,10 +2,13 @@ import { useEffect, useRef } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { IoArrowBackOutline } from 'react-icons/io5';
+import { IoMdClose } from 'react-icons/io';
 
-export default function FaceTracker({ modelFile, onClose }) {
+export default function FaceTracker({ product, modelFile, onClose, onBack }) {
   const modelUrl = `/models/CapModels/${modelFile}`;
   console.log('loading model:', modelUrl);
+  console.log('Modal description:', product);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -48,12 +51,15 @@ export default function FaceTracker({ modelFile, onClose }) {
       scene.scale.x = -1;
       const container = threeCanvasRef.current.parentElement;
 
-      const camera = new THREE.PerspectiveCamera(57.5, 805 / 604, 0.1, 5000);
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      const camera = new THREE.PerspectiveCamera(57.5, width / height, 0.1, 5000);
       camera.position.set(0, 0, 0);
 
       const renderer = new THREE.WebGLRenderer({ alpha: true });
       renderer.setClearColor(0x000000, 0);
-      renderer.setSize(805, 604);
+      renderer.setSize(width, height);
       renderer.domElement.style.position = 'absolute';
       renderer.domElement.style.top = '0';
       renderer.domElement.style.left = '0';
@@ -195,18 +201,32 @@ export default function FaceTracker({ modelFile, onClose }) {
           const canvas = canvasRef.current;
           const ctx = canvas.getContext('2d');
 
-          const displayWidth = video.offsetWidth;
-          const displayHeight = video.offsetHeight;
+          const displayWidth = video.clientWidth;
+          const displayHeight = video.clientHeight;
 
           canvas.width = displayWidth;
           canvas.height = displayHeight;
 
           ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-          // draw dots
+          // Original video dimensions
+          const videoWidth = video.videoWidth;
+          const videoHeight = video.videoHeight;
+
+          // Calculate the scale used by object-fit: cover
+          const scale = Math.max(displayWidth / videoWidth, displayHeight / videoHeight);
+
+          const scaledWidth = videoWidth * scale;
+          const scaledHeight = videoHeight * scale;
+
+          // Calculate how much gets cropped
+          const offsetX = (displayWidth - scaledWidth) / 2;
+          const offsetY = (displayHeight - scaledHeight) / 2;
+
+          // Draw landmarks using the same transformation as the video
           for (let i = 0; i < landmarks.length; i++) {
-            const x = landmarks[i].x * canvas.width;
-            const y = landmarks[i].y * canvas.height;
+            const x = landmarks[i].x * scaledWidth + offsetX;
+            const y = landmarks[i].y * scaledHeight + offsetY;
 
             ctx.fillStyle = 'white';
             ctx.fillRect(x, y, 2, 2);
@@ -238,15 +258,17 @@ export default function FaceTracker({ modelFile, onClose }) {
     <div
       style={{
         position: 'relative',
-        width: '805px',
-        height: '604px',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
       }}
     >
       <video
         ref={videoRef}
         style={{
-          width: '805px',
-          height: '604px',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
           transform: 'scaleX(-1)',
           position: 'absolute',
           top: 0,
@@ -256,8 +278,8 @@ export default function FaceTracker({ modelFile, onClose }) {
       <canvas
         ref={canvasRef}
         style={{
-          width: '805px',
-          height: '604px',
+          width: '100%',
+          height: '100%',
           transform: 'scaleX(-1)',
           position: 'absolute',
           top: 0,
@@ -274,6 +296,84 @@ export default function FaceTracker({ modelFile, onClose }) {
           pointerEvents: 'none',
         }}
       />
+
+      {/* Description overlay */}
+      {product && (
+        <>
+          {/* Left Half Overlay */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '50%',
+              height: '100%',
+              zIndex: 10,
+              background: 'transparent',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Product Name - Bottom Left of Entire Modal */}
+          <h2
+            style={{
+              position: 'absolute',
+              bottom: 32,
+              left: 32,
+              zIndex: 11,
+              margin: 0,
+              color: 'white',
+              fontSize: '24px',
+              fontWeight: '700',
+            }}
+          >
+            {product.name}
+          </h2>
+
+          {/* Category - Bottom Right of Entire Modal */}
+          <p
+            style={{
+              position: 'absolute',
+              bottom: 32,
+              right: 32,
+              zIndex: 11,
+              margin: 0,
+              color: 'white',
+              fontSize: '14px',
+              opacity: 0.8,
+            }}
+          >
+            {product.category}
+          </p>
+        </>
+      )}
+
+      {/* Back button */}
+      <button
+        onClick={() => onBack?.()}
+        aria-label="Back to product"
+        style={{
+          position: 'absolute',
+          top: 16,
+          left: 16,
+          color: 'white',
+          zIndex: 10,
+          background: 'rgba(0,0,0,0.5)',
+          borderRadius: '50%',
+          width: '40px',
+          height: '40px',
+          padding: 0,
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <IoArrowBackOutline size={20} />
+      </button>
+
+      {/* Close button */}
       <button
         onClick={() => onClose?.()}
         aria-label="Close try on"
@@ -284,13 +384,18 @@ export default function FaceTracker({ modelFile, onClose }) {
           color: 'white',
           zIndex: 10,
           background: 'rgba(0,0,0,0.5)',
-          borderRadius: '9999px',
-          padding: '8px 12px',
+          borderRadius: '50%',
+          width: '40px',
+          height: '40px',
+          padding: 0,
           border: 'none',
           cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        ✕
+        <IoMdClose size={20} />
       </button>
     </div>
   );

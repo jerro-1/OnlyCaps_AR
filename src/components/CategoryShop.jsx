@@ -24,22 +24,35 @@ const getSizeStock = (product, size) => {
   return hasSizeData ? (product.sizes_stock[size] ?? 0) : (product.stock_quantity ?? 0);
 };
 
-const getOverallStock = (product) => {
+const getOverallStock = product => {
   const hasSizeData = Object.keys(product.sizes_stock || {}).length > 0;
   return hasSizeData
     ? Object.values(product.sizes_stock).reduce((sum, n) => sum + (n || 0), 0)
     : (product.stock_quantity ?? 0);
 };
 
-const stockLevel = (qty) => (qty <= 0 ? 'error' : qty <= LOW_STOCK ? 'warning' : 'success');
+const stockLevel = qty => (qty <= 0 ? 'error' : qty <= LOW_STOCK ? 'warning' : 'success');
 const stockLabel = { success: 'In stock', warning: 'Low stock', error: 'Out of stock' };
 
 // The one shared shopping page (grid + quick-view modal) behind Fitted Caps,
 // A-Frames, Trucker and More Stuff -- so the four category pages look and
 // behave identically and only need to change in one place going forward.
-const DEFAULT_FEATURES = ['Authentic licensed cap', 'Official merchandise', 'Free shipping on orders ₱2000+', '30-day returns'];
+const DEFAULT_FEATURES = [
+  'Authentic licensed cap',
+  'Official merchandise',
+  'Free shipping on orders ₱2000+',
+  '30-day returns',
+];
 
-export default function CategoryShop({ category, heading, bgImage, emptyText, sizeGuideLink = false, oneSize = false, features = DEFAULT_FEATURES }) {
+export default function CategoryShop({
+  category,
+  heading,
+  bgImage,
+  emptyText,
+  sizeGuideLink = false,
+  oneSize = false,
+  features = DEFAULT_FEATURES,
+}) {
   const { addToCart } = useCart();
   const session = useContext(SessionContext);
   const [visible, setVisible] = useState(6);
@@ -54,6 +67,9 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
   const [showAITryOn, setShowAITryOn] = useState(false);
   const [currentAITryOnProduct, setCurrentAITryOnProduct] = useState(null);
   const [currentModelFile, setCurrentModelFile] = useState(null);
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const [currentd, setCurrentd] = useState(null);
+  const [arProduct, setArProduct] = useState(null);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [descOpen, setDescOpen] = useState(true);
 
@@ -65,7 +81,10 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
     : products;
 
   const hasMore = visible < filteredProducts.length;
-  const loadMore = useCallback(() => setVisible(v => Math.min(v + 3, filteredProducts.length)), [filteredProducts.length]);
+  const loadMore = useCallback(
+    () => setVisible(v => Math.min(v + 3, filteredProducts.length)),
+    [filteredProducts.length],
+  );
   const sentinelRef = useInfiniteScroll(loadMore, hasMore);
 
   useEffect(() => {
@@ -82,7 +101,9 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
         setProducts(data || []);
         setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [category, session]);
 
   // Reset "visible" count whenever the size filter changes, so you don't
@@ -91,7 +112,7 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
     setVisible(6);
   }, [sizeFilter]);
 
-  const openModal = (product) => {
+  const openModal = product => {
     setModal(product);
     setSelectedSize(null);
     setDescOpen(true);
@@ -107,7 +128,11 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
   // Stock behind Buy Now: the selected size once one is picked, otherwise the
   // product's overall stock across all sizes. One-size products have no size
   // to pick, so they always show their overall stock.
-  const activeStockQty = modal ? (!oneSize && selectedSize ? getSizeStock(modal, selectedSize) : getOverallStock(modal)) : 0;
+  const activeStockQty = modal
+    ? !oneSize && selectedSize
+      ? getSizeStock(modal, selectedSize)
+      : getOverallStock(modal)
+    : 0;
   const activeStockLevel = stockLevel(activeStockQty);
   const chosenSize = oneSize ? 'One Size' : selectedSize;
 
@@ -176,14 +201,29 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                     to="/sizing"
                     className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-2 rounded-full transition-colors"
                   >
-                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    <svg
+                      className="w-4 h-4 shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                      />
                     </svg>
                     Back to size guide
                   </Link>
                   <div className="flex items-center gap-2 bg-white/10 text-white text-sm px-4 py-2 rounded-full">
-                    <span>Filtering by size: <strong>{sizeFilter}</strong></span>
-                    <Link to={`/${category === 'fitted' ? 'fitted-caps' : category}`} className="text-[#00BFFF] hover:underline ml-2">
+                    <span>
+                      Filtering by size: <strong>{sizeFilter}</strong>
+                    </span>
+                    <Link
+                      to={`/${category === 'fitted' ? 'fitted-caps' : category}`}
+                      className="text-[#00BFFF] hover:underline ml-2"
+                    >
                       Clear
                     </Link>
                   </div>
@@ -221,25 +261,53 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
 
           {/* Product Modal */}
           {modal && (
-            <div className="fixed inset-0 bg-black/70 z-60 flex items-center justify-center p-4" onClick={closeModal}>
-              <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative animate-modalSlide" onClick={e => e.stopPropagation()}>
-                <button onClick={closeModal} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10 bg-white rounded-full p-1 shadow-lg border-none cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <div
+              className="fixed inset-0 bg-black/70 z-60 flex items-center justify-center p-4"
+              onClick={closeModal}
+            >
+              <div
+                className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative animate-modalSlide"
+                onClick={e => e.stopPropagation()}
+              >
+                <button
+                  onClick={closeModal}
+                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10 bg-white rounded-full p-1 shadow-lg border-none cursor-pointer"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
 
                 <div className="grid md:grid-cols-2 gap-8 p-8">
                   <div>
                     <div className="bg-gray-100 rounded-xl overflow-hidden">
-                      <img src={modal.image} alt={modal.full_name ?? modal.name} className="w-full object-cover" />
+                      <img
+                        src={modal.image}
+                        alt={modal.full_name ?? modal.name}
+                        className="w-full object-cover"
+                      />
                     </div>
                   </div>
 
                   <div className="space-y-5">
                     <div>
-                      {modal.subtitle && <p className="text-sm text-gray-500 mb-1">{modal.subtitle}</p>}
-                      <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">{modal.name}</h2>
+                      {modal.subtitle && (
+                        <p className="text-sm text-gray-500 mb-1">{modal.subtitle}</p>
+                      )}
+                      <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
+                        {modal.name}
+                      </h2>
                       <p className="text-xl font-bold text-gray-900 mt-2">₱{modal.price}</p>
                     </div>
 
@@ -275,7 +343,9 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                                 disabled={outOfStock}
                                 title={stockLabel[stockLevel(stockForSize)]}
                                 className={`border-2 rounded-lg px-4 py-2.5 font-bold text-sm transition-colors ${
-                                  isSelected ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-300 text-gray-900 hover:border-gray-900'
+                                  isSelected
+                                    ? 'border-gray-900 bg-gray-900 text-white'
+                                    : 'border-gray-300 text-gray-900 hover:border-gray-900'
                                 } ${outOfStock ? 'opacity-30 cursor-not-allowed line-through' : 'cursor-pointer'}`}
                                 onClick={() => !outOfStock && setSelectedSize(size)}
                               >
@@ -287,8 +357,13 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                       )}
 
                       <div className="flex items-center gap-2 mt-3">
-                        <span className={`status status-glow status-${activeStockLevel}`} aria-hidden="true"></span>
-                        <span className="text-xs font-medium text-gray-500">{stockLabel[activeStockLevel]}</span>
+                        <span
+                          className={`status status-glow status-${activeStockLevel}`}
+                          aria-hidden="true"
+                        ></span>
+                        <span className="text-xs font-medium text-gray-500">
+                          {stockLabel[activeStockLevel]}
+                        </span>
                       </div>
                     </div>
 
@@ -308,7 +383,11 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
 
                     <button
                       onClick={() => {
+                        setCurrentProduct(modal);
+
+                        setArProduct(modal);
                         setCurrentModelFile(modal.model_filename);
+
                         closeModal();
                         setShowFaceTracker(true);
                       }}
@@ -317,7 +396,15 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                       <span className="font-bold text-gray-900 text-sm">Try It On</span>
                       <span className="text-gray-500 text-sm flex items-center gap-1">
                         See it live
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
                       </span>
                     </button>
 
@@ -332,7 +419,15 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                       <span className="font-bold text-gray-900 text-sm">AI Photo Try-On</span>
                       <span className="text-gray-500 text-sm flex items-center gap-1">
                         Take a selfie
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
                       </span>
                     </button>
 
@@ -343,7 +438,15 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                       <span className="font-bold text-gray-900 text-sm">Size Guide</span>
                       <span className="text-gray-500 text-sm flex items-center gap-1">
                         Find your fit
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
                       </span>
                     </button>
 
@@ -355,18 +458,25 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
                         <span className="font-bold text-gray-900">Description</span>
                         <svg
                           className={`w-5 h-5 text-gray-500 transition-transform ${descOpen ? '' : 'rotate-180'}`}
-                          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" d="M18 15l-6-6-6 6" />
                         </svg>
                       </button>
                       {descOpen && modal.description && (
-                        <p className="text-sm text-gray-600 leading-relaxed mt-3">{modal.description}</p>
+                        <p className="text-sm text-gray-600 leading-relaxed mt-3">
+                          {modal.description}
+                        </p>
                       )}
                     </div>
 
                     <div className="text-sm text-gray-500 space-y-2">
-                      {features.map(f => <p key={f}>✓ {f}</p>)}
+                      {features.map(f => (
+                        <p key={f}>✓ {f}</p>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -381,12 +491,25 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
             >
               <div
                 className="bg-black rounded-2xl max-w-4xl w-full h-[90vh] relative overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
               >
-
                 <div className="w-full h-full  flex items-center justify-center">
-                  <Suspense fallback={<div className="w-full h-full"><div className="try-on-spinner" /></div>}>
-                    <FaceTracker modelFile={currentModelFile} onClose={() => setShowFaceTracker(false)} />
+                  <Suspense
+                    fallback={
+                      <div className="w-full h-full">
+                        <div className="try-on-spinner" />
+                      </div>
+                    }
+                  >
+                    <FaceTracker
+                      modelFile={currentModelFile}
+                      product={currentProduct}
+                      onBack={() => {
+                        setShowFaceTracker(false);
+                        setModal(currentProduct);
+                      }}
+                      onClose={() => setShowFaceTracker(false)}
+                    />
                   </Suspense>
                 </div>
               </div>
@@ -400,7 +523,7 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
             >
               <div
                 className="bg-[#0B0B0C] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative p-6 sm:p-10"
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
               >
                 <button
                   onClick={() => setShowSizeGuide(false)}
@@ -415,18 +538,18 @@ export default function CategoryShop({ category, heading, bgImage, emptyText, si
           )}
 
           {showAITryOn && currentAITryOnProduct && (
-            <Suspense fallback={
-              <div className="fixed inset-0 bg-black/70 z-70 flex items-center justify-center p-4">
-                <div className="try-on-spinner" />
-              </div>
-            }>
+            <Suspense
+              fallback={
+                <div className="fixed inset-0 bg-black/70 z-70 flex items-center justify-center p-4">
+                  <div className="try-on-spinner" />
+                </div>
+              }
+            >
               <AITryOnModal product={currentAITryOnProduct} onClose={() => setShowAITryOn(false)} />
             </Suspense>
           )}
 
-          {showSignInPrompt && (
-            <SignInPromptModal onClose={() => setShowSignInPrompt(false)} />
-          )}
+          {showSignInPrompt && <SignInPromptModal onClose={() => setShowSignInPrompt(false)} />}
         </div>
       </BgImg2>
     </>
