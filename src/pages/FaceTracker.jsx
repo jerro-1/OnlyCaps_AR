@@ -7,10 +7,11 @@ import { IoMdClose } from 'react-icons/io';
 
 export default function FaceTracker({ product, modelFile, onClose, onBack }) {
   const modelUrl = `/models/CapModels/${modelFile}`;
-  console.log('loading model:', modelUrl);
-  console.log('Modal description:', product);
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const offscreenRef = useRef(null);
+  const offCtxRef = useRef(null);
 
   const faceLandmarkerRef = useRef(null);
   const lastVideoTimeRef = useRef(-1);
@@ -26,6 +27,7 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
     let cancelled = false;
     let rafId = null;
     let stream = null;
+
     const init = async () => {
       // 1. Load MediaPipe WASM
       const vision = await FilesetResolver.forVisionTasks(
@@ -48,9 +50,7 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
 
       // 2.5 Set up Three.js
       const scene = new THREE.Scene();
-      scene.scale.x = -1;
       const container = threeCanvasRef.current.parentElement;
-
       const width = container.clientWidth;
       const height = container.clientHeight;
 
@@ -77,29 +77,18 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
       await new Promise(resolve => {
         const loader = new GLTFLoader();
         loader.load(modelUrl, gltf => {
-          const loadedScene = gltf.scene; // NEW: temp reference
+          hatRef.current = gltf.scene;
+          hatRef.current.matrixAutoUpdate = false;
 
-          loadedScene.traverse(child => {
-            // CHANGED: was hatRef.current.traverse
+          hatRef.current.traverse(child => {
             if (child.isMesh && child.name === 'head_occluder') {
               child.material = new THREE.MeshBasicMaterial({
-                colorWrite: false, // invisible
+                colorWrite: false,
                 depthWrite: true,
               });
-              child.renderOrder = -1; // renders before the hat so it blocks correctly
+              child.renderOrder = -1;
             }
           });
-
-          const mirrorWrapper = new THREE.Group(); // NEW
-          mirrorWrapper.scale.x = -1; // NEW
-          while (loadedScene.children.length > 0) {
-            // NEW
-            mirrorWrapper.add(loadedScene.children[0]); // NEW
-          } // NEW
-
-          hatRef.current = new THREE.Group(); // CHANGED: was gltf.scene directly
-          hatRef.current.add(mirrorWrapper); // NEW
-          hatRef.current.matrixAutoUpdate = false; // unchanged, just moved down
 
           scene.add(hatRef.current);
           resolve();
@@ -108,7 +97,7 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
 
       // 3. Start webcam safely
       stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: { facingMode: 'user' },
       });
 
       if (cancelled) {
@@ -119,9 +108,17 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
       const video = videoRef.current;
       video.srcObject = stream;
 
-      // IMPORTANT FIX (prevents AbortError)
       video.onloadedmetadata = async () => {
         await video.play();
+
+        // Set up offscreen canvas for pre-mirrored frames
+        const offscreen = document.createElement('canvas');
+        offscreen.width = video.videoWidth;
+        offscreen.height = video.videoHeight;
+        const offCtx = offscreen.getContext('2d');
+        offscreenRef.current = offscreen;
+        offCtxRef.current = offCtx;
+
         detectLoop();
       };
     };
@@ -135,34 +132,38 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
       const video = videoRef.current;
       const landmarker = faceLandmarkerRef.current;
 
-      if (!video || !landmarker) return;
+      if (!video || !landmarker || !offscreenRef.current) return;
 
-      // only process new frames
       if (video.currentTime !== lastVideoTimeRef.current) {
-        const result = landmarker.detectForVideo(video, performance.now());
+        // Draw mirrored frame to offscreen canvas
+        const offCtx = offCtxRef.current;
+        const offscreen = offscreenRef.current;
+        offCtx.save();
+        offCtx.scale(-1, 1);
+        offCtx.drawImage(video, -offscreen.width, 0, offscreen.width, offscreen.height);
+        offCtx.restore();
+
+        // Feed mirrored canvas to MediaPipe
+        const result = landmarker.detectForVideo(offscreen, performance.now());
 
         lastVideoTimeRef.current = video.currentTime;
 
         if (result.faceLandmarks?.length > 0) {
           const landmarks = result.faceLandmarks[0];
 
-          // log raw landmark 10 (forehead top)
-          console.log('landmark 10:', landmarks[10]);
-
           if (result.facialTransformationMatrixes?.length > 0) {
             const matrix = result.facialTransformationMatrixes[0];
 
             const threeMatrix = new THREE.Matrix4();
             threeMatrix.fromArray(matrix.data);
+            threeMatrix.elements[12] = -threeMatrix.elements[12];
+            // fix rotation
+            threeMatrix.elements[1] = -threeMatrix.elements[1];
+            threeMatrix.elements[4] = -threeMatrix.elements[4];
+            threeMatrix.elements[2] = -threeMatrix.elements[2];
+            threeMatrix.elements[8] = -threeMatrix.elements[8];
 
-            const faceCenterX = landmarks[168].x - 0.5;
-            const faceCenterY = landmarks[168].y - 0.5;
-            const distFromCenter = Math.sqrt(faceCenterX * faceCenterX + faceCenterY * faceCenterY);
-            const correctionStrength = 2 + distFromCenter * 4;
-            threeMatrix.elements[12] -= faceCenterX * correctionStrength;
-            threeMatrix.elements[13] += faceCenterY * correctionStrength;
-
-            // apply offsets BEFORE premultiply affects position
+            // apply position and depth offsets
             const worldOffset = new THREE.Vector3(0, 1, -14);
             threeMatrix.setPosition(
               threeMatrix.elements[12] + worldOffset.x,
@@ -178,8 +179,6 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
               }
             }
             prevMatrixRef.current = threeMatrix.clone();
-
-            // keep your position and depth offsets
 
             const s = 11.5;
             threeMatrix.elements[0] *= s;
@@ -209,31 +208,23 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
 
           ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-          // Original video dimensions
           const videoWidth = video.videoWidth;
           const videoHeight = video.videoHeight;
-
-          // Calculate the scale used by object-fit: cover
           const scale = Math.max(displayWidth / videoWidth, displayHeight / videoHeight);
-
           const scaledWidth = videoWidth * scale;
           const scaledHeight = videoHeight * scale;
-
-          // Calculate how much gets cropped
           const offsetX = (displayWidth - scaledWidth) / 2;
           const offsetY = (displayHeight - scaledHeight) / 2;
 
-          // Draw landmarks using the same transformation as the video
           for (let i = 0; i < landmarks.length; i++) {
             const x = landmarks[i].x * scaledWidth + offsetX;
             const y = landmarks[i].y * scaledHeight + offsetY;
-
             ctx.fillStyle = 'white';
             ctx.fillRect(x, y, 2, 2);
           }
         }
       }
-      // render Three.js scene each frame
+
       if (rendererRef.current && sceneRef.current && cameraRef.current) {
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
@@ -244,7 +235,7 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
     init().catch(err => {
       if (!cancelled) console.error('Try It On failed to start', err);
     });
-    // console.log(videoRef.current);
+
     return () => {
       cancelled = true;
       if (rafId) cancelAnimationFrame(rafId);
@@ -269,7 +260,6 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          transform: 'scaleX(-1)',
           position: 'absolute',
           top: 0,
           left: 0,
@@ -297,10 +287,8 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
         }}
       />
 
-      {/* Description overlay */}
       {product && (
         <>
-          {/* Left Half Overlay */}
           <div
             style={{
               position: 'absolute',
@@ -313,8 +301,6 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
               pointerEvents: 'none',
             }}
           />
-
-          {/* Product Name - Bottom Left of Entire Modal */}
           <h2
             style={{
               position: 'absolute',
@@ -329,8 +315,6 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
           >
             {product.name}
           </h2>
-
-          {/* Category - Bottom Right of Entire Modal */}
           <p
             style={{
               position: 'absolute',
@@ -348,7 +332,6 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
         </>
       )}
 
-      {/* Back button */}
       <button
         onClick={() => onBack?.()}
         aria-label="Back to product"
@@ -373,7 +356,6 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
         <IoArrowBackOutline size={20} />
       </button>
 
-      {/* Close button */}
       <button
         onClick={() => onClose?.()}
         aria-label="Close try on"

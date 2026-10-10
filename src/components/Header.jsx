@@ -1,13 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import CartPopup from './CartPopup';
-import supabase from "../utils/supabase";
-import { SessionContext } from "../context/SessionContext";
+import supabase from '../utils/supabase';
+import { SessionContext } from '../context/SessionContext';
 import HeaderNavLink from './HeaderNavLink';
 import ProfileMenu from './ProfileMenu';
 import MarqueeBar from './MarqueeBar';
-import React, { useContext, useState } from "react";
-import { BsCart2, BsSearch, BsX } from "react-icons/bs";
+import React, { useContext, useState } from 'react';
+import { BsCart2, BsSearch, BsX } from 'react-icons/bs';
 
 export default function Header() {
   const { totalItems, setCartOpen } = useCart();
@@ -16,7 +16,7 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = e => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
@@ -30,24 +30,40 @@ export default function Header() {
       <header className="h-20 w-full bg-[#FAF8F4]/95 backdrop-blur-sm border-b border-[#E4DFD3] fixed top-9 z-50">
         {/* Changed 'max-w-7xl mx-auto' to 'w-full' to allow full width stretching */}
         <nav className="flex justify-between items-center h-full w-full px-6 lg:px-12">
-
           <ul className="flex gap-8 list-none m-0 p-0">
-            <li><HeaderNavLink to="/" linkText="Home" /></li>
-            <li><HeaderNavLink to="/fitted-caps" linkText="Shop" /></li>
+            <li>
+              <HeaderNavLink to="/" linkText="Home" />
+            </li>
+            <li>
+              <HeaderNavLink to="/fitted-caps" linkText="Shop" />
+            </li>
           </ul>
 
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <Link to="/">
-              <img src="/images/LOGO.webp" alt="ONLYCaps" className="h-16"
-                onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
-              <span className="font-heading text-xl tracking-wider hidden text-[#14110D]">ONLYCAPS</span>
+              <img
+                src="/images/LOGO.webp"
+                alt="ONLYCaps"
+                className="h-16"
+                onError={e => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'block';
+                }}
+              />
+              <span className="font-heading text-xl tracking-wider hidden text-[#14110D]">
+                ONLYCAPS
+              </span>
             </Link>
           </div>
 
           <div className="flex items-center gap-7">
             <ul className="flex gap-7 list-none m-0 p-0">
-              <li><HeaderNavLink to="/" linkText="About" /></li>
-              <li><HeaderNavLink to="/sizing" linkText="Size Guide" /></li>
+              <li>
+                <HeaderNavLink to="/#about" linkText="About" />
+              </li>
+              <li>
+                <HeaderNavLink to="/sizing" linkText="Size Guide" />
+              </li>
             </ul>
 
             <div className="flex items-center gap-5">
@@ -64,7 +80,10 @@ export default function Header() {
                     />
                     <button
                       type="button"
-                      onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
+                      onClick={() => {
+                        setSearchOpen(false);
+                        setSearchQuery('');
+                      }}
                       className="text-[#14110D] hover:text-[#A9824C] transition-colors"
                       aria-label="Close search"
                     >
@@ -84,9 +103,24 @@ export default function Header() {
               </div>
 
               {!session && (
-                <Link to="/login" className="text-[#14110D] hover:text-[#A9824C] transition-colors" aria-label="Sign in">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <Link
+                  to="/login"
+                  className="text-[#14110D] hover:text-[#A9824C] transition-colors"
+                  aria-label="Sign in"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.75}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
                   </svg>
                 </Link>
               )}
