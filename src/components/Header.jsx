@@ -29,8 +29,8 @@ export default function Header() {
       <MarqueeBar />
       <header className="h-20 w-full bg-[#FAF8F4]/95 backdrop-blur-sm border-b border-[#E4DFD3] fixed top-9 z-50">
         {/* Changed 'max-w-7xl mx-auto' to 'w-full' to allow full width stretching */}
-        <nav className="flex justify-between items-center h-full w-full px-6 lg:px-12">
-          <ul className="flex gap-8 list-none m-0 p-0">
+        <nav className="hidden md:flex justify-between items-center h-full w-full px-6 lg:px-12">
+          <ul className="hidden md:flex gap-8 list-none m-0 p-0">
             <li>
               <HeaderNavLink to="/" linkText="Home" />
             </li>

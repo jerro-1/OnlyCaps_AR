@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { IoArrowBackOutline } from 'react-icons/io5';
 import { IoMdClose } from 'react-icons/io';
 
@@ -74,25 +75,39 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
       cameraRef.current = camera;
       rendererRef.current = renderer;
 
-      await new Promise(resolve => {
+      await new Promise((resolve, reject) => {
+        const dracoLoader = new DRACOLoader();
+
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+
         const loader = new GLTFLoader();
-        loader.load(modelUrl, gltf => {
-          hatRef.current = gltf.scene;
-          hatRef.current.matrixAutoUpdate = false;
+        loader.setDRACOLoader(dracoLoader);
 
-          hatRef.current.traverse(child => {
-            if (child.isMesh && child.name === 'head_occluder') {
-              child.material = new THREE.MeshBasicMaterial({
-                colorWrite: false,
-                depthWrite: true,
-              });
-              child.renderOrder = -1;
-            }
-          });
+        loader.load(
+          modelUrl,
+          gltf => {
+            hatRef.current = gltf.scene;
+            hatRef.current.matrixAutoUpdate = false;
 
-          scene.add(hatRef.current);
-          resolve();
-        });
+            hatRef.current.traverse(child => {
+              if (child.isMesh && child.name === 'head_occluder') {
+                child.material = new THREE.MeshBasicMaterial({
+                  colorWrite: false,
+                  depthWrite: true,
+                });
+                child.renderOrder = -1;
+              }
+            });
+
+            scene.add(hatRef.current);
+            resolve();
+          },
+          undefined,
+          error => {
+            console.error('Failed to load cap model:', error);
+            reject(error);
+          },
+        );
       });
 
       // 3. Start webcam safely
