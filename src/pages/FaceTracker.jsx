@@ -171,12 +171,6 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
 
             const threeMatrix = new THREE.Matrix4();
             threeMatrix.fromArray(matrix.data);
-            threeMatrix.elements[12] = -threeMatrix.elements[12];
-            // fix rotation
-            threeMatrix.elements[1] = -threeMatrix.elements[1];
-            threeMatrix.elements[4] = -threeMatrix.elements[4];
-            threeMatrix.elements[2] = -threeMatrix.elements[2];
-            threeMatrix.elements[8] = -threeMatrix.elements[8];
 
             // apply position and depth offsets
             const worldOffset = new THREE.Vector3(0, 1, -14);
@@ -275,6 +269,7 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
           width: '100%',
           height: '100%',
           objectFit: 'cover',
+          transform: 'scaleX(-1)',
           position: 'absolute',
           top: 0,
           left: 0,
@@ -285,7 +280,7 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
         style={{
           width: '100%',
           height: '100%',
-          transform: 'scaleX(-1)',
+
           position: 'absolute',
           top: 0,
           left: 0,
