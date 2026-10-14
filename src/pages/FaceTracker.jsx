@@ -78,7 +78,7 @@ export default function FaceTracker({ product, modelFile, onClose, onBack }) {
       await new Promise((resolve, reject) => {
         const dracoLoader = new DRACOLoader();
 
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+        dracoLoader.setDecoderPath('/draco/');
 
         const loader = new GLTFLoader();
         loader.setDRACOLoader(dracoLoader);
