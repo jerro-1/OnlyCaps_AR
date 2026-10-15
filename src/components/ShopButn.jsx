@@ -1,14 +1,22 @@
 import React from 'react'
 
-const ShopButn = ({ children, onClick, className = '' }) => {
-    return (
-        <div
-            className={`grid-btn btn-hover w-40 bg-white text-black px-8 py-3 rounded-full font-thin text-sm tracking-wide inline-block relative z-10 flex flex-col items-center justify-center text-center ${className}`}
-            onClick={onClick}
-        >
-            {children}
-        </div>
-    )
+const ShopButn = ({ children, onClick, className = '', variant = 'primary' }) => {
+  const variants = {
+    primary: 'btn btn-primary',
+    secondary: 'btn btn-secondary',
+    outline: 'btn btn-outline',
+    ghost: 'btn btn-ghost',
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${variants[variant]} ${className}`}
+    >
+      {children}
+    </button>
+  )
 }
 
 export default ShopButn

@@ -1,20 +1,7 @@
 import React from 'react'
 
 const BgImg = ({ children }) => {
-    return (
-        <div
-            style={{
-                backgroundImage: "url('/images/Darkbg.webp')",
-                backgroundSize: "cover",
-
-                backgroundRepeat: "no-repeat",
-                minHeight: "100vh",
-
-
-
-            }}
-        >{children}</div>
-    )
+  return <div className="min-h-screen bg-base-100">{children}</div>
 }
 
 export default BgImg

@@ -1,703 +1,927 @@
+/* Google Fonts - 3-Tier Typographic System */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 @import 'tailwindcss';
 @plugin "daisyui";
 
-/* Override daisyUI's default success/warning/error palette so every badge,
-   button and status pill in the admin dashboard (badge-success, btn-error,
-   text-warning, etc.) uses the exact green/amber/red used everywhere else in
-   the app, instead of daisyUI's default error shade, which renders as a pale
-   pink rather than a real red. */
 :root {
+  /* Color system */
   --color-success: #22c55e;
   --color-success-content: #ffffff;
   --color-warning: #f59e0b;
   --color-warning-content: #1a1608;
   --color-error: #e10600;
   --color-error-content: #ffffff;
+  --color-primary: #1a1a2e;
+  --color-primary-content: #ffffff;
+  --color-secondary: #f5f5f5;
+  --color-secondary-content: #1a1a2e;
+  --color-accent: #d4a574;
+  --color-accent-content: #ffffff;
+  --color-base-100: #ffffff;
+  --color-base-200: #f8f8f8;
+  --color-base-300: #e8e8e8;
+  --color-base-content: #1a1a2e;
+
+  /* Font families - 3-Tier Typographic System */
+  --font-display: 'Syne', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
-/* ===== CUSTOM STYLES ===== */
-
-/* Force our own colors on autofilled inputs -- browsers otherwise
-   override background/text color with a default gray/yellow highlight
-   that fights our design and can make text hard to read */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #14110d;
-  -webkit-box-shadow: 0 0 0px 1000px #faf8f4 inset;
-  transition: background-color 5000s ease-in-out 0s;
+/* Clean, simple base styles */
+* {
+  box-sizing: border-box;
 }
 
-/* Aggressive CSS class for fixed header padding */
-.navbar-padding {
-  padding-left: 40px !important;
-  padding-right: 40px !important;
+html {
+  scroll-behavior: smooth;
 }
 
-/* Standard CSS for the Backgrouund Images */
-.hero-background {
-  background-image: url('/images/FRONT PAGE.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+body {
+  font-family: var(--font-body);
+  background-color: #ffffff;
+  color: #1a1a2e;
+  line-height: 1.6;
 }
 
-.grid-section-1 {
-  background-image: url('/images/FITTED CAPS.webp');
-  background-size: cover;
-  background-position: center;
-}
-
-.grid-section-2 {
-  background-image: url('/images/A FRAMES.webp');
-  background-size: cover;
-  background-position: center;
-}
-
-.grid-section-3 {
-  background-image: url('/images/TRUCKER.webp');
-  background-size: cover;
-  background-position: center;
-}
-
-.grid-section-4 {
-  background-image: url('/images/MORE STUFF.webp');
-  background-size: cover;
-  background-position: center;
-}
-
-/* About Section Background */
-.about-background {
-  background-image: url('/images/about.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-/* Grid lines */
-.grid-border-right {
-  border-right: 2px solid black;
-}
-
-.grid-border-bottom {
-  border-bottom: 2px solid black;
-}
-
-/* Logo styling */
-.logo-img {
-  height: 45px !important;
-  width: auto;
-  transition: transform 0.3s ease;
-}
-
-.logo-img-large {
-  height: 200px !important;
-  width: auto;
-  transition: transform 0.3s ease;
-}
-
-.logo-img:hover {
-  transform: scale(1.05);
-}
-
-/* Button hover animations */
-.btn-hover {
-  transition: all 0.3s ease-in-out;
-  transform: translateY(0);
-}
-
-.btn-hover:hover {
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-/* Navigation link */
-.nav-link {
-  position: relative;
-  transition: color 0.3s ease;
-  font-size: 0.95rem !important;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.size-btn {
-  padding: 2px 6px;
-
-  border: 1px solid #000;
-  background-color: white;
-  color: black;
-  cursor: pointer;
-  border-radius: 4px;
-  transition:
-    background-color 0.2s,
-    color 0.2s;
-}
-
-.size-btn.selected {
-  border-width: 2px;
+/* 3-Tier Typography Utility Classes */
+.font-display {
+  font-family: var(--font-display);
   font-weight: 700;
 }
 
-/* Stock status dot (beside Buy Now, and on each size button): a colored
-   circle with a soft matching glow, gently pulsing to draw the eye. Colors
-   are fixed here rather than taken from the daisyUI theme, so green/yellow/red
-   stay consistent even if the theme changes. */
-.status-glow {
-  animation: statusGlowPulse 1.8s ease-in-out infinite;
+.font-display-bold {
+  font-family: var(--font-display);
+  font-weight: 800;
 }
 
-.status-glow.status-success {
-  background-color: #22c55e;
-  box-shadow: 0 0 6px 2px rgba(34, 197, 94, 0.65);
+.font-body {
+  font-family: var(--font-body);
 }
 
-.status-glow.status-warning {
-  background-color: #f59e0b;
-  box-shadow: 0 0 6px 2px rgba(245, 158, 11, 0.65);
+.font-body-medium {
+  font-family: var(--font-body);
+  font-weight: 500;
 }
 
-.status-glow.status-error {
-  background-color: #e10600;
-  box-shadow: 0 0 6px 2px rgba(225, 6, 0, 0.65);
+.font-body-semibold {
+  font-family: var(--font-body);
+  font-weight: 600;
 }
 
-@keyframes statusGlowPulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
+.font-body-bold {
+  font-family: var(--font-body);
+  font-weight: 700;
 }
 
-.nav-link:hover {
-  color: #00bfff;
+.font-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
-.nav-link::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: -4px;
-  left: 0;
-  background-color: #00bfff;
-  transition: width 0.3s ease;
+.font-mono-medium {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
-.nav-link:hover::after {
+.font-mono-semibold {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Heading styles using Display font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-base-content);
+}
+
+h1 { font-weight: 800; }
+h2, h3 { font-weight: 700; }
+h4, h5, h6 { font-weight: 600; }
+
+/* Remove autofill styling conflicts */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #1a1a2e;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Simple button styles */
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
+}
+
+.btn-primary:hover {
+  background-color: #2d2d4a;
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-content);
+}
+
+.btn-secondary:hover {
+  background-color: #e8e8e8;
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-accent-content);
+}
+
+.btn-accent:hover {
+  background-color: #c49564;
+}
+
+.btn-outline {
+  border: 1px solid var(--color-base-300);
+  background-color: transparent;
+  color: var(--color-base-content);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-base-200);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-ghost:hover {
+  background-color: var(--color-base-200);
+}
+
+/* Cart Sidebar - slides from right on mobile, floating on desktop */
+.cart-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
   width: 100%;
-}
-
-/* Clickable grid section */
-.clickable-section {
-  cursor: pointer;
-  transition: none;
-}
-
-/* FITTED CAPS heading hover effect */
-.float-heading {
-  transition: all 0.4s ease-in-out;
-  display: inline-block;
-  transform: translateY(0);
-  text-shadow: 0 0 0 rgba(255, 255, 255, 0);
-}
-
-.float-heading:hover {
-  transform: translateY(-10px) scale(1.05);
-  text-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
-  cursor: default;
-}
-
-/* Grid text floating effect */
-.grid-text {
-  transition: all 0.4s ease-in-out;
-  display: inline-block;
-  transform: translateY(0);
-}
-
-.clickable-section:hover .grid-text {
-  transform: translateY(-8px) scale(1.05);
-  text-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
-}
-
-/* Grid button floating effect */
-.grid-btn {
-  transition: all 0.4s ease-in-out;
-  display: inline-block;
-  transform: translateY(0);
-}
-
-.clickable-section:hover .grid-btn {
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* Divider sections */
-.section-divider {
-  width: 100%;
-  height: 60px;
-  background-image: url('/images/divider2.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border-top: 2px solid black;
-  border-bottom: 2px solid black;
-}
-
-.small-divider {
-  width: 100%;
-  height: 30px;
-  background-image: url('/images/divider.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border-top: 2px solid white;
-  border-bottom: 2px solid white;
-}
-
-/* Contact section */
-.contact-socials-section {
-  width: 100%;
-  min-height: 250px;
-  background-color: #1a1a1a;
-  background-image: url('/images/element.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  padding: 40px 60px;
+  max-width: 420px;
+  background: white;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  position: relative;
+  overflow-y: auto;
 }
 
-.contact-socials-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 1;
-  pointer-events: none;
+.cart-sidebar.open {
+  transform: translateX(0);
 }
 
-.contact-socials-section .container {
-  position: relative;
-  z-index: 2;
-}
-
-.contact-title {
-  color: white;
-  font-family: 'Anton', sans-serif;
-  font-size: 1.8rem;
-  letter-spacing: 2px;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.contact-info {
-  color: #ffffff;
-  font-size: 1.2rem;
-  line-height: 1.8;
-  margin-bottom: 10px;
-  transition: color 0.3s ease;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.contact-info:hover {
-  color: #00bfff;
-}
-
-.social-icons {
-  display: flex;
-  gap: 25px;
-  margin-top: 15px;
-}
-
-.social-icon {
-  color: #ffffff;
+.cart-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
   transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
 }
 
-.social-icon:hover {
-  color: #00bfff;
-  transform: translateY(-5px) scale(1.1);
-}
-
-.social-icon svg {
-  width: 32px;
-  height: 32px;
-}
-
-.content-divider {
-  width: 2px;
-  height: 120px;
-  background-color: rgba(255, 255, 255, 0.3);
-  margin: 0 50px;
-}
-
-/* About section text styling */
-.about-title {
-  font-size: 5rem;
-  line-height: 1.1;
-  letter-spacing: 2px;
-  color: black;
+.cart-sidebar-overlay.open {
+  opacity: 1;
+  visibility: visible;
 }
 
 @media (min-width: 768px) {
-  .about-title {
-    font-size: 8rem;
+  .cart-sidebar {
+    position: fixed;
+    top: 5rem;
+    right: 1.5rem;
+    height: calc(100vh - 6rem);
+    max-height: calc(100vh - 6rem);
+    border-radius: 1rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--color-base-300);
   }
 }
 
-.about-text {
-  color: black;
-}
-
-.hero-short {
-  height: 85vh;
-  min-height: 600px;
-}
-
-/* Dissolve effect */
-.dissolve-section {
-  opacity: 0;
-  animation: dissolveIn 0.8s ease-out forwards;
-}
-
-@keyframes dissolveIn {
-  0% {
-    opacity: 0;
-    filter: blur(3px);
-  }
-
-  50% {
-    opacity: 0.7;
-    filter: blur(1px);
-  }
-
-  100% {
-    opacity: 1;
-    filter: blur(0);
-  }
-}
-
-/* Cart Popup Styles */
-.cart-popup-overlay {
+/* Admin Sidebar - collapsible on mobile */
+.admin-sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-}
-
-.cart-popup {
-  background-color: white;
-  border-radius: 24px;
-  width: 90%;
-  max-width: 560px;
-  max-height: 90vh;
+  height: 100vh;
+  width: 260px;
+  background: white;
+  border-right: 1px solid var(--color-base-300);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
   overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  animation: slideUp 0.3s ease-out;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
+.admin-sidebar.open {
+  transform: translateX(0);
+}
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.admin-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.admin-sidebar-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (min-width: 1024px) {
+  .admin-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transform: translateX(0);
+    z-index: 50;
+  }
+  
+  .admin-sidebar-overlay {
+    display: none;
+  }
+  
+  .admin-main {
+    margin-left: 260px;
   }
 }
 
-.cart-item {
+/* Simple card styles */
+.card {
+  background: white;
+  border: 1px solid var(--color-base-300);
+  border-radius: 0.75rem;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-base-200);
+}
+
+/* Product grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Simple form styles */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-base-300);
+  border-radius: 0.5rem;
+  background: white;
+  color: var(--color-base-content);
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.1);
+}
+
+.input::placeholder {
+  color: var(--color-base-300);
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-base-content);
+  margin-bottom: 0.5rem;
+}
+
+/* Simple badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--color-success);
+}
+
+.badge-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
+}
+
+.badge-error {
+  background-color: rgba(225, 6, 0, 0.1);
+  color: var(--color-error);
+}
+
+.badge-info {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+/* Simple table styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-base-200);
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-base-content);
+  opacity: 0.7;
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-base-100);
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Section spacing */
+.section {
+  padding: 3rem 0;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: 5rem 0;
+  }
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-base-content);
+}
+
+.text-muted {
+  color: var(--color-base-content);
+  opacity: 0.6;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background-color: var(--color-base-300);
+  border: none;
+  margin: 2rem 0;
+}
+
+/* Loading states */
+.loading-skeleton {
+  background: linear-gradient(90deg, var(--color-base-200) 25%, var(--color-base-300) 50%, var(--color-base-200) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Skip link for accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  z-index: 10000;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Mobile menu */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  max-width: 320px;
+  background: white;
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  overflow-y: auto;
+  padding: 1.5rem;
+  padding-top: 5rem;
+}
+
+.mobile-menu.open {
+  transform: translateX(0);
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Toast notifications */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.toast {
+  background: white;
+  border: 1px solid var(--color-base-300);
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
+  gap: 0.75rem;
+  min-width: 280px;
+  max-width: 400px;
+  animation: slideInRight 0.3s ease;
 }
 
-.cart-count-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background-color: #00bfff;
-  color: white;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 11px;
+.toast.success {
+  border-left: 4px solid var(--color-success);
+}
+
+.toast.error {
+  border-left: 4px solid var(--color-error);
+}
+
+.toast.warning {
+  border-left: 4px solid var(--color-warning);
+}
+
+.toast.info {
+  border-left: 4px solid var(--color-accent);
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* AR Try-on modal */
+.ar-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
 }
 
-.ai-assist-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 50px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: inline-block;
+.ar-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
 }
 
-.ai-assist-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+.ar-modal-content {
+  position: relative;
+  background: white;
+  border-radius: 1rem;
+  max-width: 100%;
+  max-height: 90vh;
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
 }
 
-/* Profile icon styling */
-.profile-icon {
-  transition: all 0.3s ease;
-  color: #000000;
+/* Image aspect ratios */
+.aspect-square {
+  aspect-ratio: 1;
 }
 
-.profile-icon:hover {
-  color: #00bfff;
-  transform: scale(1.1);
+.aspect-4-5 {
+  aspect-ratio: 4 / 5;
 }
 
-.icon-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.aspect-3-4 {
+  aspect-ratio: 3 / 4;
 }
 
-/* Hidden class for login toggle */
-/* .hidden {
-  display: none !important;
-} */
-
-/* Login button styling */
-.login-btn {
-  transition: all 0.3s ease;
+/* Smooth transitions */
+.transition-all-200 {
+  transition: all 0.2s ease;
 }
 
-.login-btn:hover {
-  background-color: #1f2937;
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-/* Notification styling */
-.notification {
-  position: fixed;
-  top: 100px;
-  right: 20px;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  animation: slideIn 0.3s ease-out;
-  font-weight: 500;
+::-webkit-scrollbar-track {
+  background: var(--color-base-100);
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
+::-webkit-scrollbar-thumb {
+  background: var(--color-base-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-base-content);
+  opacity: 0.5;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
   }
-
-  to {
-    transform: translateX(0);
-    opacity: 1;
+  
+  .cart-sidebar,
+  .admin-sidebar,
+  .mobile-menu,
+  header,
+  footer {
+    display: none !important;
   }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-
-  to {
-    transform: translateX(100%);
-    opacity: 0;
+  
+  .admin-main {
+    margin-left: 0 !important;
   }
 }
 
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+/* ===== BUTTON HOVER EFFECT VARIANTS ===== */
+
+/* 1. Lift - Subtle elevation (Default professional) */
+.btn-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
-.animate-marquee {
-  animation: marquee 45s linear infinite;
-  width: max-content;
+.btn-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-.admin-content h1,
-.admin-content h2,
-.admin-content h3,
-.admin-content p,
-.admin-content label,
-.admin-content th,
-.admin-content td,
-.admin-content span,
-.admin-content input,
-.admin-content select,
-.admin-content option,
-.admin-content button {
-  color: #14110d !important;
-  opacity: 1 !important;
+/* 2. Scale - Playful pop */
+.btn-scale {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-scale:hover {
+  transform: scale(1.03);
 }
 
-.admin-content input::placeholder {
-  color: #8a8477 !important;
+/* 3. Glow - Accent focus */
+.btn-glow {
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.btn-glow:hover {
+  box-shadow: 0 0 24px rgba(var(--color-primary-rgb), 0.4), 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.admin-content select {
-  background-color: #ffffff !important;
+/* 4. Shimmer Sweep - Modern premium */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.2s ease;
+}
+.btn-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+.btn-shimmer:hover::before {
+  transform: translateX(100%);
 }
 
-.admin-content input.admin-search-input {
-  color: unset !important;
+/* 5. Border Slide - Outline buttons */
+.btn-border-slide {
+  position: relative;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.btn-border-slide::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  transition: width 0.3s ease, left 0.3s ease;
+}
+.btn-border-slide:hover::after {
+  width: 100%;
+  left: 0;
 }
 
-.admin-content label.admin-search-box {
-  background-color: transparent !important;
-  border-color: #000000 !important;
-  box-shadow: none !important;
+/* 6. Color Fill - Ghost to solid */
+.btn-fill {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.btn-fill:hover {
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
+  border-color: var(--color-primary);
 }
 
-/* Admin buttons: light surfaces with a soft cyan hover/press. Nothing turns black.
-   (daisyUI fills outline buttons with near-black on hover, and the rule above
-   forces dark text on every button, so filled neutral buttons became unreadable.) */
-.admin-content .btn {
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
+/* 7. Magnetic - Subtle follow (works with JS) */
+.btn-magnetic {
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* Outline buttons */
-.admin-content .btn.btn-outline,
-.admin-content .btn-outline-black {
-  background-color: #ffffff !important;
-  border-color: #d9d9d4 !important;
-  color: #14110d !important;
+/* 8. Pulse - Attention grabber */
+@keyframes btn-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb), 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(var(--color-primary-rgb), 0); }
+}
+.btn-pulse {
+  animation: btn-pulse 2s infinite;
+}
+.btn-pulse:hover {
+  animation: none;
+  box-shadow: 0 0 24px rgba(var(--color-primary-rgb), 0.5);
 }
 
-.admin-content .btn.btn-outline:hover,
-.admin-content .btn-outline-black:hover {
-  background-color: #eaf9fe !important;
-  border-color: #00bfff !important;
-  color: #0090bd !important;
+/* 9. Press - Tactile feedback */
+.btn-press:active {
+  transform: scale(0.98);
 }
 
-.admin-content .btn.btn-outline:active,
-.admin-content .btn-outline-black:active {
-  background-color: #cfeffa !important;
-  border-color: #00bfff !important;
-  color: #0090bd !important;
+/* ===== COMBINED EFFECTS ===== */
+
+/* Lift + Shimmer (Premium CTA) */
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-premium::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+.btn-premium:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+.btn-premium:hover::before {
+  transform: translateX(100%);
 }
 
-/* Selected / primary buttons (active tab, Save, Mark collected, ...) */
-.admin-content .btn-neutral:not(.btn-outline),
-.admin-content .btn-primary:not(.btn-outline),
-.admin-content .btn-accent:not(.btn-outline) {
-  background-color: #00bfff !important;
-  border-color: #00bfff !important;
-  color: #083344 !important;
+/* Scale + Glow (Playful accent) */
+.btn-pop {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-pop:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 20px rgba(var(--color-accent-rgb), 0.5);
 }
 
-.admin-content .btn-neutral:not(.btn-outline):hover,
-.admin-content .btn-primary:not(.btn-outline):hover,
-.admin-content .btn-accent:not(.btn-outline):hover {
-  background-color: #33ccff !important;
-  border-color: #33ccff !important;
+/* ===== RESPONSIVE SIZES ===== */
+.btn-sm { @apply px-3 py-1.5 text-xs md:px-4 md:py-2 md:text-sm; }
+.btn-md { @apply px-4 py-2 text-sm md:px-5 md:py-2.5 md:text-base; }
+.btn-lg { @apply px-6 py-3 text-base md:px-8 md:py-3 md:text-lg; }
+.btn-xl { @apply px-8 py-4 text-lg md:px-10 md:py-4 md:text-xl; }
+.btn-fluid { @apply w-full md:w-auto; }
+
+/* Touch-friendly minimum */
+@media (pointer: coarse) {
+  .btn { @apply min-h-[44px] min-w-[44px]; }
 }
 
-.admin-content .btn-neutral:not(.btn-outline):active,
-.admin-content .btn-primary:not(.btn-outline):active,
-.admin-content .btn-accent:not(.btn-outline):active {
-  background-color: #00a8e0 !important;
-  border-color: #00a8e0 !important;
+/* ===== BUTTON VARIANTS (Design System) ===== */
+
+/* Primary - Main CTA */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
+  border: none;
+}
+.btn-primary:hover {
+  background-color: #2d2d4a;
 }
 
-/* Ghost buttons (Edit, Delete, Cancel, close) */
-.admin-content .btn-ghost:hover,
-.admin-content .btn-ghost:active {
-  background-color: #f1f1ee !important;
-  border-color: transparent !important;
+/* Secondary - Alternative actions */
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-content);
+  border: none;
+}
+.btn-secondary:hover {
+  background-color: #e8e8e8;
 }
 
-/* Shared filter/tab row (FilterTabs.jsx) used by every admin page's status
-   or category tabs. An inactive tab gets the same cyan-tinted hover as every
-   other outline control in this dashboard -- :not(.is-active) so hovering
-   the already-selected tab doesn't fight its own status color. */
-.admin-filter-tab:hover:not(.is-active) {
-  background-color: #eaf9fe !important;
-  border-color: #00bfff !important;
-  color: #0090bd !important;
+/* Accent - Special highlights */
+.btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-accent-content);
+  border: none;
+}
+.btn-accent:hover {
+  background-color: #c49564;
 }
 
-/* Loading spinner (try-on camera, route transitions) */
-.try-on-spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid rgba(255, 255, 255, 0.15);
-  border-top-color: #9ce1f0;
+/* Outline - Subtle actions */
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-base-content);
+  border: 1px solid var(--color-base-300);
+}
+.btn-outline:hover {
+  background-color: var(--color-base-200);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Ghost - Minimal actions */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-base-content);
+  border: none;
+}
+.btn-ghost:hover {
+  background-color: var(--color-base-200);
+}
+
+/* Link - Text-only actions */
+.btn-link {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.btn-link:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* Destructive - Dangerous actions */
+.btn-destructive {
+  background-color: var(--color-error);
+  color: var(--color-error-content);
+  border: none;
+}
+.btn-destructive:hover {
+  background-color: #c00500;
+}
+
+/* Success - Positive actions */
+.btn-success {
+  background-color: var(--color-success);
+  color: var(--color-success-content);
+  border: none;
+}
+.btn-success:hover {
+  background-color: #16a34a;
+}
+
+/* Warning - Caution actions */
+.btn-warning {
+  background-color: var(--color-warning);
+  color: var(--color-warning-content);
+  border: none;
+}
+.btn-warning:hover {
+  background-color: #d97706;
+}
+
+/* ===== LOADING STATES ===== */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  top: 50%;
+  left: 50%;
+  margin: -0.5em 0 0 -0.5em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 0.6s linear infinite;
 }
-
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
+/* ===== ICON POSITIONING ===== */
+.btn-icon-left { @apply flex items-center gap-2; }
+.btn-icon-right { @apply flex items-center gap-2; }
+.btn-icon-only { @apply p-2.5 md:p-3 aspect-square; }
 
-  to {
-    opacity: 1;
-  }
-}
-
-.page-fade-in {
-  animation: fadeIn 0.25s ease-out;
-}
-
-/* Cap Finder chatbot: drifting cap icons in the background, combined with a
-   live cursor-parallax offset (--px/--py, set inline per-cap from JS) so both
-   effects compose in the same transform instead of overriding each other. */
-@keyframes capFloat {
-  0%,
-  100% {
-    transform: translate(var(--px, 0px), var(--py, 0px)) translateY(0) rotate(var(--rotate, 0deg));
-  }
-
-  50% {
-    transform: translate(var(--px, 0px), var(--py, 0px)) translateY(-18px)
-      rotate(calc(var(--rotate, 0deg) + 10deg));
-  }
+/* ===== DISABLED STATE ===== */
+.btn:disabled,
+.btn[disabled] {
+  @apply opacity-40 cursor-not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }

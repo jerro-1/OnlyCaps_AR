@@ -1,0 +1,10 @@
+feat: modern UI redesign with clean e-commerce design
+
+- Complete UI overhaul: dark/black theme to clean light theme
+- 3-tier typography: Syne (display), Plus Jakarta Sans (body), JetBrains Mono (data)
+- New components: CartSidebar, ProductDetail, ButtonPlayground
+- Updated: Header (active states), Home (hero), CategoryShop (modal scroll fix), AdminReports (date presets + calendar icons), AdminLayout (collapsible sidebar)
+- Button system: 9 hover effects, 9 variants, 5 sizes, states
+- Removed all background images, dark colors
+- Fixed: CORS, payment checkout, product loading, quick view scroll
+- AR model files added (BLUELA_AFrame, DeepBlue_FittedCap, Pink_FittedCap)

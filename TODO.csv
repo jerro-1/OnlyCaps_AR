@@ -1,0 +1,29 @@
+ID,Category,Task,Status,Owner,Priority,Notes,Verified
+1,BE,"Deploy weekly-backup function, schedule it, run once",Not Started,BE,High,"No backup function or scheduled job exists yet. See Supabase Cron or pg_cron.",No
+2,ACCT,"Register PayMongo webhook + add PAYMONGO_WEBHOOK_SECRET",Not Started,ACCT,High,"Required for GCash/card order confirmation. Webhook URL: https://<project>.supabase.co/functions/v1/paymongo-webhook",No
+3,ACCT,"Turn on leaked-password protection in Supabase Auth",Not Started,ACCT,Medium,"Supabase Dashboard → Authentication → Settings → Check for leaked passwords",No
+4,ACCT,"Create a regular customer account (all 4 current profiles are admins)",Not Started,ACCT,High,"Needed for survey testing and customer-flow verification.",No
+5,ACCT,"Deploy site to Vercel/Netlify + set env vars",Not Started,ACCT,High,"Current Vercel account only has EventHub project.",No
+6,FE,"Chatbot UI wired to recommend_caps",Not Started,FE,Medium,"No chatbot-related DB tables; likely client-only or not built.",No
+7,FE,"AR fixes: head-tilt tracking, photo-upload fallback, no face detected state, size chart (S/M/L/XL), estimate disclaimer, logging to size_estimates",Not Started,FE,High,"Core AR functionality; verify size_estimates table exists.",No
+8,FE,"Admin reports page with PDF export and print",Not Started,FE,Medium,"PDF generation (jspdf/pdfmake) + print styles.",No
+9,FE,"Admin orders: courier & tracking inputs + tracking link on customer Orders page",Not Started,FE,Medium,"courier_name, tracking_number columns exist on orders.",No
+10,FE,"Admin inventory page: add/edit/delete + low-stock flag",Not Started,FE,Medium,"Stock deduction logic is live; UI needed.",No
+11,FE,"Back up now button",Not Started,FE,Low,"Calls the weekly-backup function (once #1 is done).",No
+12,FE/TEST,"Check guests can browse without logging in",Not Started,FE/TEST,Low,"Verified at DB level (public read on products); confirm UI allows it.",No
+13,FE,"Mobile and UI polish on all customer pages",Not Started,FE,Medium,"Responsive, touch targets, load states, error handling.",No
+14,TEST,"One sandbox GCash payment: order confirmed, stock drops, payment_events row",Not Started,TEST,Critical,"Stock deduction is live. Need to verify webhook flips order to confirmed and creates payment_events row.",No
+15,TEST,"Register verify email login MFA end to end",Not Started,TEST,High,,No
+16,TEST,"AR on Android Chrome and iOS Safari",Not Started,TEST,High,"Head tracking, photo fallback, size estimate, logging.",No
+17,TEST,"Customer-vs-admin security check",Not Started,TEST,High,"RLS policies in place; verify no privilege escalation.",No
+18,DOC,"Update ERD: no Shipment table; tracking on orders. Add payments, payment_events, size_estimates, backup_log",Not Started,DOC,High,"Current ERD outdated. Use dbdiagram.io, Mermaid, or draw.io.",No
+19,DOC,"Update DFD & architecture diagrams; get adviser sign-off (panel #26)",Not Started,DOC,High,"Reflect Supabase, PayMongo, Vercel, AR, chatbot.",No
+20,DOC,"Run survey with 30 respondents; tabulate results",Not Started,DOC,High,"Design survey (Google Forms/Typeform), collect, analyze.",No
+21,DOC,"Write Chapters 4 & 5; proofread",Not Started,DOC,High,"Chapter 4 = Results, Chapter 5 = Discussion/Conclusion.",No
+22,DOC,"Build defense deck; rehearse; print sample reports",Not Started,DOC,High,"Slides + demo script + printed artifacts.",No
+21b,VERIFIED,"GCash & credit card via PayMongo hosted checkout",Done,VERIFIED,Critical,"Real paid orders exist; server-side pricing; secrets safe",Yes
+20b,VERIFIED,"Courier/tracking columns on orders",Done,VERIFIED,High,"courier_name, tracking_number exist; one order has tracking",Yes
+23,VERIFIED,"Browse without login",Done,VERIFIED,Medium,"Products publicly readable at DB level",Yes
+24,VERIFIED,"Cloud (Supabase, Postgres 17, Tokyo)",Done,VERIFIED,Medium,"Document in manuscript",Yes
+,VERIFIED,"RLS: customers see own orders; admins edit products/orders; trigger blocks self-promotion",Done,VERIFIED,Critical,,Yes
+,VERIFIED,"Stock deduction on paid orders",Done,VERIFIED,Critical,"Live & tested: per-size + total sync; COD reserves on confirm/ship/deliver; cancel/refund restores; stock_deducted flag prevents double-count; legacy orders untouched; floor at 0",Yes

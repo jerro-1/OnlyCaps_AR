@@ -15,23 +15,47 @@ export default function CategoryPreview({ category, title, viewAllLink }) {
 
   if (products.length === 0) return null;
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      minimumFractionDigits: 2,
+    }).format(price);
+  };
+
   return (
-    <section className="py-14 bg-black">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="font-heading text-2xl md:text-3xl uppercase tracking-wide text-white">{title}</h2>
-          <Link to={viewAllLink} className="font-body text-sm text-[#A9824C] hover:underline">
-            View all →
+    <section className="section">
+      <div className="container">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-base-content">{title}</h2>
+          <Link to={viewAllLink} className="btn btn-ghost mt-4 md:mt-0">
+            View All
+            <svg className="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div className="product-grid">
           {products.map(p => (
-            <Link key={p.id} to={viewAllLink} className="block group">
-              <div className="bg-white rounded-xl overflow-hidden">
-                <img src={p.image} alt={p.name} loading="lazy" decoding="async" className="w-full h-48 object-cover group-hover:scale-105 transition duration-300" />
+            <Link key={p.id} to={`/product/${p.product_id ?? p.id}`} className="card overflow-hidden block h-full">
+              <div className="relative aspect-square bg-base-100 overflow-hidden">
+                <img 
+                  src={p.image} 
+                  alt={p.name} 
+                  loading="lazy" 
+                  decoding="async" 
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+                {p.category && (
+                  <span className="absolute top-3 left-3 badge badge-info text-xs">
+                    {p.category.charAt(0).toUpperCase() + p.category.slice(1)}
+                  </span>
+                )}
               </div>
-              <p className="font-body text-sm text-white mt-2 truncate">{p.name}</p>
-              <p className="font-body text-sm text-[#A9824C]">₱{p.price}</p>
+              <div className="p-4">
+                <p className="font-medium text-base-content line-clamp-1 mb-1">{p.name}</p>
+                <p className="text-lg font-bold text-base-content">{formatPrice(p.price)}</p>
+              </div>
             </Link>
           ))}
         </div>

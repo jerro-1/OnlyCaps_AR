@@ -6,19 +6,14 @@ import {
   HiOutlineChartBar, HiOutlineCube, HiOutlineArchive,
   HiOutlineUsers, HiOutlineClipboardList, HiOutlineCreditCard,
   HiOutlineDocumentReport, HiOutlineLogout, HiOutlineArrowLeft,
+  HiOutlineMenu
 } from 'react-icons/hi';
-
-const INK = '#16181D';
-const MUTED = '#6B6B66';
-const ACCENT = '#00BFFF';
-const ACCENT_TINT = '#EAF9FE';
-const BORDER = '#EBEBE8';
-const CANVAS = '#FAFAF8';
 
 export default function AdminLayout({ children }) {
   const session = useContext(SessionContext);
   const [checkingRole, setCheckingRole] = useState(true);
   const [profile, setProfile] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -41,8 +36,8 @@ export default function AdminLayout({ children }) {
 
   if (checkingRole) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: CANVAS }}>
-        <p className="text-sm" style={{ color: MUTED }}>Checking access...</p>
+      <div className="min-h-screen flex items-center justify-center bg-base-100">
+        <div className="loading-skeleton h-8 w-32" />
       </div>
     );
   }
@@ -52,9 +47,9 @@ export default function AdminLayout({ children }) {
   const displayName = profile.firstname || 'Admin';
 
   const navItems = [
-    { to: '/admin', label: 'Data Analytics', icon: HiOutlineChartBar },
-    { to: '/admin/products', label: 'Product Management', icon: HiOutlineCube },
-    { to: '/admin/inventory', label: 'Inventory Management', icon: HiOutlineArchive },
+    { to: '/admin', label: 'Dashboard', icon: HiOutlineChartBar },
+    { to: '/admin/products', label: 'Products', icon: HiOutlineCube },
+    { to: '/admin/inventory', label: 'Inventory', icon: HiOutlineArchive },
     { to: '/admin/customers', label: 'Customers', icon: HiOutlineUsers },
     { to: '/admin/orders', label: 'Orders', icon: HiOutlineClipboardList },
     { to: '/admin/payments', label: 'Payments', icon: HiOutlineCreditCard },
@@ -62,30 +57,46 @@ export default function AdminLayout({ children }) {
   ];
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: CANVAS }}>
-      {/* Sidebar -- light, not dark */}
-      <aside className="w-64 flex-shrink-0 flex flex-col bg-white border-r" style={{ borderColor: BORDER }}>
-        <div className="px-5 pt-5 flex justify-center border-b" style={{ borderColor: BORDER }}>
-          <Link to="/">
+    <div className="flex min-h-screen bg-base-100">
+      {/* Mobile Sidebar Overlay */}
+      <div
+        className={`admin-sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Sidebar */}
+      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`} role="navigation" aria-label="Admin navigation">
+        <div className="flex items-center justify-between p-4 border-b border-base-300">
+          <Link to="/" className="flex items-center" aria-label="OnlyCaps Home">
             <img
               src="/images/LOGO.webp"
-              alt="ONLYCaps"
-              className="h-16"
+              alt="OnlyCaps"
+              className="h-10 w-auto"
               onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
             />
-            <span className="font-heading text-lg tracking-wider hidden" style={{ color: INK }}>ONLYCAPS</span>
           </Link>
-        </div>
-        <div className="px-5 py-6 flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0"
-            style={{ backgroundColor: ACCENT_TINT, color: ACCENT === '#00BFFF' ? '#0090BD' : ACCENT }}
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden p-2 text-base-content/60 hover:text-base-content hover:bg-base-200 rounded-lg transition-colors"
+            aria-label="Close sidebar"
           >
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs" style={{ color: MUTED }}>Signed in as</p>
-            <p className="text-sm font-medium truncate" style={{ color: INK }}>{displayName}</p>
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="p-4 border-b border-base-300">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 bg-primary/10 text-primary">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-base-content/50">Signed in as</p>
+              <p className="text-sm font-medium truncate text-base-content">{displayName}</p>
+            </div>
           </div>
         </div>
 
@@ -96,11 +107,11 @@ export default function AdminLayout({ children }) {
               <Link
                 key={to}
                 to={to}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                style={active
-                  ? { backgroundColor: ACCENT_TINT, color: '#0090BD' }
-                  : { color: MUTED }
-                }
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  active
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-base-content/70 hover:bg-base-200 hover:text-base-content'
+                }`}
               >
                 <Icon size={17} />
                 {label}
@@ -109,34 +120,56 @@ export default function AdminLayout({ children }) {
           })}
         </nav>
 
-        <div className="px-3 py-4 border-t space-y-0.5" style={{ borderColor: BORDER }}>
-          <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors" style={{ color: MUTED }}>
+        <div className="px-3 py-4 border-t border-base-300 space-y-0.5">
+          <Link
+            to="/"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-base-200 transition-colors text-base-content/70"
+          >
             <HiOutlineArrowLeft size={17} />
-            Back to site
+            Back to Site
           </Link>
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-red-50 hover:text-red-600 transition-colors text-left"
-            style={{ color: MUTED }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-error/10 hover:text-error transition-colors text-base-content/70 text-left"
           >
             <HiOutlineLogout size={17} />
-            Sign out
+            Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b flex items-center justify-between px-8 flex-shrink-0" style={{ borderColor: BORDER }}>
-          <p className="text-sm font-medium" style={{ color: MUTED }}>Admin</p>
+        {/* Mobile Header with Menu Button */}
+        <header className="md:hidden h-16 bg-white border-b border-base-300 flex items-center justify-between px-4 flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 text-base-content hover:text-primary hover:bg-base-200 rounded-lg transition-colors"
+            aria-label="Open menu"
+            aria-expanded={sidebarOpen}
+            aria-controls="admin-sidebar"
+          >
+            <HiOutlineMenu className="h-6 w-6" />
+          </button>
+          <span className="text-sm font-medium text-base-content">Admin</span>
+          <div className="w-10" />
+        </header>
+
+        {/* Desktop Header */}
+        <header className="hidden md:flex h-16 bg-white border-b border-base-300 flex items-center justify-between px-6 flex-shrink-0">
+          <span className="text-sm font-medium text-base-content/60">Admin Dashboard</span>
           <input
             placeholder="Search..."
-            className="border rounded-lg px-3.5 py-1.5 text-sm w-56 focus:outline-none focus:ring-2"
-            style={{ borderColor: BORDER, '--tw-ring-color': ACCENT }}
+            className="input w-64"
+            type="search"
+            aria-label="Search"
           />
         </header>
 
-        <main className="admin-content flex-1 p-8 overflow-y-auto">{children}</main>
+        <main className="admin-main flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+          {children}
+        </main>
       </div>
     </div>
   );

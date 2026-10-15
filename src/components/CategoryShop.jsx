@@ -4,7 +4,6 @@ import { useCart } from '../context/CartContext';
 import { SessionContext } from '../context/SessionContext';
 import ProductCard from './ProductCard';
 import Header from './Header';
-import BgImg2 from './BgImg2';
 import SignInPromptModal from './SignInPromptModal';
 import SizeGuideCard from './SizeGuideCard';
 import { loadFaceTracker, preloadFaceTracker } from '../utils/faceTrackerPreload';
@@ -18,7 +17,6 @@ const AITryOnModal = lazy(() => import('./AITryOnModal'));
 const SIZES = CAP_SIZES;
 const LOW_STOCK = 5;
 
-// Rows without per-size stock fall back to the overall stock count
 const getSizeStock = (product, size) => {
   const hasSizeData = Object.keys(product.sizes_stock || {}).length > 0;
   return hasSizeData ? (product.sizes_stock[size] ?? 0) : (product.stock_quantity ?? 0);
@@ -34,9 +32,6 @@ const getOverallStock = product => {
 const stockLevel = qty => (qty <= 0 ? 'error' : qty <= LOW_STOCK ? 'warning' : 'success');
 const stockLabel = { success: 'In stock', warning: 'Low stock', error: 'Out of stock' };
 
-// The one shared shopping page (grid + quick-view modal) behind Fitted Caps,
-// A-Frames, Trucker and More Stuff -- so the four category pages look and
-// behave identically and only need to change in one place going forward.
 const DEFAULT_FEATURES = [
   'Authentic licensed cap',
   'Official merchandise',
@@ -47,7 +42,7 @@ const DEFAULT_FEATURES = [
 export default function CategoryShop({
   category,
   heading,
-  bgImage,
+  bgImage, // kept for prop compatibility but not used
   emptyText,
   sizeGuideLink = false,
   oneSize = false,
@@ -55,7 +50,7 @@ export default function CategoryShop({
 }) {
   const { addToCart } = useCart();
   const session = useContext(SessionContext);
-  const [visible, setVisible] = useState(6);
+  const [visible, setVisible] = useState(12);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
@@ -68,7 +63,6 @@ export default function CategoryShop({
   const [currentAITryOnProduct, setCurrentAITryOnProduct] = useState(null);
   const [currentModelFile, setCurrentModelFile] = useState(null);
   const [currentProduct, setCurrentProduct] = useState(null);
-  const [currentd, setCurrentd] = useState(null);
   const [arProduct, setArProduct] = useState(null);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [descOpen, setDescOpen] = useState(true);
@@ -82,7 +76,7 @@ export default function CategoryShop({
 
   const hasMore = visible < filteredProducts.length;
   const loadMore = useCallback(
-    () => setVisible(v => Math.min(v + 3, filteredProducts.length)),
+    () => setVisible(v => Math.min(v + 6, filteredProducts.length)),
     [filteredProducts.length],
   );
   const sentinelRef = useInfiniteScroll(loadMore, hasMore);
@@ -106,10 +100,8 @@ export default function CategoryShop({
     };
   }, [category, session]);
 
-  // Reset "visible" count whenever the size filter changes, so you don't
-  // land on a filtered view stuck at whatever pagination position you were on
   useEffect(() => {
-    setVisible(6);
+    setVisible(12);
   }, [sizeFilter]);
 
   const openModal = product => {
@@ -125,9 +117,6 @@ export default function CategoryShop({
     document.body.style.overflow = 'auto';
   };
 
-  // Stock behind Buy Now: the selected size once one is picked, otherwise the
-  // product's overall stock across all sizes. One-size products have no size
-  // to pick, so they always show their overall stock.
   const activeStockQty = modal
     ? !oneSize && selectedSize
       ? getSizeStock(modal, selectedSize)
@@ -184,374 +173,354 @@ export default function CategoryShop({
     });
   };
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      minimumFractionDigits: 2,
+    }).format(price);
+  };
+
   return (
     <>
-      <BgImg2 image={bgImage}>
-        <Header />
-        <div className="font-body">
-          <section className="pt-28 pb-12 mt-16">
-            <div className="container mx-auto px-4">
-              <h1 className="text-5xl md:text-6xl font-heading mb-6 text-center tracking-wide uppercase text-white">
-                {heading}
-              </h1>
-
+      <Header />
+      <main className="flex-1">
+        <section className="section bg-base-100">
+          <div className="container">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-base-content tracking-tight">
+                  {heading}
+                </h1>
+                {sizeFilter && (
+                  <p className="text-base-content/60 mt-1">
+                    Filtering by size: <strong>{sizeFilter}</strong>
+                  </p>
+                )}
+              </div>
               {sizeFilter && (
-                <div className="flex justify-center items-center gap-3 mb-8 flex-wrap">
-                  <Link
-                    to="/sizing"
-                    className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-2 rounded-full transition-colors"
-                  >
-                    <svg
-                      className="w-4 h-4 shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-                      />
-                    </svg>
-                    Back to size guide
-                  </Link>
-                  <div className="flex items-center gap-2 bg-white/10 text-white text-sm px-4 py-2 rounded-full">
-                    <span>
-                      Filtering by size: <strong>{sizeFilter}</strong>
-                    </span>
-                    <Link
-                      to={`/${category === 'fitted' ? 'fitted-caps' : category}`}
-                      className="text-[#00BFFF] hover:underline ml-2"
-                    >
-                      Clear
-                    </Link>
-                  </div>
-                </div>
-              )}
-
-              {loading ? (
-                <p className="text-white text-center opacity-70">Loading...</p>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredProducts.slice(0, visible).map(product => (
-                      <ProductCard key={product.id} product={product} onClick={openModal} />
-                    ))}
-                  </div>
-
-                  {filteredProducts.length === 0 && (
-                    <p className="text-white text-center opacity-70 mt-8">
-                      {sizeFilter ? 'No caps found in this size right now.' : emptyText}
-                    </p>
-                  )}
-
-                  {/* Scrolling near here loads the next batch automatically -- see useInfiniteScroll */}
-                  <div ref={sentinelRef} className="text-center mt-12 h-4">
-                    {hasMore ? (
-                      <div className="try-on-spinner mx-auto" />
-                    ) : filteredProducts.length > 0 ? (
-                      <p className="text-white text-sm opacity-70">All products loaded</p>
-                    ) : null}
-                  </div>
-                </>
+                <Link
+                  to={`/${category === 'fitted' ? 'fitted-caps' : category}`}
+                  className="btn btn-ghost text-sm"
+                >
+                  <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                  </svg>
+                  Clear Filter
+                </Link>
               )}
             </div>
-          </section>
 
-          {/* Product Modal */}
-          {modal && (
-            <div
-              className="fixed inset-0 bg-black/70 z-60 flex items-center justify-center p-4"
+            {loading ? (
+              <div className="product-grid">
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} className="card overflow-hidden">
+                    <div className="aspect-square loading-skeleton" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 w-3/4 loading-skeleton" />
+                      <div className="h-4 w-1/2 loading-skeleton" />
+                      <div className="h-5 w-24 loading-skeleton" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="product-grid">
+                  {filteredProducts.slice(0, visible).map(product => (
+                    <ProductCard key={product.id} product={product} onClick={openModal} />
+                  ))}
+                </div>
+
+                {filteredProducts.length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-base-content/60">
+                      {sizeFilter ? 'No caps found in this size right now.' : emptyText}
+                    </p>
+                  </div>
+                )}
+
+                <div ref={sentinelRef} className="text-center mt-8 h-4">
+                  {hasMore ? (
+                    <div className="loading-skeleton h-8 w-24 mx-auto" />
+                  ) : filteredProducts.length > 0 ? (
+                    <p className="text-base-content/50 text-sm">All products loaded</p>
+                  ) : null}
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      </main>
+
+      {/* Product Modal */}
+      {modal && (
+        <div
+          className="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col relative animate-modalSlide"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
               onClick={closeModal}
+              className="absolute top-4 right-4 text-base-content/50 hover:text-base-content z-10 bg-white rounded-full p-2 shadow-lg border-none cursor-pointer transition-colors"
+              aria-label="Close modal"
             >
-              <div
-                className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative animate-modalSlide"
-                onClick={e => e.stopPropagation()}
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="flex flex-col md:flex-row h-full overflow-hidden">
+              {/* Left: Image - Fixed on desktop, scrollable on mobile */}
+              <div className="relative md:flex-none w-full md:w-1/2 bg-base-100 md:rounded-l-xl rounded-t-xl md:rounded-t-none">
+                <div className="aspect-square md:h-full w-full overflow-hidden">
+                  <img
+                    src={modal.image}
+                    alt={modal.full_name ?? modal.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Right: Content - Scrollable */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+                <div>
+                  {modal.subtitle && (
+                    <p className="text-sm text-base-content/60 mb-1">{modal.subtitle}</p>
+                  )}
+                  <h2 className="text-2xl md:text-3xl font-bold text-base-content leading-tight">
+                    {modal.name}
+                  </h2>
+                  <p className="text-2xl font-bold text-base-content mt-2">
+                    {formatPrice(modal.price)}
+                  </p>
+                </div>
+
+                <div className="divider" />
+
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-semibold text-base-content">Size</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowSizeGuide(true)}
+                      className="text-sm text-accent underline hover:text-accent/80 bg-transparent border-none cursor-pointer p-0"
+                    >
+                      Sizing Chart
+                    </button>
+                  </div>
+
+                  {oneSize ? (
+                    <div className={`inline-block ${shake ? 'animate-shake' : ''}`}>
+                      <button
+                        disabled={activeStockQty <= 0}
+                        className={`border-2 rounded-lg px-5 py-2.5 font-bold text-sm transition-colors ${
+                          activeStockQty <= 0
+                            ? 'border-base-300 text-base-content/30 bg-base-200 opacity-50 cursor-not-allowed line-through'
+                            : 'border-primary bg-primary text-primary-content'
+                        }`}
+                      >
+                        One Size
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={`flex flex-wrap gap-2 ${shake ? 'animate-shake' : ''}`}>
+                      {SIZES.map(size => {
+                        const stockForSize = getSizeStock(modal, size);
+                        const outOfStock = stockForSize <= 0;
+                        const isSelected = selectedSize === size;
+                        return (
+                          <button
+                            key={size}
+                            disabled={outOfStock}
+                            title={stockLabel[stockLevel(stockForSize)]}
+                            className={`border-2 rounded-lg px-4 py-2.5 font-bold text-sm transition-colors ${
+                              isSelected
+                                ? 'border-primary bg-primary text-primary-content'
+                                : 'border-base-300 text-base-content hover:border-primary'
+                            } ${outOfStock ? 'opacity-30 cursor-not-allowed line-through' : 'cursor-pointer'}`}
+                            onClick={() => !outOfStock && setSelectedSize(size)}
+                          >
+                            {size}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2 mt-3">
+                    <span
+                      className={`badge badge-${activeStockLevel}`}
+                      aria-hidden="true"
+                    ></span>
+                    <span className="text-sm font-medium text-base-content/70">
+                      {stockLabel[activeStockLevel]}
+                    </span>
+                  </div>
+                </div>
+
                 <button
-                  onClick={closeModal}
-                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10 bg-white rounded-full p-1 shadow-lg border-none cursor-pointer"
+                  onClick={handleAddToCart}
+                  className="w-full btn btn-primary py-3 text-base font-medium"
+                  disabled={!chosenSize || (oneSize && activeStockQty <= 0)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                  Add to Cart
+                </button>
+
+                <button
+                  onClick={handleBuyNow}
+                  className="w-full btn btn-secondary py-3 text-base font-medium"
+                  disabled={!chosenSize || (oneSize && activeStockQty <= 0)}
+                >
+                  Buy Now
+                </button>
+
+                <button
+                  onClick={() => {
+                    setCurrentProduct(modal);
+                    setArProduct(modal);
+                    setCurrentModelFile(modal.model_filename);
+                    closeModal();
+                    setShowFaceTracker(true);
+                  }}
+                  className="w-full btn btn-outline flex items-center justify-between"
+                >
+                  <span className="font-medium text-sm">Try It On (AR)</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
 
-                <div className="grid md:grid-cols-2 gap-8 p-8">
-                  <div>
-                    <div className="bg-gray-100 rounded-xl overflow-hidden">
-                      <img
-                        src={modal.image}
-                        alt={modal.full_name ?? modal.name}
-                        className="w-full object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-5">
-                    <div>
-                      {modal.subtitle && (
-                        <p className="text-sm text-gray-500 mb-1">{modal.subtitle}</p>
-                      )}
-                      <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
-                        {modal.name}
-                      </h2>
-                      <p className="text-xl font-bold text-gray-900 mt-2">₱{modal.price}</p>
-                    </div>
-
-                    <div className="border-t border-gray-200" />
-
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-bold text-gray-900">Size</span>
-                        <button
-                          type="button"
-                          onClick={() => setShowSizeGuide(true)}
-                          className="text-sm text-gray-500 underline hover:text-gray-700 bg-transparent border-none cursor-pointer p-0"
-                        >
-                          Sizing Chart
-                        </button>
-                      </div>
-
-                      {oneSize ? (
-                        <div className={shake ? 'shake' : ''}>
-                          <div className="inline-block border-2 border-gray-900 rounded-lg px-5 py-2.5 font-bold text-sm text-gray-900">
-                            One Size
-                          </div>
-                        </div>
-                      ) : (
-                        <div className={`flex flex-wrap gap-2 ${shake ? 'shake' : ''}`}>
-                          {SIZES.map(size => {
-                            const stockForSize = getSizeStock(modal, size);
-                            const outOfStock = stockForSize <= 0;
-                            const isSelected = selectedSize === size;
-                            return (
-                              <button
-                                key={size}
-                                disabled={outOfStock}
-                                title={stockLabel[stockLevel(stockForSize)]}
-                                className={`border-2 rounded-lg px-4 py-2.5 font-bold text-sm transition-colors ${
-                                  isSelected
-                                    ? 'border-gray-900 bg-gray-900 text-white'
-                                    : 'border-gray-300 text-gray-900 hover:border-gray-900'
-                                } ${outOfStock ? 'opacity-30 cursor-not-allowed line-through' : 'cursor-pointer'}`}
-                                onClick={() => !outOfStock && setSelectedSize(size)}
-                              >
-                                {size}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2 mt-3">
-                        <span
-                          className={`status status-glow status-${activeStockLevel}`}
-                          aria-hidden="true"
-                        ></span>
-                        <span className="text-xs font-medium text-gray-500">
-                          {stockLabel[activeStockLevel]}
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleAddToCart}
-                      className="w-full bg-[#00BFFF] text-black py-4 rounded-full font-bold text-base hover:bg-[#00a8e0] transition-colors border-none cursor-pointer"
-                    >
-                      ADD TO CART
-                    </button>
-
-                    <button
-                      onClick={handleBuyNow}
-                      className="w-full bg-gray-900 text-white py-4 rounded-full font-bold text-base hover:bg-black transition-colors border-none cursor-pointer"
-                    >
-                      BUY NOW
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setCurrentProduct(modal);
-
-                        setArProduct(modal);
-                        setCurrentModelFile(modal.model_filename);
-
-                        closeModal();
-                        setShowFaceTracker(true);
-                      }}
-                      className="w-full flex items-center justify-between bg-gray-100 hover:bg-gray-200 rounded-xl px-5 py-4 transition-colors border-none cursor-pointer text-left"
-                    >
-                      <span className="font-bold text-gray-900 text-sm">Try It On</span>
-                      <span className="text-gray-500 text-sm flex items-center gap-1">
-                        See it live
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setCurrentAITryOnProduct(modal);
-                        closeModal();
-                        setShowAITryOn(true);
-                      }}
-                      className="w-full flex items-center justify-between bg-gray-100 hover:bg-gray-200 rounded-xl px-5 py-4 transition-colors border-none cursor-pointer text-left"
-                    >
-                      <span className="font-bold text-gray-900 text-sm">AI Photo Try-On</span>
-                      <span className="text-gray-500 text-sm flex items-center gap-1">
-                        Take a selfie
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </span>
-                    </button>
-
-                    <button
-                      onClick={() => setShowSizeGuide(true)}
-                      className="w-full flex items-center justify-between bg-gray-100 hover:bg-gray-200 rounded-xl px-5 py-4 transition-colors border-none cursor-pointer text-left"
-                    >
-                      <span className="font-bold text-gray-900 text-sm">Size Guide</span>
-                      <span className="text-gray-500 text-sm flex items-center gap-1">
-                        Find your fit
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </span>
-                    </button>
-
-                    <div className="border-t border-gray-200 pt-4">
-                      <button
-                        onClick={() => setDescOpen(o => !o)}
-                        className="w-full flex items-center justify-between bg-transparent border-none cursor-pointer p-0"
-                      >
-                        <span className="font-bold text-gray-900">Description</span>
-                        <svg
-                          className={`w-5 h-5 text-gray-500 transition-transform ${descOpen ? '' : 'rotate-180'}`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M18 15l-6-6-6 6" />
-                        </svg>
-                      </button>
-                      {descOpen && modal.description && (
-                        <p className="text-sm text-gray-600 leading-relaxed mt-3">
-                          {modal.description}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="text-sm text-gray-500 space-y-2">
-                      {features.map(f => (
-                        <p key={f}>✓ {f}</p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {showFaceTracker && (
-            <div
-              className="fixed inset-0 bg-black/70 z-60 flex items-center justify-center p-4"
-              onClick={() => setShowFaceTracker(false)}
-            >
-              <div
-                className="bg-black rounded-2xl max-w-4xl w-full h-[90vh] relative overflow-hidden"
-                onClick={e => e.stopPropagation()}
-              >
-                <div className="w-full h-full  flex items-center justify-center">
-                  <Suspense
-                    fallback={
-                      <div className="w-full h-full">
-                        <div className="try-on-spinner" />
-                      </div>
-                    }
-                  >
-                    <FaceTracker
-                      modelFile={currentModelFile}
-                      product={currentProduct}
-                      onBack={() => {
-                        setShowFaceTracker(false);
-                        setModal(currentProduct);
-                      }}
-                      onClose={() => setShowFaceTracker(false)}
-                    />
-                  </Suspense>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {showSizeGuide && (
-            <div
-              className="fixed inset-0 bg-black/70 z-70 flex items-center justify-center p-4"
-              onClick={() => setShowSizeGuide(false)}
-            >
-              <div
-                className="bg-[#0B0B0C] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative p-6 sm:p-10"
-                onClick={e => e.stopPropagation()}
-              >
                 <button
-                  onClick={() => setShowSizeGuide(false)}
-                  aria-label="Close size guide"
-                  className="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 border-none cursor-pointer z-10"
+                  onClick={() => {
+                    setCurrentAITryOnProduct(modal);
+                    closeModal();
+                    setShowAITryOn(true);
+                  }}
+                  className="w-full btn btn-outline flex items-center justify-between"
                 >
-                  ✕
+                  <span className="font-medium text-sm">AI Photo Try-On</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
-                <SizeGuideCard onSaved={() => setShowSizeGuide(false)} />
+
+                <button
+                  onClick={() => setShowSizeGuide(true)}
+                  className="w-full btn btn-outline flex items-center justify-between"
+                >
+                  <span className="font-medium text-sm">Size Guide</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
+                <div className="divider pt-4" />
+                <button
+                  onClick={() => setDescOpen(o => !o)}
+                  className="w-full flex items-center justify-between bg-transparent border-none cursor-pointer p-0"
+                >
+                  <span className="font-semibold text-base-content">Description</span>
+                  <svg
+                    className={`w-5 h-5 text-base-content/50 transition-transform ${descOpen ? '' : 'rotate-180'}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M18 15l-6-6-6 6" />
+                  </svg>
+                </button>
+                {descOpen && modal.description && (
+                  <p className="text-sm text-base-content/70 leading-relaxed mt-3">
+                    {modal.description}
+                  </p>
+                )}
+
+                <div className="text-sm text-base-content/60 space-y-2 pt-4 border-t border-base-300">
+                  {features.map(f => (
+                    <p key={f} className="flex items-center gap-2">
+                      <svg className="h-4 w-4 text-success flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {f}
+                    </p>
+                  ))}
+                </div>
               </div>
             </div>
-          )}
-
-          {showAITryOn && currentAITryOnProduct && (
-            <Suspense
-              fallback={
-                <div className="fixed inset-0 bg-black/70 z-70 flex items-center justify-center p-4">
-                  <div className="try-on-spinner" />
-                </div>
-              }
-            >
-              <AITryOnModal product={currentAITryOnProduct} onClose={() => setShowAITryOn(false)} />
-            </Suspense>
-          )}
-
-          {showSignInPrompt && <SignInPromptModal onClose={() => setShowSignInPrompt(false)} />}
+          </div>
         </div>
-      </BgImg2>
+      )}
+
+      {/* Face Tracker Modal */}
+      {showFaceTracker && (
+        <div
+          className="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4"
+          onClick={() => setShowFaceTracker(false)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-4xl w-full h-[90vh] relative overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-full h-full flex items-center justify-center">
+              <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="loading-skeleton h-8 w-8 rounded-full" /></div>}>
+                <FaceTracker
+                  modelFile={currentModelFile}
+                  product={currentProduct}
+                  onBack={() => {
+                    setShowFaceTracker(false);
+                    setModal(currentProduct);
+                  }}
+                  onClose={() => setShowFaceTracker(false)}
+                />
+              </Suspense>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Size Guide Modal */}
+      {showSizeGuide && (
+        <div
+          className="fixed inset-0 bg-black/50 z-70 flex items-center justify-center p-4"
+          onClick={() => setShowSizeGuide(false)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowSizeGuide(false)}
+              aria-label="Close size guide"
+              className="absolute top-4 right-4 text-base-content/50 hover:text-base-content bg-base-200 hover:bg-base-300 rounded-full p-2 border-none cursor-pointer z-10 transition-colors"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <SizeGuideCard onSaved={() => setShowSizeGuide(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* AI Try-On Modal */}
+      {showAITryOn && currentAITryOnProduct && (
+        <Suspense
+          fallback={
+            <div className="fixed inset-0 bg-black/50 z-70 flex items-center justify-center p-4">
+              <div className="loading-skeleton h-8 w-8 rounded-full" />
+            </div>
+          }
+        >
+          <AITryOnModal product={currentAITryOnProduct} onClose={() => setShowAITryOn(false)} />
+        </Suspense>
+      )}
+
+      {showSignInPrompt && <SignInPromptModal onClose={() => setShowSignInPrompt(false)} />}
     </>
   );
 }

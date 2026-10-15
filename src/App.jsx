@@ -26,6 +26,7 @@ const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
 const CapMeasurement = lazy(() => import('./pages/CapMeasurement'));
 const FaceTracker = lazy(() => import('./pages/FaceTracker'));
 const SearchResults = lazy(() => import('./pages/SearchResults'));
+const ProductDetail = lazy(() => import('./pages/ProductDetail'));
 
 // Admin pages
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
@@ -35,6 +36,7 @@ const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'));
 const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
+const ButtonPlayground = lazy(() => import('./pages/admin/ButtonPlayground'));
 
 // Global widgets
 import ChatBotWidget from './components/ChatBotWidget';
@@ -82,6 +84,7 @@ function AppInner() {
           <Route path="/more-stuff" element={<MoreStuff />} />
           <Route path="/sizing" element={<CapMeasurement />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/face-tracker" element={<FaceTracker />} />
 
           {/* Auth flow */}
@@ -106,6 +109,7 @@ function AppInner() {
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/payments" element={<AdminPayments />} />
           <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin/buttons" element={<ButtonPlayground />} />
         </Routes>
         </Suspense>
 
