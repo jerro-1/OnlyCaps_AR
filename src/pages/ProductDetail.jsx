@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useContext, lazy, Suspense } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { SessionContext } from '../context/SessionContext';
-import { useContext } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import supabase from '../utils/supabase';
 import { CAP_SIZES } from '../utils/capSizes';
 import { BsArrowLeft, BsCheckCircle } from 'react-icons/bs';
+import { loadFaceTracker, preloadFaceTracker } from '../utils/faceTrackerPreload';
 
 const SIZES = CAP_SIZES;
 const LOW_STOCK = 5;
@@ -27,7 +27,7 @@ const getOverallStock = product => {
 const stockLevel = qty => (qty <= 0 ? 'error' : qty <= LOW_STOCK ? 'warning' : 'success');
 const stockLabel = { success: 'In stock', warning: 'Low stock', error: 'Out of stock' };
 
-const formatPrice = (price) => {
+const formatPrice = price => {
   return new Intl.NumberFormat('en-PH', {
     style: 'currency',
     currency: 'PHP',
@@ -47,6 +47,11 @@ export default function ProductDetail() {
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [images, setImages] = useState([]);
   const [mainImageIndex, setMainImageIndex] = useState(0);
+  const [currentModelFile, setCurrentModelFile] = useState(null);
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const [arProduct, setArProduct] = useState(null);
+  const [showFaceTracker, setShowFaceTracker] = useState(false);
+  const FaceTracker = lazy(loadFaceTracker);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -79,9 +84,8 @@ export default function ProductDetail() {
         if (!error && data) {
           setProduct(data);
           // Build images array
-          const allImages = data.images && data.images.length > 0 
-            ? data.images 
-            : (data.image ? [data.image] : []);
+          const allImages =
+            data.images && data.images.length > 0 ? data.images : data.image ? [data.image] : [];
           setImages(allImages);
           setMainImageIndex(0);
         }
@@ -190,7 +194,7 @@ export default function ProductDetail() {
     );
   }
 
-  const allImages = images.length > 0 ? images : (product.image ? [product.image] : []);
+  const allImages = images.length > 0 ? images : product.image ? [product.image] : [];
 
   return (
     <>
@@ -201,11 +205,20 @@ export default function ProductDetail() {
             {/* Breadcrumb */}
             <nav className="mb-6" aria-label="Breadcrumb">
               <ol className="flex items-center gap-2 text-sm text-base-content/50">
-                <li><Link to="/" className="hover:text-primary transition-colors">Home</Link></li>
+                <li>
+                  <Link to="/" className="hover:text-primary transition-colors">
+                    Home
+                  </Link>
+                </li>
                 <li className="text-base-300">/</li>
                 <li>
-                  <Link to={`/${product.category === 'fitted' ? 'fitted-caps' : product.category}`} className="hover:text-primary transition-colors">
-                    {product.category === 'fitted' ? 'Fitted Caps' : product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+                  <Link
+                    to={`/${product.category === 'fitted' ? 'fitted-caps' : product.category}`}
+                    className="hover:text-primary transition-colors"
+                  >
+                    {product.category === 'fitted'
+                      ? 'Fitted Caps'
+                      : product.category.charAt(0).toUpperCase() + product.category.slice(1)}
                   </Link>
                 </li>
                 <li className="text-base-300">/</li>
@@ -226,8 +239,18 @@ export default function ProductDetail() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-base-300">
-                      <svg className="h-24 w-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z" />
+                      <svg
+                        className="h-24 w-24"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                     </div>
                   )}
@@ -241,11 +264,17 @@ export default function ProductDetail() {
                         key={idx}
                         onClick={() => setMainImageIndex(idx)}
                         className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                          idx === mainImageIndex ? 'border-primary' : 'border-base-300 hover:border-primary/50'
+                          idx === mainImageIndex
+                            ? 'border-primary'
+                            : 'border-base-300 hover:border-primary/50'
                         }`}
                         aria-label={`View image ${idx + 1}`}
                       >
-                        <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                        <img
+                          src={img}
+                          alt={`${product.name} ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
                       </button>
                     ))}
                   </div>
@@ -268,9 +297,7 @@ export default function ProductDetail() {
                   <p className="text-lg text-base-content/60">{product.subtitle}</p>
                 )}
 
-                <p className="text-3xl font-bold text-base-content">
-                  {formatPrice(product.price)}
-                </p>
+                <p className="text-3xl font-bold text-base-content">{formatPrice(product.price)}</p>
 
                 <div className="divider" />
 
@@ -352,13 +379,44 @@ export default function ProductDetail() {
                   >
                     Buy Now
                   </button>
+                  <button
+                    onClick={() => {
+                      setCurrentProduct(product);
+                      setCurrentModelFile(product.model_filename);
+                      setShowFaceTracker(true);
+                      preloadFaceTracker();
+                    }}
+                    className="w-full btn btn-outline flex items-center justify-between"
+                  >
+                    <span className="font-medium text-sm">Try It On (AR)</span>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
                 </div>
 
                 {/* Features */}
                 <div className="text-sm text-base-content/60 space-y-2 pt-4 border-t border-base-300">
-                  {['Authentic licensed cap', 'Official merchandise', 'Free shipping on orders ₱2000+', '30-day returns'].map(f => (
+                  {[
+                    'Authentic licensed cap',
+                    'Official merchandise',
+                    'Free shipping on orders ₱2000+',
+                    '30-day returns',
+                  ].map(f => (
                     <p key={f} className="flex items-center gap-2">
-                      <svg className="h-4 w-4 text-success flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <svg
+                        className="h-4 w-4 text-success flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                       {f}
@@ -382,22 +440,101 @@ export default function ProductDetail() {
       </main>
       <Footer />
 
+      {/* Face Tracker Modal */}
+      {showFaceTracker && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setShowFaceTracker(false)}
+        >
+          <div
+            className="relative h-[90vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-black"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex h-full w-full items-center justify-center">
+              <Suspense
+                fallback={
+                  <div className="flex h-full w-full items-center justify-center">
+                    <div className="loading-skeleton h-8 w-8 rounded-full" />
+                  </div>
+                }
+              >
+                <FaceTracker
+                  modelFile={currentModelFile}
+                  product={currentProduct}
+                  onBack={() => setShowFaceTracker(false)}
+                  onClose={() => setShowFaceTracker(false)}
+                />
+              </Suspense>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showSignInPrompt && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90] px-4" onClick={() => setShowSignInPrompt(false)}>
-          <div className="bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] max-w-sm w-full p-8 text-center relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowSignInPrompt(false)} className="absolute top-4 right-4 text-base-content/50 hover:text-base-content bg-base-200 hover:bg-base-300 rounded-full p-2 border-none cursor-pointer transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90] px-4"
+          onClick={() => setShowSignInPrompt(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] max-w-sm w-full p-8 text-center relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowSignInPrompt(false)}
+              className="absolute top-4 right-4 text-base-content/50 hover:text-base-content bg-base-200 hover:bg-base-300 rounded-full p-2 border-none cursor-pointer transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
-              <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+              <svg
+                className="w-6 h-6 text-primary"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
             </div>
             <h2 className="text-xl font-bold text-base-content mb-2">Sign in to continue</h2>
-            <p className="text-sm text-base-content/60 mb-7">Create an account or sign in to add this to your cart and start shopping.</p>
+            <p className="text-sm text-base-content/60 mb-7">
+              Create an account or sign in to add this to your cart and start shopping.
+            </p>
             <div className="flex flex-col gap-3">
-              <Link to="/login" onClick={() => setShowSignInPrompt(false)} className="w-full btn btn-primary py-3 text-sm font-medium">Sign In</Link>
-              <Link to="/register-email" onClick={() => setShowSignInPrompt(false)} className="w-full btn btn-outline py-3 text-sm font-medium">Create an Account</Link>
+              <Link
+                to="/login"
+                onClick={() => setShowSignInPrompt(false)}
+                className="w-full btn btn-primary py-3 text-sm font-medium"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register-email"
+                onClick={() => setShowSignInPrompt(false)}
+                className="w-full btn btn-outline py-3 text-sm font-medium"
+              >
+                Create an Account
+              </Link>
             </div>
-            <button onClick={() => setShowSignInPrompt(false)} className="mt-5 text-sm text-base-content/50 hover:text-base-content bg-transparent border-none cursor-pointer underline">Maybe Later</button>
+            <button
+              onClick={() => setShowSignInPrompt(false)}
+              className="mt-5 text-sm text-base-content/50 hover:text-base-content bg-transparent border-none cursor-pointer underline"
+            >
+              Maybe Later
+            </button>
           </div>
         </div>
       )}

@@ -109,12 +109,12 @@ export default function CategoryShop({
     setSelectedSize(null);
     setDescOpen(true);
     preloadFaceTracker();
-    document.body.style.overflow = 'hidden';
+    // document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setModal(null);
-    document.body.style.overflow = 'auto';
+    // document.body.style.overflow = 'auto';
   };
 
   const activeStockQty = modal
@@ -173,7 +173,7 @@ export default function CategoryShop({
     });
   };
 
-  const formatPrice = (price) => {
+  const formatPrice = price => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
       currency: 'PHP',
@@ -203,8 +203,18 @@ export default function CategoryShop({
                   to={`/${category === 'fitted' ? 'fitted-caps' : category}`}
                   className="btn btn-ghost text-sm"
                 >
-                  <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                  <svg
+                    className="h-4 w-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                    />
                   </svg>
                   Clear Filter
                 </Link>
@@ -268,7 +278,14 @@ export default function CategoryShop({
               className="absolute top-4 right-4 text-base-content/50 hover:text-base-content z-10 bg-white rounded-full p-2 shadow-lg border-none cursor-pointer transition-colors"
               aria-label="Close modal"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -352,10 +369,7 @@ export default function CategoryShop({
                   )}
 
                   <div className="flex items-center gap-2 mt-3">
-                    <span
-                      className={`badge badge-${activeStockLevel}`}
-                      aria-hidden="true"
-                    ></span>
+                    <span className={`badge badge-${activeStockLevel}`} aria-hidden="true"></span>
                     <span className="text-sm font-medium text-base-content/70">
                       {stockLabel[activeStockLevel]}
                     </span>
@@ -389,7 +403,13 @@ export default function CategoryShop({
                   className="w-full btn btn-outline flex items-center justify-between"
                 >
                   <span className="font-medium text-sm">Try It On (AR)</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -403,7 +423,13 @@ export default function CategoryShop({
                   className="w-full btn btn-outline flex items-center justify-between"
                 >
                   <span className="font-medium text-sm">AI Photo Try-On</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -413,7 +439,13 @@ export default function CategoryShop({
                   className="w-full btn btn-outline flex items-center justify-between"
                 >
                   <span className="font-medium text-sm">Size Guide</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -443,7 +475,13 @@ export default function CategoryShop({
                 <div className="text-sm text-base-content/60 space-y-2 pt-4 border-t border-base-300">
                   {features.map(f => (
                     <p key={f} className="flex items-center gap-2">
-                      <svg className="h-4 w-4 text-success flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <svg
+                        className="h-4 w-4 text-success flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                       {f}
@@ -467,7 +505,13 @@ export default function CategoryShop({
             onClick={e => e.stopPropagation()}
           >
             <div className="w-full h-full flex items-center justify-center">
-              <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="loading-skeleton h-8 w-8 rounded-full" /></div>}>
+              <Suspense
+                fallback={
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="loading-skeleton h-8 w-8 rounded-full" />
+                  </div>
+                }
+              >
                 <FaceTracker
                   modelFile={currentModelFile}
                   product={currentProduct}
@@ -498,7 +542,13 @@ export default function CategoryShop({
               aria-label="Close size guide"
               className="absolute top-4 right-4 text-base-content/50 hover:text-base-content bg-base-200 hover:bg-base-300 rounded-full p-2 border-none cursor-pointer z-10 transition-colors"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>

@@ -16,7 +16,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Helper to check if a path is active
-  const isActive = (path) => {
+  const isActive = path => {
     if (path === '/') return location.pathname === '/';
     if (path === '/#about') return location.hash === '#about' || location.pathname === '/about';
     return location.pathname.startsWith(path);
@@ -32,13 +32,16 @@ export default function Header() {
   };
 
   // Active link styles
-  const activeLinkClass = "text-primary font-semibold relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary";
-  const inactiveLinkClass = "text-base-content hover:text-primary transition-colors";
+  const activeLinkClass =
+    'text-primary font-semibold relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary';
+  const inactiveLinkClass = 'text-base-content hover:text-primary transition-colors';
 
   return (
     <>
       {/* Skip link for accessibility */}
-      <a href="#main-content" className="skip-link">Skip to main content</a>
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
 
       {/* Mobile Menu Overlay */}
       <div
@@ -135,7 +138,7 @@ export default function Header() {
             </Link>
           </li>
         </ul>
-        
+
         <div className="mt-8 pt-8 border-t border-base-300">
           {!session && (
             <Link
@@ -172,7 +175,10 @@ export default function Header() {
 
       {/* Header */}
       <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm border-b border-base-300">
-        <nav className="container h-16 flex items-center justify-between" aria-label="Main navigation">
+        <nav
+          className="container h-16 flex items-center justify-between"
+          aria-label="Main navigation"
+        >
           {/* Mobile Menu Button */}
           <button
             type="button"
@@ -186,11 +192,7 @@ export default function Header() {
           </button>
 
           {/* Logo - Left on mobile, Center on desktop */}
-          <Link
-            to="/"
-            className="flex items-center flex-1 md:flex-none"
-            aria-label="OnlyCaps Home"
-          >
+          <Link to="/" className="flex items-center flex-1 md:flex-none" aria-label="OnlyCaps Home">
             <img
               src="/images/LOGO.webp"
               alt="OnlyCaps"
