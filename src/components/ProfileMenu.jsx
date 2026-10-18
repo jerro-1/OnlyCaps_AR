@@ -1,6 +1,12 @@
 import { useState, useEffect, useContext, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { HiOutlineUser, HiOutlineCog, HiOutlineLogout, HiOutlineShieldCheck, HiOutlineClipboardList } from 'react-icons/hi';
+import {
+  HiOutlineUser,
+  HiOutlineCog,
+  HiOutlineLogout,
+  HiOutlineShieldCheck,
+  HiOutlineClipboardList,
+} from 'react-icons/hi';
 import supabase from '../utils/supabase';
 import { SessionContext } from '../context/SessionContext';
 
@@ -12,13 +18,13 @@ export default function ProfileMenu() {
   const menuRef = useRef(null);
 
   useEffect(() => {
-    const handleClick = (e) => {
+    const handleClick = e => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
-
+  console.log('session in ProfileMenu:', session);
   useEffect(() => {
     if (!session) return;
     supabase
@@ -64,13 +70,14 @@ export default function ProfileMenu() {
 
       <div
         className={`absolute right-0 mt-4 w-64 origin-top-right transition-all duration-150 ${
-          open ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
+          open
+            ? 'opacity-100 scale-100 pointer-events-auto'
+            : 'opacity-0 scale-95 pointer-events-none'
         }`}
       >
         <div className="absolute -top-1.5 right-3 w-3 h-3 bg-[#FAF8F4] border-t border-l border-[#E4DFD3] rotate-45" />
 
         <div className="relative bg-[#FAF8F4] rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.4)] border border-[#E4DFD3] overflow-hidden">
-
           <div className="px-5 py-4 bg-[#F0ECE1] flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#14110D] text-[#FAF8F4] flex items-center justify-center text-xs font-body font-semibold flex-shrink-0">
               {initials}

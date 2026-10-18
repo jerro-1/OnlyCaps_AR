@@ -2,8 +2,9 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import CategoryPreview from '../components/CategoryPreview';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import supabase from '../utils/supabase';
+import { SessionContext } from '../context/SessionContext';
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -18,7 +19,7 @@ export default function Home() {
           .eq('active', true)
           .order('created_at', { ascending: false })
           .limit(8);
-        
+
         if (error) {
           console.error('Error fetching featured products:', error);
         } else if (data) {
@@ -46,7 +47,8 @@ export default function Home() {
                 Premium Fitted Caps
               </h1>
               <p className="text-lg md:text-xl text-base-content/70 mb-8 max-w-2xl mx-auto leading-relaxed">
-                Discover the perfect fit with our curated collection of authentic fitted baseball caps and exclusive designs.
+                Discover the perfect fit with our curated collection of authentic fitted baseball
+                caps and exclusive designs.
               </p>
               <Link
                 to="/fitted-caps"
@@ -54,7 +56,12 @@ export default function Home() {
               >
                 Shop Collection
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
                 </svg>
               </Link>
             </div>
@@ -68,7 +75,9 @@ export default function Home() {
         <section className="section">
           <div className="container">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-3">Shop by Category</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-3">
+                Shop by Category
+              </h2>
               <p className="text-base-content/60">Find your perfect style</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -108,16 +117,20 @@ export default function Home() {
           <div className="container">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-2">Featured Products</h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-2">
+                  Featured Products
+                </h2>
                 <p className="text-base-content/60">Latest drops and best sellers</p>
               </div>
-              <Link
-                to="/fitted-caps"
-                className="btn btn-ghost mt-4 md:mt-0"
-              >
+              <Link to="/fitted-caps" className="btn btn-ghost mt-4 md:mt-0">
                 View All
                 <svg className="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
                 </svg>
               </Link>
             </div>
@@ -141,7 +154,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="product-grid">
-                {featuredProducts.map((product) => (
+                {featuredProducts.map(product => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
@@ -156,26 +169,30 @@ export default function Home() {
         <section className="section">
           <div className="container">
             <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-6">About OnlyCaps</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-6">
+                About OnlyCaps
+              </h2>
               <div className="prose text-base-content/70 space-y-4">
                 <p>
-                  Founded with a simple passion: providing the perfect fitted cap for every head. 
-                  What started as a small collection of premium fitted caps has grown into a curated 
+                  Founded with a simple passion: providing the perfect fitted cap for every head.
+                  What started as a small collection of premium fitted caps has grown into a curated
                   destination for headwear enthusiasts.
                 </p>
                 <p>
-                  We believe that a cap isn't just an accessory—it's a statement. Whether you're 
-                  repping your favorite team, expressing your personal style, or looking for that 
+                  We believe that a cap isn't just an accessory—it's a statement. Whether you're
+                  repping your favorite team, expressing your personal style, or looking for that
                   perfect everyday fit, OnlyCaps delivers quality, authenticity, and style.
                 </p>
               </div>
-              <Link
-                to="/#about"
-                className="mt-8 inline-flex items-center gap-2 btn btn-outline"
-              >
+              <Link to="/#about" className="mt-8 inline-flex items-center gap-2 btn btn-outline">
                 Learn More
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
                 </svg>
               </Link>
             </div>
@@ -186,9 +203,16 @@ export default function Home() {
         <section className="section bg-base-100">
           <div className="container">
             <div className="max-w-md mx-auto text-center">
-              <h3 className="text-2xl md:text-3xl font-bold text-base-content mb-3">Stay Updated</h3>
-              <p className="text-base-content/60 mb-6">Get notified about new drops and exclusive offers.</p>
-              <form className="flex flex-col sm:flex-row gap-3 max-w-sm mx-auto" onSubmit={e => e.preventDefault()}>
+              <h3 className="text-2xl md:text-3xl font-bold text-base-content mb-3">
+                Stay Updated
+              </h3>
+              <p className="text-base-content/60 mb-6">
+                Get notified about new drops and exclusive offers.
+              </p>
+              <form
+                className="flex flex-col sm:flex-row gap-3 max-w-sm mx-auto"
+                onSubmit={e => e.preventDefault()}
+              >
                 <input
                   type="email"
                   placeholder="Enter your email"
@@ -227,7 +251,7 @@ function CategoryLink({ title, description, href, icon }) {
 
 // Simple product card for homepage
 function ProductCard({ product }) {
-  const formatPrice = (price) => {
+  const formatPrice = price => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
       currency: 'PHP',
@@ -251,7 +275,12 @@ function ProductCard({ product }) {
         ) : (
           <div className="w-full h-full flex items-center justify-center text-base-300">
             <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
           </div>
         )}
@@ -265,9 +294,7 @@ function ProductCard({ product }) {
         <h3 className="font-medium text-base-content line-clamp-1 mb-1">
           {product.full_name ?? product.name}
         </h3>
-        <p className="text-lg font-bold text-base-content">
-          {formatPrice(product.price)}
-        </p>
+        <p className="text-lg font-bold text-base-content">{formatPrice(product.price)}</p>
       </div>
     </Link>
   );
