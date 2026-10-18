@@ -12,7 +12,12 @@
 //          'sync' (ask PayMongo whether a pending order was actually paid).
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders, resolveReturnOrigin } from '../_shared/cors.ts';
-import { createCheckoutSession, extractPaid, getCheckoutSession, type LineItem } from '../_shared/paymongo.ts';
+import {
+  createCheckoutSession,
+  extractPaid,
+  getCheckoutSession,
+  type LineItem,
+} from '../_shared/paymongo.ts';
 
 const MAX_LINES = 30;
 const MAX_QTY = 20;
@@ -40,7 +45,12 @@ const ONLINE_PAYMENT_METHOD_TYPES = ['gcash', 'card'];
 const COURIERS = ['jnt', 'lbc', 'lalamove'] as const;
 type Courier = (typeof COURIERS)[number];
 const ZONE_PRICES: Record<string, number> = { metro: 85, luzon: 110, visayas: 140, mindanao: 155 };
-const ZONE_LABELS: Record<string, string> = { metro: 'Metro Manila & nearby', luzon: 'Luzon', visayas: 'Visayas', mindanao: 'Mindanao' };
+const ZONE_LABELS: Record<string, string> = {
+  metro: 'Metro Manila & nearby',
+  luzon: 'Luzon',
+  visayas: 'Visayas',
+  mindanao: 'Mindanao',
+};
 
 function shippingFeeFor(courier: Courier, zone: unknown): number {
   if (courier === 'lalamove') return 0;
@@ -58,12 +68,19 @@ function courierLabel(courier: Courier, zone: unknown): string {
   return zoneLabel ? `${name} (${zoneLabel})` : name;
 }
 
-const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
-  auth: { persistSession: false },
-});
+const admin = createClient(
+  Deno.env.get('SUPABASE_URL')!,
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  {
+    auth: { persistSession: false },
+  },
+);
 
 class HttpError extends Error {
-  constructor(public status: number, message: string) {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
     super(message);
   }
 }
@@ -81,7 +98,8 @@ async function authenticate(req: Request) {
   const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '');
   if (!token) throw new HttpError(401, 'Please sign in to continue.');
   const { data, error } = await admin.auth.getUser(token);
-  if (error || !data.user) throw new HttpError(401, 'Your session has expired. Please sign in again.');
+  if (error || !data.user)
+    throw new HttpError(401, 'Your session has expired. Please sign in again.');
   return data.user;
 }
 
@@ -92,7 +110,7 @@ async function startPaymongoSession(opts: {
   email?: string;
   origin: string;
 }) {
-  const lineItems: LineItem[] = opts.items.map((i) => {
+  const lineItems: LineItem[] = opts.items.map(i => {
     const li: LineItem = {
       name: `${i.name} (${i.size})`.slice(0, 250),
       amount: Math.round(Number(i.price) * 100),
@@ -113,7 +131,11 @@ async function startPaymongoSession(opts: {
     cancelUrl: `${opts.origin}/order-confirmation/${opts.order.id}?payment=cancelled`,
     description: `OnlyCaps order #${opts.order.order_number}`,
     reference: opts.order.order_number,
-    billing: { name: opts.order.full_name, email: opts.email, phone: opts.order.phone ?? undefined },
+    billing: {
+      name: opts.order.full_name,
+      email: opts.email,
+      phone: opts.order.phone ?? undefined,
+    },
     metadata: { order_id: String(opts.order.id) },
   });
 }
@@ -139,20 +161,34 @@ async function createOrder(req: Request, body: any) {
     province: str(s.province, 100),
     postal_code: str(s.postal_code, 12),
   };
-  if (!shipping.full_name || !shipping.address_line1 || !shipping.city || !shipping.province || !shipping.postal_code) {
+  if (
+    !shipping.full_name ||
+    !shipping.address_line1 ||
+    !shipping.city ||
+    !shipping.province ||
+    !shipping.postal_code
+  ) {
     throw new HttpError(400, 'Please complete your delivery information.');
   }
-  if (!/^[0-9+()\-\s]{7,20}$/.test(shipping.phone)) throw new HttpError(400, 'Please enter a valid phone number.');
+  if (!/^[0-9+()\-\s]{7,20}$/.test(shipping.phone))
+    throw new HttpError(400, 'Please enter a valid phone number.');
 
   // ---- validate the cart lines (identifiers + quantity only)
   const rawItems = Array.isArray(body.items) ? body.items : [];
-  if (rawItems.length === 0 || rawItems.length > MAX_LINES) throw new HttpError(400, 'Your cart is empty.');
+  if (rawItems.length === 0 || rawItems.length > MAX_LINES)
+    throw new HttpError(400, 'Your cart is empty.');
 
   const lines = rawItems.map((it: any) => {
     const id = String(it?.id ?? '');
     const size = str(it?.size, 20);
     const quantity = Number(it?.quantity);
-    if (!/^[A-Za-z0-9_-]{1,64}$/.test(id) || !size || !Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QTY) {
+    if (
+      !/^[A-Za-z0-9_-]{1,64}$/.test(id) ||
+      !size ||
+      !Number.isInteger(quantity) ||
+      quantity < 1 ||
+      quantity > MAX_QTY
+    ) {
       throw new HttpError(400, 'One of the items in your cart is invalid.');
     }
     return { id, size, quantity };
@@ -160,10 +196,12 @@ async function createOrder(req: Request, body: any) {
 
   // ---- load authoritative product data
   const textIds = [...new Set(lines.map((l: any) => l.id))] as string[];
-  const numericIds = textIds.filter((id) => /^\d+$/.test(id)).map(Number);
+  const numericIds = textIds.filter(id => /^\d+$/.test(id)).map(Number);
   const [byText, byNumber] = await Promise.all([
     admin.from('products').select('*').in('product_id', textIds),
-    numericIds.length ? admin.from('products').select('*').in('id', numericIds) : Promise.resolve({ data: [], error: null }),
+    numericIds.length
+      ? admin.from('products').select('*').in('id', numericIds)
+      : Promise.resolve({ data: [], error: null }),
   ]);
   if (byText.error || byNumber.error) throw new Error('Could not load products');
   const products = new Map<string, any>();
@@ -172,14 +210,18 @@ async function createOrder(req: Request, body: any) {
     if (p.product_id) products.set(String(p.product_id), p);
   }
 
-  const wanted = new Map<string, number>(); // product row id|size -> total qty (for the stock check)
+  // TEMPORARY TEST: inventory reservation is disabled.
+  // Do not use this configuration for production orders.
   const orderLines = lines.map((l: any) => {
     const p = products.get(l.id);
-    if (!p || p.active === false) throw new HttpError(400, 'An item in your cart is no longer available.');
-    const key = `${p.id}|${l.size}`;
-    wanted.set(key, (wanted.get(key) ?? 0) + l.quantity);
+
+    if (!p || p.active === false) {
+      throw new HttpError(400, 'An item in your cart is no longer available.');
+    }
+
     return { product: p, ...l };
   });
+  // product row id|size -> total qty (for the stock check)
 
   // Reserve stock now, atomically per product/size (a DB row lock via
   // adjust_stock, not just a read-then-compare) so two simultaneous
@@ -191,18 +233,28 @@ async function createOrder(req: Request, body: any) {
       await admin.rpc('adjust_stock', { p_identifier: r.pid, p_size: r.size, p_delta: r.qty });
     }
   };
-  for (const [key, qty] of wanted) {
-    const [pid, size] = key.split('|');
-    const p = [...products.values()].find((x) => String(x.id) === pid);
-    const { error: stockError } = await admin.rpc('adjust_stock', { p_identifier: pid, p_size: size, p_delta: -qty });
-    if (stockError) {
-      await restoreReserved();
-      throw new HttpError(409, `${p.full_name ?? p.name} (${size}) doesn't have enough stock left.`);
-    }
-    reserved.push({ pid, size, qty });
-  }
+  // for (const [key, qty] of wanted) {
+  //   const [pid, size] = key.split('|');
+  //   const p = [...products.values()].find(x => String(x.id) === pid);
+  //   const { error: stockError } = await admin.rpc('adjust_stock', {
+  //     p_identifier: pid,
+  //     p_size: size,
+  //     p_delta: -qty,
+  //   });
+  //   if (stockError) {
+  //     await restoreReserved();
+  //     throw new HttpError(
+  //       409,
+  //       `${p.full_name ?? p.name} (${size}) doesn't have enough stock left.`,
+  //     );
+  //   }
+  //   reserved.push({ pid, size, qty });
+  // }
 
-  const subtotal = orderLines.reduce((sum: number, l: any) => sum + Number(l.product.price) * l.quantity, 0);
+  const subtotal = orderLines.reduce(
+    (sum: number, l: any) => sum + Number(l.product.price) * l.quantity,
+    0,
+  );
   const total = subtotal + shippingFee;
 
   // ---- write the order (service role: browsers can no longer do this)
@@ -222,9 +274,6 @@ async function createOrder(req: Request, body: any) {
     .select('id, order_number, full_name, phone')
     .single();
   if (orderError || !order) {
-    // No order row exists yet for the restock trigger to act on, so give the
-    // reservation back directly.
-    await restoreReserved();
     throw new Error(`Order insert failed: ${orderError?.message}`);
   }
 
@@ -245,7 +294,10 @@ async function createOrder(req: Request, body: any) {
   // needed in this path.
   const cleanup = async () => {
     await admin.from('order_items').delete().eq('order_id', order.id);
-    await admin.from('orders').update({ status: 'cancelled', payment_status: 'failed' }).eq('id', order.id);
+    await admin
+      .from('orders')
+      .update({ status: 'cancelled', payment_status: 'failed' })
+      .eq('id', order.id);
   };
 
   const { error: itemsError } = await admin.from('order_items').insert(itemRows);
@@ -260,7 +312,7 @@ async function createOrder(req: Request, body: any) {
       order_id: order.id,
       user_id: user.id,
       provider: method === 'cod' ? 'cod' : 'paymongo',
-      method,
+      method: method === 'cod' ? 'cod' : 'gcash',
       amount: total,
       status: 'pending',
     })
@@ -292,7 +344,10 @@ async function createOrder(req: Request, body: any) {
     return { order_id: order.id, checkout_url: session.checkoutUrl };
   } catch (err) {
     console.error('PayMongo session failed', err);
-    await admin.from('payments').update({ status: 'failed', failure_reason: 'Could not start PayMongo checkout' }).eq('id', payment.id);
+    await admin
+      .from('payments')
+      .update({ status: 'failed', failure_reason: 'Could not start PayMongo checkout' })
+      .eq('id', payment.id);
     await cleanup();
     throw new HttpError(502, "We couldn't start the payment. Please try again in a moment.");
   }
@@ -304,7 +359,9 @@ async function loadOwnOrder(userId: string, orderId: unknown) {
   if (!Number.isInteger(id)) throw new HttpError(400, 'Invalid order.');
   const { data: order } = await admin
     .from('orders')
-    .select('id, order_number, user_id, full_name, phone, payment_method, payment_status, shipping_fee, status')
+    .select(
+      'id, order_number, user_id, full_name, phone, payment_method, payment_status, shipping_fee, status',
+    )
     .eq('id', id)
     .maybeSingle();
   if (!order || order.user_id !== userId) throw new HttpError(404, 'Order not found.'); // same answer for "not yours"
@@ -340,10 +397,18 @@ async function reconcile(sessionId: string) {
 async function syncOrder(req: Request, body: any) {
   const user = await authenticate(req);
   const { order, payment } = await loadOwnOrder(user.id, body.order_id);
-  if (order.payment_method !== 'cod' && payment?.status === 'pending' && payment.paymongo_checkout_session_id) {
+  if (
+    order.payment_method !== 'cod' &&
+    payment?.status === 'pending' &&
+    payment.paymongo_checkout_session_id
+  ) {
     await reconcile(payment.paymongo_checkout_session_id);
   }
-  const { data: fresh } = await admin.from('orders').select('payment_status').eq('id', order.id).single();
+  const { data: fresh } = await admin
+    .from('orders')
+    .select('payment_status')
+    .eq('id', order.id)
+    .single();
   return { order_id: order.id, payment_status: fresh?.payment_status ?? order.payment_status };
 }
 
@@ -357,10 +422,14 @@ async function payOrder(req: Request, body: any) {
   if (!payment) throw new HttpError(404, 'Payment not found.');
 
   // If the shopper actually paid and we just haven't heard yet, don't charge twice.
-  if (payment.paymongo_checkout_session_id && (await reconcile(payment.paymongo_checkout_session_id))) {
+  if (
+    payment.paymongo_checkout_session_id &&
+    (await reconcile(payment.paymongo_checkout_session_id))
+  ) {
     throw new HttpError(409, 'This order has already been paid.');
   }
-  if (order.payment_status === 'paid' || payment.status === 'paid') throw new HttpError(409, 'This order has already been paid.');
+  if (order.payment_status === 'paid' || payment.status === 'paid')
+    throw new HttpError(409, 'This order has already been paid.');
 
   const { data: items } = await admin
     .from('order_items')
@@ -398,7 +467,7 @@ async function payOrder(req: Request, body: any) {
 }
 
 // ---------------------------------------------------------------- entry
-Deno.serve(async (req) => {
+Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(req) });
   if (req.method !== 'POST') return json(req, { error: 'Method not allowed' }, 405);
 

@@ -1,129 +1,238 @@
-// paymongo-webhook: the ONLY path (besides the verified 'sync' action) that can
-// mark an online payment as paid.
-//
-//   1. Verify the Paymongo-Signature HMAC-SHA256 over "<timestamp>.<raw body>"
-//      with our webhook secret (constant-time compare, 5 minute replay window).
-//   2. Skip events we've already processed (idempotency).
-//   3. Apply the result through record_payment_result(), which re-checks that the
-//      amount paid equals the amount we asked for.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { extractPaid } from '../_shared/paymongo.ts';
 
-const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+if (!supabaseUrl || !serviceRoleKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+const admin = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false },
 });
 
 const TOLERANCE_SECONDS = 300;
 const MAX_BODY = 200_000;
 
-async function hmacHex(secret: string, message: string) {
-  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
-  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('');
+type JsonObject = Record<string, any>;
+
+function reply(status: number, message: string) {
+  return new Response(JSON.stringify({ message }), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
-function timingSafeEqual(a: string, b: string) {
+async function hmacHex(secret: string, message: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+
+  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
+
+  return Array.from(new Uint8Array(signature))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
+
+  let difference = 0;
+
+  for (let i = 0; i < a.length; i++) {
+    difference |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+
+  return difference === 0;
 }
 
-const reply = (status: number, body: string) => new Response(body, { status });
-
-Deno.serve(async (req) => {
-  if (req.method !== 'POST') return reply(405, 'Method not allowed');
+Deno.serve(async (req: Request) => {
+  if (req.method !== 'POST') {
+    return reply(405, 'Method not allowed');
+  }
 
   const secret = Deno.env.get('PAYMONGO_WEBHOOK_SECRET');
+
   if (!secret) {
     console.error('PAYMONGO_WEBHOOK_SECRET is not configured');
-    return reply(500, 'Not configured');
+    return reply(500, 'Webhook secret is not configured');
   }
 
+  // Read the raw body because signature verification depends on its exact bytes.
   const raw = await req.text();
-  if (raw.length > MAX_BODY) return reply(413, 'Too large');
 
-  // ---- 1. signature
-  const parts: Record<string, string> = {};
-  for (const piece of (req.headers.get('paymongo-signature') ?? '').split(',')) {
-    const i = piece.indexOf('=');
-    if (i > 0) parts[piece.slice(0, i).trim()] = piece.slice(i + 1).trim();
+  if (new TextEncoder().encode(raw).length > MAX_BODY) {
+    return reply(413, 'Request body too large');
   }
-  const timestamp = Number(parts.t);
-  if (!timestamp || Math.abs(Date.now() / 1000 - timestamp) > TOLERANCE_SECONDS) return reply(400, 'Stale or missing timestamp');
 
-  let event: any;
+  // 1. Verify the PayMongo signature.
+  const signatureHeader = req.headers.get('paymongo-signature');
+
+  if (!signatureHeader) {
+    return reply(401, 'Missing PayMongo signature');
+  }
+
+  const signatureParts: Record<string, string> = {};
+
+  for (const part of signatureHeader.split(',')) {
+    const separator = part.indexOf('=');
+
+    if (separator > 0) {
+      const key = part.slice(0, separator).trim();
+      const value = part.slice(separator + 1).trim();
+      signatureParts[key] = value;
+    }
+  }
+
+  const timestamp = Number(signatureParts.t);
+
+  if (
+    !Number.isFinite(timestamp) ||
+    timestamp <= 0 ||
+    Math.abs(Date.now() / 1000 - timestamp) > TOLERANCE_SECONDS
+  ) {
+    return reply(400, 'Stale or missing signature timestamp');
+  }
+
+  let event: JsonObject;
+
   try {
     event = JSON.parse(raw);
   } catch {
-    return reply(400, 'Bad JSON');
+    return reply(400, 'Invalid JSON');
   }
 
-  const livemode = event?.data?.attributes?.livemode === true;
-  const expected = livemode ? parts.li : parts.te; // PayMongo sends a test (te) and live (li) signature
-  const actual = await hmacHex(secret, `${parts.t}.${raw}`);
-  if (!expected || !timingSafeEqual(actual, expected)) return reply(401, 'Invalid signature');
+  const attributes = event?.data?.attributes;
+  const eventId = event?.data?.id;
+  const type = attributes?.type;
+  const resource = attributes?.data;
+  const livemode = attributes?.livemode === true;
 
-  // ---- 2. idempotency
-  const eventId: string = event?.data?.id;
-  const type: string = event?.data?.attributes?.type;
-  const resource = event?.data?.attributes?.data;
-  if (!eventId || !type || !resource) return reply(400, 'Malformed event');
+  if (
+    typeof eventId !== 'string' ||
+    typeof type !== 'string' ||
+    !resource ||
+    typeof resource.id !== 'string'
+  ) {
+    return reply(400, 'Malformed webhook event');
+  }
 
-  const { data: seen } = await admin.from('payment_events').select('event_id').eq('event_id', eventId).maybeSingle();
-  if (seen) return reply(200, 'duplicate');
+  // PayMongo uses "te" for test signatures and "li" for live signatures.
+  const expectedSignature = livemode ? signatureParts.li : signatureParts.te;
 
-  // ---- 3. apply
+  if (!expectedSignature) {
+    return reply(401, 'Missing signature for payment mode');
+  }
+
+  const actualSignature = await hmacHex(secret, `${signatureParts.t}.${raw}`);
+
+  if (!timingSafeEqual(actualSignature, expectedSignature)) {
+    return reply(401, 'Invalid webhook signature');
+  }
+
+  // 2. Check whether this event has already been processed.
+  const { data: existingEvent, error: lookupError } = await admin
+    .from('payment_events')
+    .select('event_id')
+    .eq('event_id', eventId)
+    .maybeSingle();
+
+  if (lookupError) {
+    console.error('Could not check payment event:', lookupError.message);
+    return reply(500, 'Could not check event history');
+  }
+
+  if (existingEvent) {
+    return reply(200, 'Duplicate event');
+  }
+
+  // 3. Process supported payment events.
   let result = 'ignored';
-  let summary: Record<string, unknown> = { resource_id: resource.id };
+  let summary: JsonObject = { resource_id: resource.id };
 
   try {
     if (type === 'checkout_session.payment.paid') {
       const paid = extractPaid(resource);
-      if (paid) {
-        const { data, error } = await admin.rpc('record_payment_result', {
-          p_ref: resource.id,
-          p_outcome: 'paid',
-          p_paymongo_payment_id: paid.paymentId,
-          p_payment_intent_id: paid.paymentIntentId,
-          p_amount_centavos: paid.amountCentavos,
-          p_method: paid.method,
-          p_card_brand: paid.cardBrand,
-          p_card_last4: paid.cardLast4,
-        });
-        if (error) throw new Error(error.message);
-        result = data;
-        summary = { ...summary, amount: paid.amountCentavos, method: paid.method, result };
+
+      if (!paid) {
+        throw new Error('Could not extract verified payment details from Checkout Session');
       }
+
+      const { data, error } = await admin.rpc('record_payment_result', {
+        p_ref: resource.id,
+        p_outcome: 'paid',
+        p_paymongo_payment_id: paid.paymentId,
+        p_payment_intent_id: paid.paymentIntentId,
+        p_amount_centavos: paid.amountCentavos,
+        p_card_brand: paid.cardBrand,
+        p_card_last4: paid.cardLast4,
+      });
+
+      if (error) throw new Error(error.message);
+
+      result = String(data);
+      summary = {
+        resource_id: resource.id,
+        amount_centavos: paid.amountCentavos,
+        result,
+      };
     } else if (type === 'payment.failed') {
-      const ref = resource?.attributes?.payment_intent_id;
-      if (ref) {
+      const paymentIntentId = resource?.attributes?.payment_intent_id;
+
+      if (typeof paymentIntentId === 'string' && paymentIntentId) {
+        const failure =
+          resource?.attributes?.failed_message ??
+          resource?.attributes?.failed_code ??
+          'Payment failed';
+
         const { data, error } = await admin.rpc('record_payment_result', {
-          p_ref: ref,
+          p_ref: paymentIntentId,
           p_outcome: 'failed',
-          p_failure: resource?.attributes?.failed_message ?? resource?.attributes?.failed_code ?? 'Payment failed',
+          p_failure: String(failure),
         });
+
         if (error) throw new Error(error.message);
-        result = data;
-        summary = { ...summary, result };
+
+        result = String(data);
       }
-    } else if (type === 'payment.refunded') {
-      const ref = resource?.attributes?.payment_intent_id;
-      if (ref) {
-        const { data, error } = await admin.rpc('record_payment_result', { p_ref: ref, p_outcome: 'refunded' });
-        if (error) throw new Error(error.message);
-        result = data;
-        summary = { ...summary, result };
-      }
+
+      summary = { resource_id: resource.id, result };
     }
-  } catch (err) {
-    console.error('webhook processing failed', type, eventId, err);
-    return reply(500, 'Processing failed'); // PayMongo retries on non-2xx
+
+    // Other event types are intentionally ignored.
+    // Refund events are not handled by this function.
+  } catch (error) {
+    console.error('Webhook processing failed:', {
+      type,
+      eventId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    // Non-2xx tells PayMongo to retry.
+    return reply(500, 'Webhook processing failed');
   }
 
-  await admin
-    .from('payment_events')
-    .upsert({ event_id: eventId, event_type: type, livemode, summary }, { onConflict: 'event_id' });
+  // 4. Record the processed event for duplicate detection.
+  const { error: saveEventError } = await admin.from('payment_events').upsert(
+    {
+      event_id: eventId,
+      event_type: type,
+      livemode,
+      summary,
+    },
+    { onConflict: 'event_id' },
+  );
+
+  if (saveEventError) {
+    console.error('Could not save payment event:', saveEventError.message);
+    return reply(500, 'Could not record processed event');
+  }
 
   return reply(200, result);
 });

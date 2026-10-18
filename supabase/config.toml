@@ -12,3 +12,25 @@ verify_jwt = false
 
 [functions.ai-tryon]
 verify_jwt = false
+
+[functions.create-gcash-payment]
+enabled = true
+verify_jwt = false
+import_map = "./functions/create-gcash-payment/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/create-gcash-payment/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/create-gcash-payment/*.html" ]
+
+[functions.paymongo-webhook2]
+enabled = true
+verify_jwt = false
+import_map = "./functions/paymongo-webhook2/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/paymongo-webhook2/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/paymongo-webhook2/*.html" ]

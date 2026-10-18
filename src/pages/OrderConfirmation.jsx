@@ -39,11 +39,19 @@ export default function OrderConfirmation() {
 
       // Coming back from PayMongo: the webhook usually lands within seconds. Ask the
       // server to double-check with PayMongo (it never trusts this page) and re-read.
-      const waitingOnPayment = current && current.payment_method !== 'cod' && current.payment_status !== 'paid';
-      if (!waitingOnPayment || cancelled) { setConfirming(false); return; }
+      const waitingOnPayment =
+        current && current.payment_method !== 'cod' && current.payment_status !== 'paid';
+      if (!waitingOnPayment || cancelled) {
+        setConfirming(false);
+        return;
+      }
 
       for (let i = 0; i < SYNC_ATTEMPTS && !stop; i++) {
-        try { await callCheckout({ action: 'sync', order_id: current.id }); } catch { /* keep polling */ }
+        try {
+          await callCheckout({ action: 'sync', order_id: current.id });
+        } catch {
+          /* keep polling */
+        }
         current = await loadOrder();
         if (current?.payment_status === 'paid') break;
         await new Promise(r => setTimeout(r, SYNC_DELAY_MS));
@@ -51,7 +59,9 @@ export default function OrderConfirmation() {
       if (!stop) setConfirming(false);
     })();
 
-    return () => { stop = true; };
+    return () => {
+      stop = true;
+    };
   }, [loadOrder, cancelled]);
 
   const payNow = async () => {
@@ -73,9 +83,18 @@ export default function OrderConfirmation() {
   let message = 'You can track its status anytime from your order history.';
   if (order) {
     if (isCod) message = `Please have ₱${order.total} ready in cash when your order arrives.`;
-    else if (isPaid) { title = 'Payment received'; message = 'Thank you! Your order is confirmed and being prepared.'; }
-    else if (confirming) { title = 'Confirming payment'; message = 'Hang tight while we confirm your payment with PayMongo…'; }
-    else { title = 'Payment not completed'; message = cancelled ? 'You left the payment page before finishing. Your order is saved and waiting.' : "We haven't received your payment yet. If you just paid, it can take a minute to show up."; }
+    else if (isPaid) {
+      title = 'Payment received';
+      message = 'Thank you! Your order is confirmed and being prepared.';
+    } else if (confirming) {
+      title = 'Confirming payment';
+      message = 'Hang tight while we confirm your payment with PayMongo…';
+    } else {
+      title = 'Payment not completed';
+      message = cancelled
+        ? 'You left the payment page before finishing. Your order is saved and waiting.'
+        : "We haven't received your payment yet. If you just paid, it can take a minute to show up.";
+    }
   }
 
   return (
@@ -87,16 +106,38 @@ export default function OrderConfirmation() {
             {confirming ? (
               <div className="w-7 h-7 rounded-full border-[3px] border-[#D8D2C4] border-t-[#A9824C] animate-spin" />
             ) : needsPayment ? (
-              <svg className="w-7 h-7 text-[#B8720A]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-7 h-7 text-[#B8720A]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             ) : (
-              <svg className="w-7 h-7 text-[#A9824C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-7 h-7 text-[#A9824C]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             )}
           </div>
-          <h1 className="font-heading text-2xl uppercase tracking-wide text-[#14110D] mb-2">{title}</h1>
+          <h1 className="font-heading text-2xl uppercase tracking-wide text-[#14110D] mb-2">
+            {title}
+          </h1>
           {!loading && order && (
             <>
               <p className="font-body text-sm text-[#6B6558] mb-3">

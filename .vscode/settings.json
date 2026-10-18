@@ -28,5 +28,7 @@
   },
   "emmet.includeLanguages": {
     "javascript": "javascriptreact"
-  }
+  },
+  "deno.enable": true,
+  "deno.enablePaths": ["supabase/functions"]
 }

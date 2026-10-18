@@ -3,7 +3,7 @@
 //   https://your-site.vercel.app,http://localhost:5173
 const ALLOWED = (Deno.env.get('ALLOWED_ORIGINS') ?? '')
   .split(',')
-  .map((s) => s.trim().replace(/\/$/, ''))
+  .map(s => s.trim().replace(/\/$/, ''))
   .filter(Boolean);
 
 export function isAllowedOrigin(origin: string | null): origin is string {
