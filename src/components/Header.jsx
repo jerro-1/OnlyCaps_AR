@@ -229,12 +229,8 @@ export default function Header() {
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/#about"
-                  className={isActive('/#about') ? activeLinkClass : inactiveLinkClass}
-                  aria-current={isActive('/#about') ? 'page' : undefined}
-                >
-                  About
+                <Link to="/" className={isActive('/') ? activeLinkClass : inactiveLinkClass}>
+                  Home
                 </Link>
               </li>
             </ul>

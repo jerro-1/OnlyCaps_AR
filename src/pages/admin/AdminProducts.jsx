@@ -6,7 +6,12 @@ import { CAP_SIZES } from '../../utils/capSizes';
 import supabase from '../../utils/supabase';
 
 const CATEGORIES = ['fitted', 'aframe', 'trucker', 'more'];
-const CATEGORY_LABELS = { fitted: 'Fitted Caps', aframe: 'A-Frames', trucker: 'Trucker', more: 'More Stuff' };
+const CATEGORY_LABELS = {
+  fitted: 'Fitted Caps',
+  aframe: 'A-Frames',
+  trucker: 'Trucker',
+  more: 'More Stuff',
+};
 const SIZES = CAP_SIZES;
 // A-Frames and Truckers are adjustable, one-size-fits-all caps -- they get a
 // single stock count instead of the per-hat-size picker fitted caps use.
@@ -14,8 +19,23 @@ const ONE_SIZE_CATEGORIES = ['aframe', 'trucker'];
 // The .glb files actually present in public/models/CapModels/ -- Try It On
 // loads whichever one a product is assigned, and falls back to the first if
 // a product has none set.
-const MODEL_FILES = ['BLUELA_AFrame.glb', 'DeepBlue_FittedCap.glb', 'FittedCap_BlueLA.glb', 'Pink_FittedCap.glb'];
-const EMPTY_FORM = { name: '', category: 'fitted', price: '', image: '', images: [], description: '', sizes_stock: {}, oneSizeStock: '', model_filename: '' };
+const MODEL_FILES = [
+  'BLUELA_AFrame.glb',
+  'DeepBlue_FittedCap.glb',
+  'FittedCap_BlueLA.glb',
+  'Pink_FittedCap.glb',
+];
+const EMPTY_FORM = {
+  name: '',
+  category: 'fitted',
+  price: '',
+  image: '',
+  images: [],
+  description: '',
+  sizes_stock: {},
+  oneSizeStock: '',
+  model_filename: '',
+};
 const STORAGE_BUCKET = 'product-images';
 
 export default function AdminProducts() {
@@ -29,7 +49,9 @@ export default function AdminProducts() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
 
-  useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -39,55 +61,57 @@ export default function AdminProducts() {
     setLoading(false);
   };
 
-  const resetForm = () => { setForm(EMPTY_FORM); setEditingId(null); setUploadProgress({}); };
+  const resetForm = () => {
+    setForm(EMPTY_FORM);
+    setEditingId(null);
+    setUploadProgress({});
+  };
 
   // Upload multiple images to Supabase Storage
   const uploadImages = useCallback(async (files, productId) => {
     const uploadedUrls = [];
     const progress = {};
-    
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const fileExt = file.name.split('.').pop();
       const fileName = `${productId}/${Date.now()}-${i}.${fileExt}`;
-      
+
       progress[fileName] = 0;
       setUploadProgress({ ...progress });
-      
-      const { data, error } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
-      
+
+      const { data, error } = await supabase.storage.from(STORAGE_BUCKET).upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
       if (error) {
         console.error('Upload error:', error);
         alert(`Failed to upload ${file.name}: ${error.message}`);
         continue;
       }
-      
+
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from(STORAGE_BUCKET)
-        .getPublicUrl(data.path);
-      
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(data.path);
+
       uploadedUrls.push(publicUrl);
       progress[fileName] = 100;
       setUploadProgress({ ...progress });
     }
-    
+
     return uploadedUrls;
   }, []);
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = async e => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
-    
+
     setUploading(true);
     try {
       let productId = editingId;
-      
+
       // If creating new product, we need to save first to get an ID
       if (!editingId) {
         const name = form.name.trim();
@@ -96,17 +120,20 @@ export default function AdminProducts() {
           setUploading(false);
           return;
         }
-        
-        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+        const slug = name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
         productId = `${slug}-${Date.now().toString(36)}`;
       }
-      
+
       const newUrls = await uploadImages(files, productId);
       setForm(prev => ({
         ...prev,
         images: [...prev.images, ...newUrls],
         // Set first image as main image if none set
-        image: prev.image || newUrls[0]
+        image: prev.image || newUrls[0],
       }));
     } finally {
       setUploading(false);
@@ -115,30 +142,26 @@ export default function AdminProducts() {
     }
   };
 
-  const removeImage = (index) => {
+  const removeImage = index => {
     setForm(prev => {
       const newImages = prev.images.filter((_, i) => i !== index);
       return {
         ...prev,
         images: newImages,
-        image: newImages[0] || ''
+        image: newImages[0] || '',
       };
     });
   };
 
-  const setMainImage = (index) => {
+  const setMainImage = index => {
     setForm(prev => ({
       ...prev,
       image: prev.images[index],
-      images: [
-        prev.images[index],
-        ...prev.images.slice(0, index),
-        ...prev.images.slice(index + 1)
-      ]
+      images: [prev.images[index], ...prev.images.slice(0, index), ...prev.images.slice(index + 1)],
     }));
   };
 
-  const toggleSize = (size) => {
+  const toggleSize = size => {
     setForm(prev => {
       const next = { ...prev.sizes_stock };
       if (size in next) {
@@ -157,7 +180,7 @@ export default function AdminProducts() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     const isOneSize = ONE_SIZE_CATEGORIES.includes(form.category);
     const sizesStock = isOneSize ? {} : form.sizes_stock;
@@ -180,7 +203,10 @@ export default function AdminProducts() {
 
     // The storefront cart and orders key on product_id and full_name, so new
     // products must have them (edits keep whatever the row already has).
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
     const newProductFields = {
       product_id: `${slug}-${Date.now().toString(36)}`,
       full_name: name,
@@ -196,7 +222,7 @@ export default function AdminProducts() {
     fetchProducts();
   };
 
-  const handleEdit = (p) => {
+  const handleEdit = p => {
     setForm({
       name: p.name || '',
       category: p.category || 'fitted',
@@ -211,38 +237,41 @@ export default function AdminProducts() {
     setEditingId(p.id);
   };
 
-  const toggleActive = async (p) => {
-  const newActive = !p.active;
+  const toggleActive = async p => {
+    const newActive = !p.active;
 
-  // Update local state immediately so the toggle animates right away,
-  // instead of waiting on the database round-trip and re-fetching everything
-  setProducts(prev => prev.map(x => x.id === p.id ? { ...x, active: newActive } : x));
+    // Update local state immediately so the toggle animates right away,
+    // instead of waiting on the database round-trip and re-fetching everything
+    setProducts(prev => prev.map(x => (x.id === p.id ? { ...x, active: newActive } : x)));
 
-  const { error } = await supabase.from('products').update({ active: newActive }).eq('id', p.id);
+    const { error } = await supabase.from('products').update({ active: newActive }).eq('id', p.id);
 
-  if (error) {
-    alert(error.message);
-    // Revert if the save actually failed, so the UI doesn't lie about what's saved
-    setProducts(prev => prev.map(x => x.id === p.id ? { ...x, active: p.active } : x));
-  }
-};
+    if (error) {
+      alert(error.message);
+      // Revert if the save actually failed, so the UI doesn't lie about what's saved
+      setProducts(prev => prev.map(x => (x.id === p.id ? { ...x, active: p.active } : x)));
+    }
+  };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (!confirm('Delete this product permanently?')) return;
     const { error } = await supabase.from('products').delete().eq('id', id);
     if (error) return alert(error.message);
     fetchProducts();
   };
 
-  const visible = products.filter(p =>
-    (category === 'all' || p.category === category) &&
-    p.name.toLowerCase().includes(search.toLowerCase())
+  const visible = products.filter(
+    p =>
+      (category === 'all' || p.category === category) &&
+      p.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <AdminLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-black uppercase tracking-wide text-[#247ad7]">Product Management</h1>
+        <h1 className="text-3xl font-black uppercase tracking-wide text-[#247ad7]">
+          Product Management
+        </h1>
         <p className="text-sm text-[#1a9ed2]">Curate the items shoppers can buy.</p>
       </div>
 
@@ -273,7 +302,11 @@ export default function AdminProducts() {
                   onChange={e => setForm({ ...form, category: e.target.value })}
                   className="select select-bordered w-full capitalize"
                 >
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {CATEGORIES.map(c => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
                 </select>
               </fieldset>
 
@@ -304,8 +337,13 @@ export default function AdminProducts() {
 
             {/* Multiple Image Upload */}
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Product Photos <span className="text-xs font-normal text-base-content/50 ml-2">(drag & drop or click to upload multiple)</span></legend>
-              
+              <legend className="fieldset-legend">
+                Product Photos{' '}
+                <span className="text-xs font-normal text-base-content/50 ml-2">
+                  (drag & drop or click to upload multiple)
+                </span>
+              </legend>
+
               <div className="mt-2">
                 <label className="cursor-pointer">
                   <input
@@ -316,15 +354,24 @@ export default function AdminProducts() {
                     disabled={uploading}
                     className="file-input file-input-bordered w-full hidden"
                     id="image-upload"
-                    ref={el => { if (el) el.style.display = 'none'; }}
+                    ref={el => {
+                      if (el) el.style.display = 'none';
+                    }}
                   />
                   <div
                     className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-                      uploading ? 'border-base-300 bg-base-200' : 'border-primary hover:border-primary-focus bg-primary/5'
+                      uploading
+                        ? 'border-base-300 bg-base-200'
+                        : 'border-primary hover:border-primary-focus bg-primary/5'
                     }`}
                     onClick={() => document.getElementById('image-upload')?.click()}
-                    onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-primary-focus', 'bg-primary/10'); }}
-                    onDragLeave={e => { e.currentTarget.classList.remove('border-primary-focus', 'bg-primary/10'); }}
+                    onDragOver={e => {
+                      e.preventDefault();
+                      e.currentTarget.classList.add('border-primary-focus', 'bg-primary/10');
+                    }}
+                    onDragLeave={e => {
+                      e.currentTarget.classList.remove('border-primary-focus', 'bg-primary/10');
+                    }}
                     onDrop={e => {
                       e.preventDefault();
                       e.currentTarget.classList.remove('border-primary-focus', 'bg-primary/10');
@@ -338,10 +385,16 @@ export default function AdminProducts() {
                           <span className="font-medium">Uploading images...</span>
                         </div>
                         {Object.entries(uploadProgress).map(([fileName, progress]) => (
-                          <div key={fileName} className="text-xs text-base-content/60 flex items-center gap-2">
+                          <div
+                            key={fileName}
+                            className="text-xs text-base-content/60 flex items-center gap-2"
+                          >
                             <span className="truncate max-w-xs">{fileName.split('/').pop()}</span>
                             <div className="w-32 h-1.5 bg-base-300 rounded-full overflow-hidden">
-                              <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }}></div>
+                              <div
+                                className="h-full bg-primary transition-all"
+                                style={{ width: `${progress}%` }}
+                              ></div>
                             </div>
                             <span>{progress}%</span>
                           </div>
@@ -349,11 +402,25 @@ export default function AdminProducts() {
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <svg className="mx-auto h-10 w-10 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="mx-auto h-10 w-10 text-base-content/30"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
-                        <p className="text-base-content/70">Drag & drop images here, or click to browse</p>
-                        <p className="text-xs text-base-content/50">Supports: JPG, PNG, WebP, GIF • Max 5MB each</p>
+                        <p className="text-base-content/70">
+                          Drag & drop images here, or click to browse
+                        </p>
+                        <p className="text-xs text-base-content/50">
+                          Supports: JPG, PNG, WebP, GIF • Max 5MB each
+                        </p>
                       </div>
                     )}
                   </div>
@@ -363,12 +430,24 @@ export default function AdminProducts() {
               {/* Image Previews */}
               {form.images.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs font-medium text-base-content/50 mb-2">Uploaded Images ({form.images.length})</p>
+                  <p className="text-xs font-medium text-base-content/50 mb-2">
+                    Uploaded Images ({form.images.length})
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {form.images.map((imgUrl, idx) => (
-                      <div key={idx} className="relative group" style={{ width: '80px', height: '80px' }}>
-                        <div className={`w-full h-full rounded-lg overflow-hidden border-2 ${idx === 0 ? 'border-primary' : 'border-base-300'}`}>
-                          <img src={imgUrl} alt={`${form.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                      <div
+                        key={idx}
+                        className="relative group"
+                        style={{ width: '80px', height: '80px' }}
+                      >
+                        <div
+                          className={`w-full h-full rounded-lg overflow-hidden border-2 ${idx === 0 ? 'border-primary' : 'border-base-300'}`}
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`${form.name} ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         {form.images.length > 1 && (
                           <>
@@ -391,7 +470,9 @@ export default function AdminProducts() {
                           </>
                         )}
                         {idx === 0 && (
-                          <span className="absolute bottom-1 left-1 badge badge-xs badge-primary">Main</span>
+                          <span className="absolute bottom-1 left-1 badge badge-xs badge-primary">
+                            Main
+                          </span>
                         )}
                       </div>
                     ))}
@@ -408,7 +489,11 @@ export default function AdminProducts() {
                 className="select select-bordered w-full"
               >
                 <option value="">No 3D model (Try It On uses a default)</option>
-                {MODEL_FILES.map(f => <option key={f} value={f}>{f}</option>)}
+                {MODEL_FILES.map(f => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
               </select>
             </fieldset>
 
@@ -468,7 +553,9 @@ export default function AdminProducts() {
                   })}
                 </div>
                 {Object.keys(form.sizes_stock || {}).length === 0 && (
-                  <p className="text-xs text-base-content/50 mt-2">Click a size above to make it available, then set its stock.</p>
+                  <p className="text-xs text-base-content/50 mt-2">
+                    Click a size above to make it available, then set its stock.
+                  </p>
                 )}
               </fieldset>
             )}
@@ -544,19 +631,27 @@ export default function AdminProducts() {
                           className="toggle toggle-success toggle-sm"
                         />
                         <span
-  className="badge badge-sm font-medium"
-  style={p.active
-    ? { backgroundColor: '#86EFAC', color: '#065F46' }
-    : { backgroundColor: '#FCD34D', color: '#78350F' }
-  }
->
-  {p.active ? 'Active' : 'Inactive'}
-</span>
+                          className="badge badge-sm font-medium"
+                          style={
+                            p.active
+                              ? { backgroundColor: '#86EFAC', color: '#065F46' }
+                              : { backgroundColor: '#FCD34D', color: '#78350F' }
+                          }
+                        >
+                          {p.active ? 'Active' : 'Inactive'}
+                        </span>
                       </label>
                     </td>
                     <td className="text-right space-x-1">
-                      <button onClick={() => handleEdit(p)} className="btn btn-ghost btn-xs">Edit</button>
-                      <button onClick={() => handleDelete(p.id)} className="btn btn-ghost btn-xs text-error">Delete</button>
+                      <button onClick={() => handleEdit(p)} className="btn btn-ghost btn-xs">
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        className="btn btn-ghost btn-xs text-error"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -580,7 +675,8 @@ export default function AdminProducts() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 {/* Image Gallery */}
-                {(viewingProduct.images && viewingProduct.images.length > 0) || viewingProduct.image ? (
+                {(viewingProduct.images && viewingProduct.images.length > 0) ||
+                viewingProduct.image ? (
                   <div className="space-y-3">
                     {/* Main Image */}
                     <div className="bg-base-200 rounded-xl overflow-hidden aspect-square relative">
@@ -590,14 +686,18 @@ export default function AdminProducts() {
                         className="w-full h-full object-contain p-4"
                         id="main-product-image"
                       />
-                      {(viewingProduct.images && viewingProduct.images.length > 1) && (
+                      {viewingProduct.images && viewingProduct.images.length > 1 && (
                         <div className="absolute bottom-2 left-2 right-2 flex justify-center gap-1">
                           {viewingProduct.images.map((img, idx) => (
                             <button
                               key={idx}
-                              onClick={() => document.getElementById('main-product-image').src = img}
+                              onClick={() =>
+                                (document.getElementById('main-product-image').src = img)
+                              }
                               className={`w-2 h-2 rounded-full transition-all ${
-                                img === viewingProduct.image ? 'bg-primary' : 'bg-base-content/50 hover:bg-base-content/80'
+                                img === viewingProduct.image
+                                  ? 'bg-primary'
+                                  : 'bg-base-content/50 hover:bg-base-content/80'
                               }`}
                               aria-label={`View image ${idx + 1}`}
                             />
@@ -605,20 +705,28 @@ export default function AdminProducts() {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Thumbnails */}
-                    {(viewingProduct.images && viewingProduct.images.length > 1) && (
+                    {viewingProduct.images && viewingProduct.images.length > 1 && (
                       <div className="flex gap-2 overflow-x-auto pb-2">
                         {viewingProduct.images.map((img, idx) => (
                           <button
                             key={idx}
-                            onClick={() => document.getElementById('main-product-image').src = img}
+                            onClick={() =>
+                              (document.getElementById('main-product-image').src = img)
+                            }
                             className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                              img === viewingProduct.image ? 'border-primary' : 'border-base-300 hover:border-primary/50'
+                              img === viewingProduct.image
+                                ? 'border-primary'
+                                : 'border-base-300 hover:border-primary/50'
                             }`}
                             aria-label={`Thumbnail ${idx + 1}`}
                           >
-                            <img src={img} alt={`${viewingProduct.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                            <img
+                              src={img}
+                              alt={`${viewingProduct.name} ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
                           </button>
                         ))}
                       </div>
@@ -632,7 +740,9 @@ export default function AdminProducts() {
               </div>
 
               <div>
-                <span className="badge badge-outline capitalize mb-2">{viewingProduct.category}</span>
+                <span className="badge badge-outline capitalize mb-2">
+                  {viewingProduct.category}
+                </span>
                 <h3 className="text-xl font-bold">{viewingProduct.name}</h3>
                 <p className="text-2xl font-bold text-primary mt-1">₱{viewingProduct.price}</p>
 
@@ -672,9 +782,10 @@ export default function AdminProducts() {
                   <span className="font-semibold">{viewingProduct.stock_quantity ?? 0}</span>
                   <span
                     className="badge badge-sm ml-2 font-medium"
-                    style={viewingProduct.active
-                      ? { backgroundColor: '#86EFAC', color: '#065F46' }
-                      : { backgroundColor: '#FCD34D', color: '#78350F' }
+                    style={
+                      viewingProduct.active
+                        ? { backgroundColor: '#86EFAC', color: '#065F46' }
+                        : { backgroundColor: '#FCD34D', color: '#78350F' }
                     }
                   >
                     {viewingProduct.active ? 'Active' : 'Inactive'}
@@ -683,7 +794,10 @@ export default function AdminProducts() {
 
                 <div className="card-actions mt-6">
                   <button
-                    onClick={() => { handleEdit(viewingProduct); setViewingProduct(null); }}
+                    onClick={() => {
+                      handleEdit(viewingProduct);
+                      setViewingProduct(null);
+                    }}
                     className="btn btn-primary btn-sm"
                   >
                     Edit this product
