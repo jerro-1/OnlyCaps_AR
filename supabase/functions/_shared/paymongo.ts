@@ -66,21 +66,54 @@ export async function createCheckoutSession(input: {
 // Extracts what we need from a PayMongo checkout session resource (used by the
 // webhook payload and by the on-demand sync).
 export function extractPaid(session: any) {
-  const payments: any[] = session?.attributes?.payments ?? [];
-  const paid = payments.find((p) => p?.attributes?.status === 'paid');
+  const payments = session?.attributes?.payments ?? [];
+
+  console.log("PayMongo session diagnostic:", {
+    sessionId: session?.id,
+    hasAttributes: !!session?.attributes,
+    paymentsIsArray: Array.isArray(payments),
+    paymentCount: payments.length,
+    paymentDetails: payments.map((p: any) => ({
+      id: p?.id,
+      type: p?.type,
+      hasAttributes: !!p?.attributes,
+      attributesKeys: p?.attributes ? Object.keys(p.attributes) : null,
+      status: p?.attributes?.status,
+      amount: p?.attributes?.amount,
+      currency: p?.attributes?.currency,
+      source: p?.attributes?.source,
+      sourceType: p?.attributes?.source?.type,
+    })),
+  });
+
+  const paid = payments.find(
+    (p: any) => p?.attributes?.status === "paid",
+  );
+
   if (!paid) return null;
+
   const a = paid.attributes;
-  // Since the shopper now picks GCash vs card on PayMongo's own page (we no
-  // longer ask them to pick on ours), this is how we find out which one they
-  // actually used, e.g. to label it correctly in the admin dashboard.
+  const amountCentavos = Number(a.amount);
+
+  if (!Number.isFinite(amountCentavos) || amountCentavos <= 0) {
+    console.warn("extractPaid: invalid amount", {
+      amount: a.amount,
+      paymentId: paid.id,
+      attributesKeys: Object.keys(a),
+    });
+    return null;
+  }
+
   const sourceType = a.source?.type as string | undefined;
+
   return {
     paymentId: paid.id as string,
-    amountCentavos: Number(a.amount),
+    amountCentavos,
     method: sourceType ?? null,
-    cardBrand: (sourceType === 'card' ? a.source?.brand : null) ?? null,
-    cardLast4: (sourceType === 'card' ? a.source?.last4 : null) ?? null,
-    paymentIntentId: (session?.attributes?.payment_intent?.id ?? null) as string | null,
+    cardBrand: (sourceType === "card" ? a.source?.brand : null) ?? null,
+    cardLast4: (sourceType === "card" ? a.source?.last4 : null) ?? null,
+    paymentIntentId:
+      (session?.attributes?.payment_intent?.id ?? null) as string | null,
   };
 }
 

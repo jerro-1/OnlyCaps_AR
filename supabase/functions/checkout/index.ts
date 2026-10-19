@@ -385,7 +385,6 @@ async function reconcile(sessionId: string) {
     p_paymongo_payment_id: paid.paymentId,
     p_payment_intent_id: paid.paymentIntentId,
     p_amount_centavos: paid.amountCentavos,
-    p_method: paid.method,
     p_card_brand: paid.cardBrand,
     p_card_last4: paid.cardLast4,
   });

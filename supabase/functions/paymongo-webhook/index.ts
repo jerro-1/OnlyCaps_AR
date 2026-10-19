@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { extractPaid } from '../_shared/paymongo.ts';
+import { extractPaid, getCheckoutSession } from '../_shared/paymongo.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -144,28 +144,91 @@ Deno.serve(async (req: Request) => {
     .maybeSingle();
 
   if (lookupError) {
-    console.error('Could not check payment event:', lookupError.message);
+    console.error('Could not check payment event:', { eventId, error: lookupError.message });
     return reply(500, 'Could not check event history');
   }
 
   if (existingEvent) {
+    console.log('Duplicate webhook event ignored:', { eventId, type });
     return reply(200, 'Duplicate event');
   }
+
+  console.log('Processing webhook event:', { eventId, type, livemode, resourceId: resource.id });
 
   // 3. Process supported payment events.
   let result = 'ignored';
   let summary: JsonObject = { resource_id: resource.id };
 
   try {
-    if (type === 'checkout_session.payment.paid') {
-      const paid = extractPaid(resource);
+    if (type === 'checkout_session.payment.paid' || type === 'payment.paid') {
+      let paid = null;
+      let ref = resource.id;
+
+      if (type === 'checkout_session.payment.paid') {
+        console.log('extractPaid input:', {
+          resourceId: resource.id,
+          hasAttributes: !!resource?.attributes,
+          payments: resource?.attributes?.payments?.map((p: any) => ({
+            id: p?.id,
+            status: p?.attributes?.status,
+            amount: p?.attributes?.amount,
+            sourceType: p?.attributes?.source?.type,
+          })),
+        });
+        paid = extractPaid(resource);
+        console.log('extractPaid returned:', paid ? { paymentId: paid.paymentId, amountCentavos: paid.amountCentavos, method: paid.method } : null);
+        
+        // Fallback: if webhook payload is incomplete (test mode), fetch full session from PayMongo API
+        if (!paid) {
+          console.log('Webhook payload incomplete, fetching full session from PayMongo API...', { sessionId: resource.id });
+          try {
+            const fullSession = await getCheckoutSession(resource.id);
+            console.log('Fetched full session:', { 
+              sessionId: fullSession?.id, 
+              paymentsCount: fullSession?.attributes?.payments?.length ?? 0,
+              paymentIntentId: fullSession?.attributes?.payment_intent?.id ?? null,
+              paymentsSample: fullSession?.attributes?.payments?.slice(0, 1).map((p: any) => ({
+                id: p?.id,
+                status: p?.attributes?.status,
+                amount: p?.attributes?.amount,
+                sourceType: p?.attributes?.source?.type,
+              })),
+            });
+            paid = extractPaid(fullSession);
+            console.log('extractPaid from full session returned:', paid ? { paymentId: paid.paymentId, amountCentavos: paid.amountCentavos, method: paid.method } : null);
+          } catch (fetchError) {
+            console.error('Failed to fetch full session:', { 
+              error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+              sessionId: resource.id 
+            });
+          }
+        }
+        
+        if (!paid) {
+          throw new Error('Could not extract verified payment details from Checkout Session');
+        }
+      } else if (type === 'payment.paid') {
+        const a = resource?.attributes;
+        if (!a || a.status !== 'paid') {
+          throw new Error('Payment resource not paid');
+        }
+        paid = {
+          paymentId: resource.id,
+          amountCentavos: Number(a.amount),
+          method: a.source?.type ?? null,
+          cardBrand: a.source?.type === 'card' ? (a.source?.brand ?? null) : null,
+          cardLast4: a.source?.type === 'card' ? (a.source?.last4 ?? null) : null,
+          paymentIntentId: a.payment_intent_id ?? null,
+        };
+        ref = a.payment_intent_id ?? resource.id;
+      }
 
       if (!paid) {
-        throw new Error('Could not extract verified payment details from Checkout Session');
+        throw new Error('Could not extract payment details');
       }
 
       const { data, error } = await admin.rpc('record_payment_result', {
-        p_ref: resource.id,
+        p_ref: ref,
         p_outcome: 'paid',
         p_paymongo_payment_id: paid.paymentId,
         p_payment_intent_id: paid.paymentIntentId,
@@ -181,6 +244,7 @@ Deno.serve(async (req: Request) => {
         resource_id: resource.id,
         amount_centavos: paid.amountCentavos,
         result,
+        event_type: type,
       };
     } else if (type === 'payment.failed') {
       const paymentIntentId = resource?.attributes?.payment_intent_id;
@@ -211,12 +275,15 @@ Deno.serve(async (req: Request) => {
     console.error('Webhook processing failed:', {
       type,
       eventId,
+      resourceId: resource.id,
       error: error instanceof Error ? error.message : String(error),
     });
 
     // Non-2xx tells PayMongo to retry.
     return reply(500, 'Webhook processing failed');
   }
+
+  console.log('Webhook processed successfully:', { eventId, type, result });
 
   // 4. Record the processed event for duplicate detection.
   const { error: saveEventError } = await admin.from('payment_events').upsert(
