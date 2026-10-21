@@ -7,7 +7,7 @@ import { IoArrowBackOutline } from 'react-icons/io5';
 import { IoMdClose } from 'react-icons/io';
 
 export default function FaceTracker({ product, modelFile, onClose, onBack }) {
-  const modelUrl = `/models/CapModels/${modelFile || 'AFrame_BlueLA.glb'}`;
+  const modelUrl = `/models/CapModels/${modelFile || 'FittedCap_DeepBlue.glb'}`;
   console.log('loading model:', modelUrl);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
