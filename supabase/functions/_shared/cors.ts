@@ -6,8 +6,12 @@ const ALLOWED = (Deno.env.get('ALLOWED_ORIGINS') ?? '')
   .map(s => s.trim().replace(/\/$/, ''))
   .filter(Boolean);
 
+const PREVIEW_PATTERN = /^https:\/\/only-caps-ar-[a-z0-9-]+-jerro-1s-projects\.vercel\.app$/;
+
 export function isAllowedOrigin(origin: string | null): origin is string {
-  return !!origin && ALLOWED.includes(origin.replace(/\/$/, ''));
+  if (!origin) return false;
+  const clean = origin.replace(/\/$/, '');
+  return ALLOWED.includes(clean) || PREVIEW_PATTERN.test(clean);
 }
 
 export function corsHeaders(req: Request): Record<string, string> {

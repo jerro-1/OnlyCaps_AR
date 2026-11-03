@@ -17,7 +17,6 @@ export default function Home() {
           .from('products')
           .select('id, name, full_name, price, image, category')
           .eq('active', true)
-          .order('created_at', { ascending: false })
           .limit(8);
 
         if (error) {
