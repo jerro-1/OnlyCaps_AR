@@ -5,9 +5,13 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { IoArrowBackOutline } from 'react-icons/io5';
 import { IoMdClose } from 'react-icons/io';
+import supabase from '../utils/supabase';
 
 export default function FaceTracker({ product, modelFile, onClose, onBack }) {
-  const modelUrl = `/models/CapModels/${modelFile || 'FittedCap_DeepBlue.glb'}`;
+  const { data } = supabase.storage
+    .from('Models')
+    .getPublicUrl(`CapModels/${modelFile || 'FittedCap_DeepBlue.glb'}`);
+  const modelUrl = data.publicUrl;
   console.log('loading model:', modelUrl);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
