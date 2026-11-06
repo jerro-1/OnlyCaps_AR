@@ -85,25 +85,25 @@ export default function Home() {
                 title="Fitted Caps"
                 description="Classic fitted styles"
                 href="/fitted-caps"
-                icon="🧢"
+                icon=""
               />
               <CategoryLink
                 title="A-Frames"
                 description="Structured 5-panel caps"
                 href="/a-frames"
-                icon="🏗️"
+                icon=""
               />
               <CategoryLink
                 title="Trucker"
                 description="Mesh back classics"
                 href="/trucker"
-                icon="🚛"
+                icon=""
               />
               <CategoryLink
                 title="More Stuff"
                 description="Accessories & more"
                 href="/more-stuff"
-                icon="📦"
+                icon=""
               />
             </div>
           </div>
