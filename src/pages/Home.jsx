@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import CategoryPreview from '../components/CategoryPreview';
+import RecommendedProducts from '../components/RecommendedProducts';
 import { useEffect, useState, useContext } from 'react';
 import supabase from '../utils/supabase';
 import { SessionContext } from '../context/SessionContext';
@@ -160,6 +161,8 @@ export default function Home() {
             )}
           </div>
         </section>
+
+        <RecommendedProducts />
 
         {/* Divider */}
         <hr className="divider mx-auto max-w-screen-xl" />

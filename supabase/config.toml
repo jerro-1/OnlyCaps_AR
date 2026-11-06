@@ -13,6 +13,9 @@ verify_jwt = false
 [functions.ai-tryon]
 verify_jwt = false
 
+[functions.recommend-products]
+verify_jwt = false
+
 [functions.create-gcash-payment]
 enabled = true
 verify_jwt = false
