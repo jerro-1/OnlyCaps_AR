@@ -161,15 +161,7 @@ async function createOrder(req: Request, body: any) {
     province: str(s.province, 100),
     postal_code: str(s.postal_code, 12),
   };
-  if (
-    !shipping.full_name ||
-    !shipping.address_line1 ||
-    !shipping.city ||
-    !shipping.province ||
-    !shipping.postal_code
-  ) {
-    throw new HttpError(400, 'Please complete your delivery information.');
-  }
+  if (!shipping.full_name) throw new HttpError(400, 'Please enter your name.');
   if (!/^[0-9+()\-\s]{7,20}$/.test(shipping.phone))
     throw new HttpError(400, 'Please enter a valid phone number.');
 

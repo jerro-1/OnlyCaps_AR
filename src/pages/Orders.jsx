@@ -22,7 +22,6 @@ const ORDER_TABS = [
   { value: 'shipped', label: 'Shipped' },
   { value: 'delivered', label: 'Delivered' },
   { value: 'completed', label: 'Completed' },
-  { value: 'cancelled', label: 'Cancelled' },
 ];
 
 // Same green/amber/red status language used everywhere else in the system
@@ -35,7 +34,6 @@ const STATUS_TONE = {
   shipped: { bg: '#DCEAFE', text: '#1D4ED8', dot: '#3B82F6' },
   delivered: { bg: '#DCFCE7', text: '#15803D', dot: '#22C55E' },
   completed: { bg: '#DCFCE7', text: '#15803D', dot: '#22C55E' },
-  cancelled: { bg: '#FBE2E1', text: '#E10600', dot: '#E10600' },
 };
 
 function StatusPill({ status }) {
@@ -188,6 +186,7 @@ const Orders = () => {
           order_items (*)
         `)
         .eq('user_id', session.user.id)
+        .neq('status', 'cancelled')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -205,7 +204,7 @@ const Orders = () => {
     const { error } = await supabase.rpc('cancel_own_order', { p_order_id: order.id });
     setBusyId(null);
     if (error) return alert(error.message);
-    setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'cancelled' } : o));
+    setOrders(prev => prev.filter(o => o.id !== order.id));
   };
 
   const payNow = async (order) => {

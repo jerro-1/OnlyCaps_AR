@@ -4,7 +4,6 @@ import { useCart } from '../context/CartContext';
 import { SessionContext } from '../context/SessionContext';
 import supabase from '../utils/supabase';
 import { callCheckout } from '../utils/checkoutApi';
-import { decryptText } from '../utils/encryption';
 import { COURIERS, ZONES, ZONE_PRICES, LALAMOVE_PICKUP, shippingFeeFor } from '../utils/shipping';
 import { PAYMENT_PROVIDERS } from '../utils/payments';
 
@@ -27,11 +26,10 @@ export default function Checkout() {
   const items = buyNowItem ? [buyNowItem] : cart;
   const subtotal = buyNowItem ? buyNowItem.price * buyNowItem.quantity : cartSubtotal;
 
-  // Delivery fields are uncontrolled (name + defaultValue, read via FormData on
-  // submit); shipping method/zone, street validity and payment method drive
-  // visible UI so they stay as state.
-  const [profileDefaults, setProfileDefaults] = useState({ firstname: '', lastname: '', addressLine1: '' });
-  const [streetValid, setStreetValid] = useState(true);
+  // Contact fields are uncontrolled (name + defaultValue, read via FormData on
+  // submit); shipping method/zone and payment method drive visible UI so they
+  // stay as state.
+  const [profileDefaults, setProfileDefaults] = useState({ firstname: '', lastname: '' });
   const [shippingCourier, setShippingCourier] = useState('');
   const [shippingZone, setShippingZone] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -48,24 +46,17 @@ export default function Checkout() {
 
     supabase
       .from('profiles')
-      .select('firstname, lastname, shipping_address')
+      .select('firstname, lastname')
       .eq('id', session.user.id)
       .single()
-      .then(async ({ data }) => {
-        let addressLine1 = '';
-        if (data?.shipping_address) {
-          try { addressLine1 = await decryptText(data.shipping_address); } catch { /* keep blank */ }
-        }
+      .then(({ data }) => {
         setProfileDefaults({
           firstname: data?.firstname ?? '',
           lastname: data?.lastname ?? '',
-          addressLine1,
         });
         setLoadingProfile(false);
       });
   }, [session, cart.length, buyNowItem, navigate]);
-
-  const validateStreet = (e) => setStreetValid(e.target.value.trim().length > 0);
 
   const selectCourier = (courierId) => {
     setShippingCourier(courierId);
@@ -76,8 +67,6 @@ export default function Checkout() {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget).entries());
 
-    const street = (data.street || '').trim();
-    if (!street) { setStreetValid(false); return; }
     if (!data.shipping_method) { alert('Please choose a shipping method'); return; }
     if (data.shipping_method !== 'lalamove' && !data.shipping_zone) { alert('Please select your shipping zone'); return; }
     if (!data.payment_method) { alert('Please select a payment method'); return; }
@@ -96,11 +85,6 @@ export default function Checkout() {
         shipping: {
           full_name: `${data.firstName || ''} ${data.lastName || ''}`.trim(),
           phone: data.phone || '',
-          address_line1: street,
-          address_line2: data.aptNo || '',
-          city: data.city || '',
-          province: data.province || '',
-          postal_code: data.zipCode || '',
         },
       });
 
@@ -161,34 +145,11 @@ export default function Checkout() {
             <form onSubmit={handleSubmit}>
               <h2 className={`${sectionHeading} mb-4`}>Delivery</h2>
               <div className="space-y-3 mb-8">
-                <select disabled defaultValue="Philippines" className={`${inputClass(false)} text-[#6B6558] cursor-not-allowed`}>
-                  <option>Philippines</option>
-                </select>
-
                 <div className="grid grid-cols-2 gap-3">
                   <input name="firstName" required autoComplete="given-name" placeholder="First name"
                     defaultValue={profileDefaults.firstname} className={inputClass(false)} />
                   <input name="lastName" required autoComplete="family-name" placeholder="Last name"
                     defaultValue={profileDefaults.lastname} className={inputClass(false)} />
-                </div>
-
-                <div>
-                  <input name="street" required autoComplete="address-line1" placeholder="Street, building or landmark"
-                    defaultValue={profileDefaults.addressLine1} onBlur={validateStreet} onChange={validateStreet}
-                    className={inputClass(!streetValid)} />
-                  {!streetValid && (
-                    <p className="font-body text-xs text-[#B8544A] font-medium mt-1">Please enter your street address</p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <input name="aptNo" autoComplete="address-line2" placeholder="Apartment, unit (optional)" className={inputClass(false)} />
-                  <input name="city" required autoComplete="address-level2" placeholder="City" className={inputClass(false)} />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <input name="zipCode" required autoComplete="postal-code" placeholder="Postal code" className={inputClass(false)} />
-                  <input name="province" required autoComplete="address-level1" placeholder="Province" className={inputClass(false)} />
                 </div>
 
                 <input name="phone" type="tel" required autoComplete="tel" placeholder="Phone number" className={inputClass(false)} />
@@ -344,7 +305,7 @@ export default function Checkout() {
               </div>
               <div className="flex justify-between text-[#6B6558]">
                 <span>Shipping</span>
-                <span className="text-[#14110D]">{shippingFee === null ? 'Enter shipping address' : shippingFee === 0 ? 'Paid via Lalamove app' : `₱${shippingFee}`}</span>
+                <span className="text-[#14110D]">{shippingFee === null ? 'Choose a shipping method' : shippingFee === 0 ? 'Paid via Lalamove app' : `₱${shippingFee}`}</span>
               </div>
               <div className="flex justify-between items-baseline pt-3 mt-1 border-t border-[#E4DFD3]">
                 <span className="font-body text-sm font-medium text-[#14110D]">Total</span>
