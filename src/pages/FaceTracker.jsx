@@ -8,10 +8,12 @@ import { IoMdClose } from 'react-icons/io';
 import supabase from '../utils/supabase';
 
 export default function FaceTracker({ product, modelFile, onClose, onBack }) {
-  const { data } = supabase.storage
-    .from('Models')
-    .getPublicUrl(`CapModels/${modelFile || 'FittedCap_DeepBlue.glb'}`);
-  const modelUrl = data.publicUrl;
+  const file = modelFile || 'FittedCap_DeepBlue.glb';
+  const isSupabase = file.startsWith('supabase:');
+  const modelUrl = isSupabase
+    ? supabase.storage.from('Models').getPublicUrl(`CapModels/${file.replace('supabase:', '')}`)
+        .data.publicUrl
+    : `/models/CapModels/${file}`;
   console.log('loading model:', modelUrl);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
